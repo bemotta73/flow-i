@@ -105,6 +105,7 @@ const ImportMix = ({ onComplete }: ImportMixProps) => {
       const workbook = XLSX.read(data, { type: "array" });
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
       const rows = XLSX.utils.sheet_to_json<any[]>(sheet, { header: 1 }) as any[][];
+      console.log("Excel raw (primeiras 3 linhas):", rows.slice(0, 3));
 
       if (rows.length < 2) {
         toast({ title: "Planilha vazia ou sem dados", variant: "destructive" });
@@ -191,7 +192,7 @@ const ImportMix = ({ onComplete }: ImportMixProps) => {
     }
 
     const startIdx = dataStartRow - 1; // Convert to 0-indexed
-    const mapped: MappedItem[] = rawRows.slice(startIdx).map((row) => {
+    const dadosMapeados: MappedItem[] = rawRows.slice(startIdx).map((row) => {
       const get = (field: string) =>
         field in fieldToCol ? String(row[fieldToCol[field]] ?? "").trim() : "";
       const custo = "custo" in fieldToCol ? parseCustoBRL(row[fieldToCol["custo"]]) : 0;
@@ -206,12 +207,16 @@ const ImportMix = ({ onComplete }: ImportMixProps) => {
       };
     }).filter((r) => r.produto && r.custo > 0);
 
-    if (mapped.length === 0) {
+    if (dadosMapeados.length > 0) {
+      console.log("Dados mapeados:", JSON.stringify(dadosMapeados[0]));
+    }
+
+    if (dadosMapeados.length === 0) {
       toast({ title: "Nenhum produto válido encontrado", variant: "destructive" });
       return;
     }
 
-    setPreviewData(mapped);
+    setPreviewData(dadosMapeados);
     setMappingOpen(false);
     setPreviewOpen(true);
   };
@@ -227,27 +232,25 @@ const ImportMix = ({ onComplete }: ImportMixProps) => {
         .or(`produto.eq.${item.produto}${item.part_number ? `,part_number.eq.${item.part_number}` : ""}`)
         .limit(1);
 
+      const payload = [{
+        fornecedor: item.fornecedor || null,
+        part_number: item.part_number || null,
+        produto: item.produto,
+        marca: item.marca || null,
+        custo: item.custo,
+        preco_15: item.preco_15,
+        preco_20: item.preco_20,
+      }];
+
+      console.log("Payload Supabase:", JSON.stringify(payload[0]));
+
       if (existing && existing.length > 0) {
         await supabase.from("lista_mix").update({
-          produto: item.produto,
-          custo: item.custo,
-          preco_15: item.preco_15,
-          preco_20: item.preco_20,
-          marca: item.marca || null,
-          part_number: item.part_number || null,
-          fornecedor: item.fornecedor || null,
+          ...payload[0],
           updated_at: new Date().toISOString(),
         }).eq("id", existing[0].id);
       } else {
-        await supabase.from("lista_mix").insert({
-          produto: item.produto,
-          marca: item.marca || null,
-          part_number: item.part_number || null,
-          custo: item.custo,
-          preco_15: item.preco_15,
-          preco_20: item.preco_20,
-          fornecedor: item.fornecedor || null,
-        });
+        await supabase.from("lista_mix").insert(payload);
       }
     }
 
