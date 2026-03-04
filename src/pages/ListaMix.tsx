@@ -40,6 +40,8 @@ const emptyForm: ProdutoForm = { produto: "", marca: "", part_number: "", custo:
 
 const ListaMix = () => {
   const { toast } = useToast();
+  const { role } = useAuth();
+  const isAdmin = role === "admin";
   const [produtos, setProdutos] = useState<Produto[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -325,42 +327,46 @@ const ListaMix = () => {
           <Table>
             <TableHeader>
               <TableRow className="table-header-dark border-0">
+                {isAdmin && <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Fornecedor</TableHead>}
                 <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Produto</TableHead>
                 <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Marca</TableHead>
+                {isAdmin && <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Custo</TableHead>}
                 <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">PN</TableHead>
-                <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Custo</TableHead>
                 <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">15%</TableHead>
                 <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">20%</TableHead>
-                <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Fornecedor</TableHead>
-                <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Status</TableHead>
-                <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider w-20">Ações</TableHead>
+                {isAdmin && <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Status</TableHead>}
+                {isAdmin && <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider w-20">Ações</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
               {filtered.map((p, idx) => (
                 <TableRow key={p.id} className={`table-row-hover transition-all duration-150 ${idx % 2 === 1 ? "table-row-alt" : ""} ${!p.ativo ? "opacity-50" : ""}`}>
+                  {isAdmin && <TableCell className="text-xs text-muted-foreground">{p.fornecedor}</TableCell>}
                   <TableCell className="text-xs font-medium text-foreground">{p.produto}</TableCell>
                   <TableCell className="text-xs text-muted-foreground">{p.marca}</TableCell>
+                  {isAdmin && <TableCell className="text-xs text-foreground">{formatBRL(p.custo)}</TableCell>}
                   <TableCell className="text-xs text-muted-foreground">{p.part_number}</TableCell>
-                  <TableCell className="text-xs text-foreground">{formatBRL(p.custo)}</TableCell>
                   <TableCell className="text-xs font-medium text-primary">{formatBRL(p.preco_15)}</TableCell>
                   <TableCell className="text-xs font-medium text-success">{formatBRL(p.preco_20)}</TableCell>
-                  <TableCell className="text-xs text-muted-foreground">{p.fornecedor}</TableCell>
-                  <TableCell>
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${p.ativo ? "bg-success/20 text-success" : "bg-destructive/20 text-destructive"}`}>
-                      {p.ativo ? "Ativo" : "Inativo"}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex gap-1">
-                      <button onClick={() => openEdit(p)} className="p-1.5 rounded-lg hover:bg-primary/20 text-primary transition-colors">
-                        <Pencil className="h-3.5 w-3.5" />
-                      </button>
-                      <button onClick={() => toggleAtivo(p)} className={`p-1.5 rounded-lg transition-colors ${p.ativo ? "hover:bg-destructive/20 text-destructive" : "hover:bg-success/20 text-success"}`}>
-                        {p.ativo ? <X className="h-3.5 w-3.5" /> : <Check className="h-3.5 w-3.5" />}
-                      </button>
-                    </div>
-                  </TableCell>
+                  {isAdmin && (
+                    <TableCell>
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${p.ativo ? "bg-success/20 text-success" : "bg-destructive/20 text-destructive"}`}>
+                        {p.ativo ? "Ativo" : "Inativo"}
+                      </span>
+                    </TableCell>
+                  )}
+                  {isAdmin && (
+                    <TableCell>
+                      <div className="flex gap-1">
+                        <button onClick={() => openEdit(p)} className="p-1.5 rounded-lg hover:bg-primary/20 text-primary transition-colors">
+                          <Pencil className="h-3.5 w-3.5" />
+                        </button>
+                        <button onClick={() => toggleAtivo(p)} className={`p-1.5 rounded-lg transition-colors ${p.ativo ? "hover:bg-destructive/20 text-destructive" : "hover:bg-success/20 text-success"}`}>
+                          {p.ativo ? <X className="h-3.5 w-3.5" /> : <Check className="h-3.5 w-3.5" />}
+                        </button>
+                      </div>
+                    </TableCell>
+                  )}
                 </TableRow>
               ))}
             </TableBody>
@@ -432,25 +438,25 @@ const ListaMix = () => {
             <Table>
               <TableHeader>
                 <TableRow className="table-header-dark border-0">
+                  <TableHead className="text-xs text-muted-foreground font-semibold uppercase">Fornecedor</TableHead>
                   <TableHead className="text-xs text-muted-foreground font-semibold uppercase">Produto</TableHead>
                   <TableHead className="text-xs text-muted-foreground font-semibold uppercase">Marca</TableHead>
-                  <TableHead className="text-xs text-muted-foreground font-semibold uppercase">PN</TableHead>
                   <TableHead className="text-xs text-muted-foreground font-semibold uppercase">Custo</TableHead>
+                  <TableHead className="text-xs text-muted-foreground font-semibold uppercase">PN</TableHead>
                   <TableHead className="text-xs text-muted-foreground font-semibold uppercase">15%</TableHead>
                   <TableHead className="text-xs text-muted-foreground font-semibold uppercase">20%</TableHead>
-                  <TableHead className="text-xs text-muted-foreground font-semibold uppercase">Fornecedor</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {importPreview?.map((item, i) => (
                   <TableRow key={i}>
+                    <TableCell className="text-xs text-muted-foreground">{item.fornecedor}</TableCell>
                     <TableCell className="text-xs text-foreground">{item.produto}</TableCell>
                     <TableCell className="text-xs text-muted-foreground">{item.marca}</TableCell>
-                    <TableCell className="text-xs text-muted-foreground">{item.part_number}</TableCell>
                     <TableCell className="text-xs text-foreground">{formatBRL(item.custo)}</TableCell>
+                    <TableCell className="text-xs text-muted-foreground">{item.part_number}</TableCell>
                     <TableCell className="text-xs text-primary">{formatBRL(item.preco_15)}</TableCell>
                     <TableCell className="text-xs text-success">{formatBRL(item.preco_20)}</TableCell>
-                    <TableCell className="text-xs text-muted-foreground">{item.fornecedor}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
