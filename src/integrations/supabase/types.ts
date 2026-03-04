@@ -14,7 +14,81 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      cotacoes: {
+        Row: {
+          canal: string
+          created_at: string
+          custo: number
+          estoque: string | null
+          fornecedor: string | null
+          id: string
+          link: string | null
+          marca: string | null
+          part_number: string | null
+          prazo: string | null
+          preco_15: number
+          preco_20: number
+          produto: string
+          uf: string | null
+          vendedor: string
+        }
+        Insert: {
+          canal: string
+          created_at?: string
+          custo: number
+          estoque?: string | null
+          fornecedor?: string | null
+          id?: string
+          link?: string | null
+          marca?: string | null
+          part_number?: string | null
+          prazo?: string | null
+          preco_15: number
+          preco_20: number
+          produto: string
+          uf?: string | null
+          vendedor: string
+        }
+        Update: {
+          canal?: string
+          created_at?: string
+          custo?: number
+          estoque?: string | null
+          fornecedor?: string | null
+          id?: string
+          link?: string | null
+          marca?: string | null
+          part_number?: string | null
+          prazo?: string | null
+          preco_15?: number
+          preco_20?: number
+          produto?: string
+          uf?: string | null
+          vendedor?: string
+        }
+        Relationships: []
+      }
+      vendedores: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          id: string
+          nome: string
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          id?: string
+          nome: string
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          id?: string
+          nome?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
