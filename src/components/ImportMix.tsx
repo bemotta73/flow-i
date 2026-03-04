@@ -192,7 +192,7 @@ const ImportMix = ({ onComplete }: ImportMixProps) => {
     }
 
     const startIdx = dataStartRow - 1; // Convert to 0-indexed
-    const mapped: MappedItem[] = rawRows.slice(startIdx).map((row) => {
+    const dadosMapeados: MappedItem[] = rawRows.slice(startIdx).map((row) => {
       const get = (field: string) =>
         field in fieldToCol ? String(row[fieldToCol[field]] ?? "").trim() : "";
       const custo = "custo" in fieldToCol ? parseCustoBRL(row[fieldToCol["custo"]]) : 0;
@@ -207,7 +207,11 @@ const ImportMix = ({ onComplete }: ImportMixProps) => {
       };
     }).filter((r) => r.produto && r.custo > 0);
 
-    if (mapped.length === 0) {
+    if (dadosMapeados.length > 0) {
+      console.log("Dados mapeados:", JSON.stringify(dadosMapeados[0]));
+    }
+
+    if (dadosMapeados.length === 0) {
       toast({ title: "Nenhum produto válido encontrado", variant: "destructive" });
       return;
     }
