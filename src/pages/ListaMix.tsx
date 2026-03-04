@@ -188,36 +188,55 @@ const ListaMix = () => {
         return;
       }
 
-      // Try to detect columns from first row
-      const firstRow = (rows[0] || []).map((c: any) => String(c || ""));
-      let fornecedorIdx = detectColumnIndex(firstRow, ["fornecedor"]);
-      let custoIdx = detectColumnIndex(firstRow, ["preco", "precos", "custo", "valor", "price"]);
-      let produtoIdx = detectColumnIndex(firstRow, ["produto", "produtos", "descricao", "item"]);
+      // Find the header row (may not be the first row — skip title rows)
+      let headerRowIdx = -1;
+      let fornecedorIdx = -1, pnIdx = -1, produtoIdx = -1, marcaIdx = -1, custoIdx = -1;
 
-      let startIdx = 0;
-      const hasHeader = fornecedorIdx !== -1 || custoIdx !== -1 || produtoIdx !== -1;
-
-      if (hasHeader) {
-        startIdx = 1;
-      } else {
-        // Fallback: assume A=fornecedor, B=custo, C=produto
-        fornecedorIdx = 0;
-        custoIdx = 1;
-        produtoIdx = 2;
+      for (let i = 0; i < Math.min(rows.length, 10); i++) {
+        const cells = (rows[i] || []).map((c: any) => String(c || ""));
+        const f = detectColumnIndex(cells, ["fornecedor"]);
+        const p = detectColumnIndex(cells, ["produto", "produtos", "descricao", "item"]);
+        const c = detectColumnIndex(cells, ["custo", "preco", "precos", "valor", "price"]);
+        // Need at least 2 matches to consider it a header
+        if ([f, p, c].filter((x) => x !== -1).length >= 2) {
+          headerRowIdx = i;
+          fornecedorIdx = f;
+          produtoIdx = p;
+          custoIdx = c;
+          pnIdx = detectColumnIndex(cells, ["pn", "part_number", "part number", "partnumber", "codigo"]);
+          marcaIdx = detectColumnIndex(cells, ["marca", "fabricante", "brand"]);
+          break;
+        }
       }
 
-      const detectedNames = hasHeader
-        ? `Fornecedor → Col ${String.fromCharCode(65 + fornecedorIdx)}, Custo → Col ${String.fromCharCode(65 + custoIdx)}, Produto → Col ${String.fromCharCode(65 + produtoIdx)}`
-        : "Sem cabeçalho detectado — usando A=Fornecedor, B=Custo, C=Produto";
+      let startIdx: number;
+      if (headerRowIdx !== -1) {
+        startIdx = headerRowIdx + 1;
+      } else {
+        // Fallback: assume A=fornecedor, B=PN, C=produto, D=marca, E=custo
+        fornecedorIdx = 0;
+        pnIdx = 1;
+        produtoIdx = 2;
+        marcaIdx = 3;
+        custoIdx = 4;
+        startIdx = 0;
+      }
+
+      const colLabel = (idx: number) => idx !== -1 ? String.fromCharCode(65 + idx) : "—";
+      const detectedNames = headerRowIdx !== -1
+        ? `Fornecedor→${colLabel(fornecedorIdx)}, PN→${colLabel(pnIdx)}, Produto→${colLabel(produtoIdx)}, Marca→${colLabel(marcaIdx)}, Custo→${colLabel(custoIdx)}`
+        : "Sem cabeçalho — usando A=Fornecedor, B=PN, C=Produto, D=Marca, E=Custo";
 
       const mapped = rows.slice(startIdx).map((row) => {
-        const fornecedor = String(row[fornecedorIdx] ?? "").trim();
-        const custo = parseCustoBRL(row[custoIdx]);
-        const produto = String(row[produtoIdx] ?? "").trim();
+        const fornecedor = fornecedorIdx !== -1 ? String(row[fornecedorIdx] ?? "").trim() : "";
+        const part_number = pnIdx !== -1 ? String(row[pnIdx] ?? "").trim() : "";
+        const produto = produtoIdx !== -1 ? String(row[produtoIdx] ?? "").trim() : "";
+        const marca = marcaIdx !== -1 ? String(row[marcaIdx] ?? "").trim() : "";
+        const custo = custoIdx !== -1 ? parseCustoBRL(row[custoIdx]) : 0;
         return {
           produto,
-          marca: "",
-          part_number: "",
+          marca,
+          part_number,
           custo,
           preco_15: Math.round(custo * 1.15 * 100) / 100,
           preco_20: Math.round(custo * 1.20 * 100) / 100,
