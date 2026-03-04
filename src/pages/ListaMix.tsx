@@ -247,6 +247,7 @@ const ListaMix = () => {
           )}
           {isAdmin && editMode && (
             <>
+              <span className="text-xs text-muted-foreground font-medium">{editableRows.length} produtos</span>
               <Button size="sm" className="gap-2 bg-success text-success-foreground hover:bg-success/90" onClick={saveAllEdits} disabled={savingAll}>
                 <Save className="h-4 w-4" /> {savingAll ? "Salvando..." : "Salvar Alterações"}
               </Button>
