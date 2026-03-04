@@ -10,7 +10,11 @@ import {
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
-import { Search, Plus, Download, Pencil, X, Check, FileSpreadsheet, TableProperties, Save } from "lucide-react";
+import { Search, Plus, Download, Pencil, X, Check, FileSpreadsheet, TableProperties, Save, Trash2 } from "lucide-react";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import * as XLSX from "xlsx";
 import ImportMix from "@/components/ImportMix";
@@ -201,6 +205,12 @@ const ListaMix = () => {
     await supabase.from("lista_mix").update({ ativo: !p.ativo, updated_at: new Date().toISOString() }).eq("id", p.id);
     fetchProdutos();
     toast({ title: p.ativo ? "Produto desativado" : "Produto reativado" });
+  };
+
+  const handleDelete = async (p: Produto) => {
+    await supabase.from("lista_mix").delete().eq("id", p.id);
+    fetchProdutos();
+    toast({ title: "Produto excluído", description: p.produto });
   };
 
   // Export
@@ -394,6 +404,25 @@ const ListaMix = () => {
                         <button onClick={() => toggleAtivo(p)} className={`p-1.5 rounded-lg transition-colors ${p.ativo ? "hover:bg-destructive/20 text-destructive" : "hover:bg-success/20 text-success"}`}>
                           {p.ativo ? <X className="h-3.5 w-3.5" /> : <Check className="h-3.5 w-3.5" />}
                         </button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <button className="p-1.5 rounded-lg hover:bg-destructive/20 text-destructive transition-colors">
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent className="bg-card border-card-border">
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Excluir produto?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Tem certeza que deseja excluir <strong>{p.produto}</strong>? Esta ação não pode ser desfeita.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                              <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={() => handleDelete(p)}>Excluir</AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     </TableCell>
                   )}
