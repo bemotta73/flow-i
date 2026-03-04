@@ -12,6 +12,7 @@ import { MarginPreview } from "./MarginPreview";
 import { EmailPreview } from "./EmailPreview";
 import { ImageUpload, type ExtractedData } from "./ImageUpload";
 import { Save, Eraser, Loader2 } from "lucide-react";
+import type { MargemSelecionada } from "./EmailPreview";
 
 interface Vendedor {
   id: string;
@@ -23,6 +24,7 @@ export function QuotationForm() {
   const [vendedores, setVendedores] = useState<Vendedor[]>([]);
   const [saving, setSaving] = useState(false);
   const [showEmail, setShowEmail] = useState(false);
+  const [margemSelecionada, setMargemSelecionada] = useState<MargemSelecionada>("ambas");
 
   const [form, setForm] = useState({
     vendedor: "",
@@ -81,8 +83,8 @@ export function QuotationForm() {
 
     setSaving(true);
     try {
-      const preco15 = custoNum * 1.15;
-      const preco20 = custoNum * 1.20;
+      const preco15 = custoNum / 0.85;
+      const preco20 = custoNum / 0.80;
 
       const { error } = await supabase.from("cotacoes").insert({
         vendedor: form.vendedor,
@@ -196,6 +198,31 @@ export function QuotationForm() {
         </div>
       </div>
 
+      {/* Margem selector */}
+      <div className="space-y-2">
+        <Label>Margem para o email</Label>
+        <div className="flex gap-2">
+          {([
+            { value: "15" as MargemSelecionada, label: "Apenas 15%" },
+            { value: "20" as MargemSelecionada, label: "Apenas 20%" },
+            { value: "ambas" as MargemSelecionada, label: "Ambas" },
+          ]).map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => { setMargemSelecionada(opt.value); setShowEmail(false); }}
+              className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                margemSelecionada === opt.value
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "bg-muted text-muted-foreground hover:bg-muted/80"
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Buttons */}
       <div className="flex gap-3">
         <Button onClick={handleSave} disabled={saving} className="gap-2">
@@ -209,7 +236,7 @@ export function QuotationForm() {
 
       {/* Email Preview */}
       {showEmail && (
-        <EmailPreview vendedor={form.vendedor} produto={form.produto} custo={custoNum} />
+        <EmailPreview vendedor={form.vendedor} produto={form.produto} custo={custoNum} margem={margemSelecionada} />
       )}
     </div>
   );
