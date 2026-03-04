@@ -1,6 +1,7 @@
 import { FilePlus2, TableProperties, BarChart3 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
+import vorneLogo from "@/assets/vorne-logo.png";
 import {
   Sidebar,
   SidebarContent,
