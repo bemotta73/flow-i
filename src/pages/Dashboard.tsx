@@ -124,7 +124,7 @@ const Dashboard = () => {
 
   const metricCards = [
     { label: "Total Cotações", value: String(totalCotacoes), icon: FileText, color: "text-warning", sub: "" },
-    { label: "Produto Mais Cotado", value: topProduto, icon: Package, color: "text-success", sub: `${topProdutoCount}x` },
+    { label: "Produto Mais Cotado", value: topProduto, icon: Package, color: "text-warning", sub: `${topProdutoCount}x` },
     { label: "Marca Mais Cotada", value: topMarca, icon: Tag, color: "text-warning", sub: `${topMarcaCount}x` },
     { label: "Fornecedor Mais Usado", value: topFornecedor, icon: Truck, color: "text-warning", sub: `${topFornecedorCount}x` },
   ];
