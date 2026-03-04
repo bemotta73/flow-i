@@ -171,10 +171,7 @@ const ListaMix = () => {
           />
         </div>
         <div className="flex gap-2 ml-auto">
-          <Button variant="outline" size="sm" className="gap-2 border-primary text-primary hover:bg-primary/10" onClick={() => fileInputRef.current?.click()}>
-            <Upload className="h-4 w-4" /> Importar Excel
-          </Button>
-          <input ref={fileInputRef} type="file" accept=".xlsx,.xls,.csv" onChange={handleFileSelect} className="hidden" />
+          <ImportMix onComplete={fetchProdutos} />
           <Button variant="outline" size="sm" className="gap-2 border-primary text-primary hover:bg-primary/10" onClick={handleExport} disabled={filtered.length === 0}>
             <Download className="h-4 w-4" /> Exportar Excel
           </Button>
