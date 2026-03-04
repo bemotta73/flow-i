@@ -1,6 +1,7 @@
 import { FilePlus2, TableProperties, BarChart3 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
+import officerLogo from "@/assets/officer-logo.png";
 import {
   Sidebar,
   SidebarContent,
@@ -25,18 +26,11 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon" className="border-r-0">
-      <div className="flex flex-col items-center gap-1 px-4 py-8">
+      <div className="flex flex-col items-center gap-3 px-4 py-8">
         {!collapsed ? (
-          <>
-            <span className="text-xl font-bold tracking-tight text-sidebar-foreground">
-              CotaFlow
-            </span>
-            <span className="text-[10px] text-muted-foreground tracking-widest uppercase">
-              Officer Distribuidora
-            </span>
-          </>
+          <img src={officerLogo} alt="Officer Soluções em Tecnologia" className="h-10 object-contain" />
         ) : (
-          <span className="text-sm font-bold text-primary">CF</span>
+          <img src={officerLogo} alt="Officer" className="h-7 object-contain" />
         )}
       </div>
 
