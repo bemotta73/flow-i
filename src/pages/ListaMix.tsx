@@ -153,6 +153,16 @@ const ListaMix = () => {
   };
 
   // Import
+  const parseCustoBRL = (raw: any): number => {
+    if (typeof raw === "number") return raw;
+    const s = String(raw || "0")
+      .replace(/R\$\s*/g, "")
+      .replace(/\s/g, "")
+      .replace(/\./g, "")
+      .replace(",", ".");
+    return parseFloat(s) || 0;
+  };
+
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -161,29 +171,32 @@ const ListaMix = () => {
       const data = new Uint8Array(evt.target?.result as ArrayBuffer);
       const workbook = XLSX.read(data, { type: "array" });
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
-      const json = XLSX.utils.sheet_to_json<Record<string, any>>(sheet);
+      // Read as array of arrays to handle positional columns (A, B, C)
+      const rows = XLSX.utils.sheet_to_json<any[]>(sheet, { header: 1 });
 
-      const mapped = json.map((row) => {
-        const findCol = (keys: string[]) => {
-          for (const k of Object.keys(row)) {
-            if (keys.some((kk) => k.toLowerCase().includes(kk.toLowerCase()))) return row[k];
-          }
-          return null;
-        };
+      // Skip header row if detected
+      let startIdx = 0;
+      if (rows.length > 0) {
+        const firstRow = rows[0].map((c: any) => String(c || "").toLowerCase());
+        if (firstRow.some((c: string) => ["fornecedor", "preços", "precos", "produtos"].some(k => c.includes(k)))) {
+          startIdx = 1;
+        }
+      }
 
-        const custoRaw = findCol(["custo", "cost", "preço custo", "preco custo", "valor"]);
-        const custo = typeof custoRaw === "number" ? custoRaw : parseFloat(String(custoRaw || "0").replace(/[^\d.,]/g, "").replace(",", ".")) || 0;
-
+      const mapped = rows.slice(startIdx).map((row) => {
+        const fornecedor = String(row[0] || "").trim();
+        const custo = parseCustoBRL(row[1]);
+        const produto = String(row[2] || "").trim();
         return {
-          produto: String(findCol(["produto", "product", "nome", "descrição", "descricao", "item"]) || ""),
-          marca: String(findCol(["marca", "brand"]) || ""),
-          part_number: String(findCol(["part", "pn", "part_number", "partnumber", "código", "codigo", "ref"]) || ""),
+          produto,
+          marca: "",
+          part_number: "",
           custo,
           preco_15: Math.round(custo * 1.15 * 100) / 100,
           preco_20: Math.round(custo * 1.20 * 100) / 100,
-          fornecedor: String(findCol(["fornecedor", "supplier", "forn"]) || ""),
+          fornecedor,
         };
-      }).filter((r) => r.produto.trim());
+      }).filter((r) => r.produto && r.custo > 0);
 
       setImportPreview(mapped);
       setImportDialogOpen(true);
