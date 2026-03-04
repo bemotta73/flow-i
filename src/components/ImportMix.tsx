@@ -232,27 +232,25 @@ const ImportMix = ({ onComplete }: ImportMixProps) => {
         .or(`produto.eq.${item.produto}${item.part_number ? `,part_number.eq.${item.part_number}` : ""}`)
         .limit(1);
 
+      const payload = [{
+        fornecedor: item.fornecedor || null,
+        part_number: item.part_number || null,
+        produto: item.produto,
+        marca: item.marca || null,
+        custo: item.custo,
+        preco_15: item.preco_15,
+        preco_20: item.preco_20,
+      }];
+
+      console.log("Payload Supabase:", JSON.stringify(payload[0]));
+
       if (existing && existing.length > 0) {
         await supabase.from("lista_mix").update({
-          produto: item.produto,
-          custo: item.custo,
-          preco_15: item.preco_15,
-          preco_20: item.preco_20,
-          marca: item.marca || null,
-          part_number: item.part_number || null,
-          fornecedor: item.fornecedor || null,
+          ...payload[0],
           updated_at: new Date().toISOString(),
         }).eq("id", existing[0].id);
       } else {
-        await supabase.from("lista_mix").insert({
-          produto: item.produto,
-          marca: item.marca || null,
-          part_number: item.part_number || null,
-          custo: item.custo,
-          preco_15: item.preco_15,
-          preco_20: item.preco_20,
-          fornecedor: item.fornecedor || null,
-        });
+        await supabase.from("lista_mix").insert(payload);
       }
     }
 
