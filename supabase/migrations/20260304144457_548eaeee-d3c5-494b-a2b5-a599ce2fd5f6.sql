@@ -1,0 +1,1 @@
+ALTER TABLE public.cotacoes ADD COLUMN cotacao_grupo uuid DEFAULT NULL;

@@ -17,6 +17,7 @@ export type Database = {
       cotacoes: {
         Row: {
           canal: string
+          cotacao_grupo: string | null
           created_at: string
           custo: number
           estoque: string | null
@@ -34,6 +35,7 @@ export type Database = {
         }
         Insert: {
           canal: string
+          cotacao_grupo?: string | null
           created_at?: string
           custo: number
           estoque?: string | null
@@ -51,6 +53,7 @@ export type Database = {
         }
         Update: {
           canal?: string
+          cotacao_grupo?: string | null
           created_at?: string
           custo?: number
           estoque?: string | null

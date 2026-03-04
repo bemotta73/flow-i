@@ -7,17 +7,41 @@ import {
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { parseBRLNumber } from "@/lib/format";
+import { parseBRLNumber, formatBRL } from "@/lib/format";
 import { MarginPreview } from "./MarginPreview";
-import { EmailPreview } from "./EmailPreview";
+import { EmailPreview, type MargemSelecionada } from "./EmailPreview";
 import { ImageUpload, type ExtractedData } from "./ImageUpload";
-import { Save, Eraser, Loader2 } from "lucide-react";
-import type { MargemSelecionada } from "./EmailPreview";
+import { Save, Eraser, Loader2, Plus, X } from "lucide-react";
 
 interface Vendedor {
   id: string;
   nome: string;
 }
+
+export interface ProdutoItem {
+  produto: string;
+  marca: string;
+  partNumber: string;
+  custo: string;
+  custoNum: number;
+  estoque: string;
+  fornecedor: string;
+  uf: string;
+  prazo: string;
+  link: string;
+}
+
+const emptyProduto = {
+  produto: "",
+  marca: "",
+  partNumber: "",
+  custo: "",
+  estoque: "",
+  fornecedor: "",
+  uf: "",
+  prazo: "",
+  link: "",
+};
 
 export function QuotationForm() {
   const { toast } = useToast();
@@ -26,19 +50,15 @@ export function QuotationForm() {
   const [showEmail, setShowEmail] = useState(false);
   const [margemSelecionada, setMargemSelecionada] = useState<MargemSelecionada>("ambas");
 
-  const [form, setForm] = useState({
-    vendedor: "",
-    canal: "",
-    produto: "",
-    marca: "",
-    partNumber: "",
-    custo: "",
-    estoque: "",
-    fornecedor: "",
-    uf: "",
-    prazo: "",
-    link: "",
-  });
+  // Shared fields
+  const [vendedor, setVendedor] = useState("");
+  const [canal, setCanal] = useState("");
+
+  // Current product being edited
+  const [form, setForm] = useState({ ...emptyProduto });
+
+  // List of added products
+  const [produtos, setProdutos] = useState<ProdutoItem[]>([]);
 
   useEffect(() => {
     supabase.from("vendedores").select("id, nome").eq("ativo", true).then(({ data }) => {
@@ -67,45 +87,75 @@ export function QuotationForm() {
     setShowEmail(false);
   };
 
-  const handleClear = () => {
-    setForm({
-      vendedor: "", canal: "", produto: "", marca: "", partNumber: "",
-      custo: "", estoque: "", fornecedor: "", uf: "", prazo: "", link: "",
-    });
+  const handleAddProduct = () => {
+    if (!form.produto || !custoNum) {
+      toast({ title: "Campos obrigatórios", description: "Preencha produto e custo para adicionar.", variant: "destructive" });
+      return;
+    }
+    setProdutos((prev) => [...prev, { ...form, custoNum }]);
+    setForm({ ...emptyProduto });
     setShowEmail(false);
   };
 
-  const handleSave = async () => {
-    if (!form.vendedor || !form.canal || !form.produto || !custoNum) {
-      toast({ title: "Campos obrigatórios", description: "Preencha vendedor, canal, produto e custo.", variant: "destructive" });
+  const handleRemoveProduct = (index: number) => {
+    setProdutos((prev) => prev.filter((_, i) => i !== index));
+    setShowEmail(false);
+  };
+
+  const handleClear = () => {
+    setForm({ ...emptyProduto });
+    setProdutos([]);
+    setVendedor("");
+    setCanal("");
+    setShowEmail(false);
+  };
+
+  const handleFinalize = async () => {
+    if (!vendedor || !canal) {
+      toast({ title: "Campos obrigatórios", description: "Preencha vendedor e canal.", variant: "destructive" });
+      return;
+    }
+
+    // Collect all products: listed ones + current form if filled
+    const allProducts = [...produtos];
+    if (form.produto && custoNum) {
+      allProducts.push({ ...form, custoNum });
+    }
+
+    if (allProducts.length === 0) {
+      toast({ title: "Nenhum produto", description: "Adicione pelo menos um produto.", variant: "destructive" });
       return;
     }
 
     setSaving(true);
     try {
-      const preco15 = custoNum / 0.85;
-      const preco20 = custoNum / 0.80;
+      const cotacaoGrupo = crypto.randomUUID();
 
-      const { error } = await supabase.from("cotacoes").insert({
-        vendedor: form.vendedor,
-        canal: form.canal,
-        produto: form.produto,
-        marca: form.marca,
-        part_number: form.partNumber,
-        custo: custoNum,
-        preco_15: preco15,
-        preco_20: preco20,
-        estoque: form.estoque,
-        fornecedor: form.fornecedor,
-        uf: form.uf,
-        prazo: form.prazo,
-        link: form.link || null,
-      });
+      const rows = allProducts.map((p) => ({
+        vendedor,
+        canal,
+        produto: p.produto,
+        marca: p.marca || null,
+        part_number: p.partNumber || null,
+        custo: p.custoNum,
+        preco_15: p.custoNum / 0.85,
+        preco_20: p.custoNum / 0.80,
+        estoque: p.estoque || null,
+        fornecedor: p.fornecedor || null,
+        uf: p.uf || null,
+        prazo: p.prazo || null,
+        link: p.link || null,
+        cotacao_grupo: cotacaoGrupo,
+      }));
 
+      const { error } = await supabase.from("cotacoes").insert(rows);
       if (error) throw error;
 
+      // Update state for email preview
+      setProdutos(allProducts.map((p) => ({ ...p, custoNum: p.custoNum })));
+      setForm({ ...emptyProduto });
       setShowEmail(true);
-      toast({ title: "Cotação salva!", description: "Email gerado com sucesso." });
+      toast({ title: "Cotação salva!", description: `${allProducts.length} produto(s) salvo(s) com sucesso.` });
     } catch (err: any) {
       toast({ title: "Erro ao salvar", description: err.message, variant: "destructive" });
     } finally {
@@ -113,16 +163,21 @@ export function QuotationForm() {
     }
   };
 
+  // For email preview: all products
+  const allProductsForEmail = showEmail
+    ? (produtos.length > 0 ? produtos : (form.produto && custoNum ? [{ ...form, custoNum }] : []))
+    : [];
+
   return (
     <div className="space-y-6">
       {/* Image Upload */}
       <ImageUpload onExtracted={handleExtracted} />
 
-      {/* Form */}
+      {/* Shared fields: Vendedor + Canal */}
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <Label>Vendedor *</Label>
-          <Select value={form.vendedor} onValueChange={(v) => update("vendedor", v)}>
+          <Select value={vendedor} onValueChange={(v) => { setVendedor(v); setShowEmail(false); }}>
             <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
             <SelectContent>
               {vendedores.map((v) => (
@@ -133,8 +188,8 @@ export function QuotationForm() {
         </div>
 
         <div className="space-y-2">
-          <Label>Canal</Label>
-          <Select value={form.canal} onValueChange={(v) => update("canal", v)}>
+          <Label>Canal *</Label>
+          <Select value={canal} onValueChange={(v) => { setCanal(v); setShowEmail(false); }}>
             <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="Email">Email</SelectItem>
@@ -144,58 +199,86 @@ export function QuotationForm() {
         </div>
       </div>
 
-      <div className="space-y-2">
-        <Label>Produto *</Label>
-        <Input
-          value={form.produto}
-          onChange={(e) => update("produto", e.target.value)}
-          placeholder="Nome completo do produto"
-          className="focus-visible:ring-primary"
-        />
-      </div>
+      {/* Product list */}
+      {produtos.length > 0 && (
+        <div className="space-y-2">
+          <Label className="text-sm font-semibold">Produtos adicionados ({produtos.length})</Label>
+          <div className="space-y-2">
+            {produtos.map((p, i) => (
+              <div key={i} className="flex items-center gap-3 rounded-lg border bg-muted/30 p-3">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{p.produto}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {p.marca && `${p.marca} · `}Custo: {formatBRL(p.custoNum)} · 15%: {formatBRL(p.custoNum / 0.85)} · 20%: {formatBRL(p.custoNum / 0.80)}
+                  </p>
+                </div>
+                <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => handleRemoveProduct(i)}>
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        <div className="space-y-2">
-          <Label>Marca</Label>
-          <Input value={form.marca} onChange={(e) => update("marca", e.target.value)} placeholder="Marca" className="focus-visible:ring-primary" />
-        </div>
-        <div className="space-y-2">
-          <Label>Part Number</Label>
-          <Input value={form.partNumber} onChange={(e) => update("partNumber", e.target.value)} placeholder="PN" className="focus-visible:ring-primary" />
-        </div>
-        <div className="space-y-2">
-          <Label>Custo R$ *</Label>
-          <Input value={form.custo} onChange={(e) => update("custo", e.target.value)} placeholder="568,03" className="focus-visible:ring-primary" />
-        </div>
-      </div>
+      {/* Product form fields */}
+      <div className="rounded-lg border p-4 space-y-4 bg-card">
+        <p className="text-sm font-semibold text-muted-foreground">
+          {produtos.length > 0 ? "Adicionar próximo produto" : "Dados do produto"}
+        </p>
 
-      {/* Margin Preview */}
-      <MarginPreview custo={custoNum} />
+        <div className="space-y-2">
+          <Label>Produto *</Label>
+          <Input value={form.produto} onChange={(e) => update("produto", e.target.value)} placeholder="Nome completo do produto" className="focus-visible:ring-primary" />
+        </div>
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        <div className="space-y-2">
-          <Label>Estoque</Label>
-          <Input value={form.estoque} onChange={(e) => update("estoque", e.target.value)} placeholder="Quantidade" className="focus-visible:ring-primary" />
+        <div className="grid gap-4 sm:grid-cols-3">
+          <div className="space-y-2">
+            <Label>Marca</Label>
+            <Input value={form.marca} onChange={(e) => update("marca", e.target.value)} placeholder="Marca" className="focus-visible:ring-primary" />
+          </div>
+          <div className="space-y-2">
+            <Label>Part Number</Label>
+            <Input value={form.partNumber} onChange={(e) => update("partNumber", e.target.value)} placeholder="PN" className="focus-visible:ring-primary" />
+          </div>
+          <div className="space-y-2">
+            <Label>Custo R$ *</Label>
+            <Input value={form.custo} onChange={(e) => update("custo", e.target.value)} placeholder="568,03" className="focus-visible:ring-primary" />
+          </div>
         </div>
-        <div className="space-y-2">
-          <Label>Fornecedor</Label>
-          <Input value={form.fornecedor} onChange={(e) => update("fornecedor", e.target.value)} placeholder="Distribuidor" className="focus-visible:ring-primary" />
-        </div>
-        <div className="space-y-2">
-          <Label>UF</Label>
-          <Input value={form.uf} onChange={(e) => update("uf", e.target.value)} placeholder="SP" className="focus-visible:ring-primary" />
-        </div>
-      </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-2">
-          <Label>Prazo</Label>
-          <Input value={form.prazo} onChange={(e) => update("prazo", e.target.value)} placeholder="Ex: 10-15 dias úteis" className="focus-visible:ring-primary" />
+        <MarginPreview custo={custoNum} />
+
+        <div className="grid gap-4 sm:grid-cols-3">
+          <div className="space-y-2">
+            <Label>Estoque</Label>
+            <Input value={form.estoque} onChange={(e) => update("estoque", e.target.value)} placeholder="Quantidade" className="focus-visible:ring-primary" />
+          </div>
+          <div className="space-y-2">
+            <Label>Fornecedor</Label>
+            <Input value={form.fornecedor} onChange={(e) => update("fornecedor", e.target.value)} placeholder="Distribuidor" className="focus-visible:ring-primary" />
+          </div>
+          <div className="space-y-2">
+            <Label>UF</Label>
+            <Input value={form.uf} onChange={(e) => update("uf", e.target.value)} placeholder="SP" className="focus-visible:ring-primary" />
+          </div>
         </div>
-        <div className="space-y-2">
-          <Label>Link do Produto</Label>
-          <Input value={form.link} onChange={(e) => update("link", e.target.value)} placeholder="URL (opcional)" className="focus-visible:ring-primary" />
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label>Prazo</Label>
+            <Input value={form.prazo} onChange={(e) => update("prazo", e.target.value)} placeholder="Ex: 10-15 dias úteis" className="focus-visible:ring-primary" />
+          </div>
+          <div className="space-y-2">
+            <Label>Link do Produto</Label>
+            <Input value={form.link} onChange={(e) => update("link", e.target.value)} placeholder="URL (opcional)" className="focus-visible:ring-primary" />
+          </div>
         </div>
+
+        {/* Add product button */}
+        <Button type="button" variant="outline" onClick={handleAddProduct} className="gap-2">
+          <Plus className="h-4 w-4" /> Adicionar Produto
+        </Button>
       </div>
 
       {/* Margem selector */}
@@ -223,20 +306,20 @@ export function QuotationForm() {
         </div>
       </div>
 
-      {/* Buttons */}
+      {/* Action buttons */}
       <div className="flex gap-3">
-        <Button onClick={handleSave} disabled={saving} className="gap-2">
+        <Button onClick={handleFinalize} disabled={saving} className="gap-2">
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-          Salvar e Gerar Email
+          Finalizar e Gerar Email
         </Button>
         <Button onClick={handleClear} variant="outline" className="gap-2">
-          <Eraser className="h-4 w-4" /> Limpar
+          <Eraser className="h-4 w-4" /> Limpar Tudo
         </Button>
       </div>
 
       {/* Email Preview */}
-      {showEmail && (
-        <EmailPreview vendedor={form.vendedor} produto={form.produto} custo={custoNum} margem={margemSelecionada} />
+      {showEmail && allProductsForEmail.length > 0 && (
+        <EmailPreview vendedor={vendedor} produtos={allProductsForEmail} margem={margemSelecionada} />
       )}
     </div>
   );
