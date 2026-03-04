@@ -74,8 +74,8 @@ export function QuotationForm() {
   };
 
   const handleSave = async () => {
-    if (!form.vendedor || !form.produto || !custoNum) {
-      toast({ title: "Campos obrigatórios", description: "Preencha vendedor, produto e custo.", variant: "destructive" });
+    if (!form.vendedor || !form.canal || !form.produto || !custoNum) {
+      toast({ title: "Campos obrigatórios", description: "Preencha vendedor, canal, produto e custo.", variant: "destructive" });
       return;
     }
 
