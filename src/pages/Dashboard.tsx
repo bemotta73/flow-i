@@ -12,7 +12,9 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, LineChart, Line, CartesianGrid,
 } from "recharts";
-import { FileText, Package, Tag, Truck } from "lucide-react";
+import { FileText, Package, Tag, Truck, Download } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { exportCotacoesToExcel } from "@/lib/exportExcel";
 
 interface Cotacao {
   id: string;
@@ -132,7 +134,7 @@ const Dashboard = () => {
   return (
     <div className="animate-fade-in-up">
       <div className="mb-8">
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">Dashboard</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-warning">Dashboard</h1>
       </div>
 
       {/* Filters */}
@@ -166,6 +168,15 @@ const Dashboard = () => {
             ))}
           </SelectContent>
         </Select>
+        <Button
+          variant="outline"
+          size="sm"
+          className="ml-auto gap-2 border-primary text-primary hover:bg-primary/10"
+          onClick={() => exportCotacoesToExcel(cotacoes, `cotacoes-dashboard-${mes !== null ? MESES[mes].toLowerCase() : "todos"}-${ano}.xlsx`)}
+          disabled={cotacoes.length === 0}
+        >
+          <Download className="h-4 w-4" /> Exportar Excel
+        </Button>
       </div>
 
       {/* Metric Cards */}
@@ -187,7 +198,7 @@ const Dashboard = () => {
       {/* Charts */}
       <div className="grid gap-6 lg:grid-cols-2 mb-8">
         <Card className="card-elevated border-0">
-          <CardHeader><CardTitle className="text-sm text-foreground">Cotações por Dia</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="text-sm font-semibold text-warning">Cotações por Dia</CardTitle></CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={250}>
               <BarChart data={barData}>
@@ -201,7 +212,7 @@ const Dashboard = () => {
         </Card>
 
         <Card className="card-elevated border-0">
-          <CardHeader><CardTitle className="text-sm text-foreground">Distribuição por Marca</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="text-sm font-semibold text-warning">Distribuição por Marca</CardTitle></CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={250}>
               <PieChart>
@@ -218,7 +229,7 @@ const Dashboard = () => {
       </div>
 
       <Card className="card-elevated border-0 mb-8">
-        <CardHeader><CardTitle className="text-sm text-foreground">Evolução Mensal ({ano})</CardTitle></CardHeader>
+        <CardHeader><CardTitle className="text-sm font-semibold text-warning">Evolução Mensal ({ano})</CardTitle></CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={250}>
             <LineChart data={lineData}>
@@ -234,7 +245,7 @@ const Dashboard = () => {
 
       {/* Recent table */}
       <Card className="card-elevated border-0">
-        <CardHeader><CardTitle className="text-sm text-foreground">Últimas 10 Cotações</CardTitle></CardHeader>
+        <CardHeader><CardTitle className="text-sm font-semibold text-warning">Últimas 10 Cotações</CardTitle></CardHeader>
         <CardContent>
           {recent10.length === 0 ? (
             <p className="text-sm text-muted-foreground">Nenhuma cotação no período.</p>

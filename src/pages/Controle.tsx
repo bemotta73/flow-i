@@ -1,7 +1,9 @@
 import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { MESES, formatBRL } from "@/lib/format";
-import { ExternalLink } from "lucide-react";
+import { exportCotacoesToExcel } from "@/lib/exportExcel";
+import { ExternalLink, Download } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -65,7 +67,7 @@ const Controle = () => {
   return (
     <div className="animate-fade-in-up">
       <div className="mb-8">
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">Controle de Cotações</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-warning">Controle de Cotações</h1>
       </div>
 
       {/* Month tabs + Year selector */}
@@ -95,6 +97,15 @@ const Controle = () => {
             ))}
           </SelectContent>
         </Select>
+        <Button
+          variant="outline"
+          size="sm"
+          className="ml-auto gap-2 border-primary text-primary hover:bg-primary/10"
+          onClick={() => exportCotacoesToExcel(cotacoes, `cotacoes-${MESES[mes]?.toLowerCase() || "todos"}-${ano}.xlsx`)}
+          disabled={cotacoes.length === 0}
+        >
+          <Download className="h-4 w-4" /> Exportar Excel
+        </Button>
       </div>
 
       {/* Content */}

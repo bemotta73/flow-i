@@ -168,7 +168,7 @@ export function QuotationForm() {
 
       {/* Shared fields */}
       <div className="card-elevated p-6 space-y-5 animate-fade-in-up">
-        <p className="label-apple">Dados da cotação</p>
+        <p className="text-sm font-semibold text-warning">Dados da Cotação</p>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
             <label className="label-apple">Vendedor *</label>
@@ -227,8 +227,8 @@ export function QuotationForm() {
 
       {/* Product form fields */}
       <div className="card-elevated p-6 space-y-5 animate-fade-in-up">
-        <p className="label-apple">
-          {produtos.length > 0 ? "Adicionar próximo produto" : "Dados do produto"}
+        <p className="text-sm font-semibold text-warning">
+          {produtos.length > 0 ? "Adicionar Próximo Produto" : "Dados do Produto"}
         </p>
 
         <div className="space-y-2">
@@ -291,7 +291,7 @@ export function QuotationForm() {
 
       {/* Margem selector */}
       <div className="space-y-2">
-        <p className="label-apple">Margem para o email</p>
+        <p className="text-sm font-semibold text-warning">Margem para o Email</p>
         <div className="flex gap-2">
           {([
             { value: "15" as MargemSelecionada, label: "Apenas 15%" },
