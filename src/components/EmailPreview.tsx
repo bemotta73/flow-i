@@ -3,33 +3,47 @@ import { Copy, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatBRL } from "@/lib/format";
+import type { ProdutoItem } from "./QuotationForm";
 
 export type MargemSelecionada = "15" | "20" | "ambas";
 
 interface EmailPreviewProps {
   vendedor: string;
-  produto: string;
-  custo: number;
+  produtos: ProdutoItem[];
   margem: MargemSelecionada;
 }
 
-function isNobreak(produto: string): boolean {
-  const lower = produto.toLowerCase();
-  return lower.includes("nobreak") || lower.includes("estabilizador");
+function hasNobreak(produtos: ProdutoItem[]): boolean {
+  return produtos.some((p) => {
+    const lower = p.produto.toLowerCase();
+    return lower.includes("nobreak") || lower.includes("estabilizador");
+  });
 }
 
-function generateEmail(vendedor: string, produto: string, custo: number, margem: MargemSelecionada): string {
-  const preco15 = formatBRL(custo / 0.85);
-  const preco20 = formatBRL(custo / 0.80);
-  const nobreak = isNobreak(produto);
+function generateEmail(vendedor: string, produtos: ProdutoItem[], margem: MargemSelecionada): string {
+  const nobreak = hasNobreak(produtos);
+  const multi = produtos.length > 1;
 
-  let precoSection = "";
-  if (margem === "15") {
-    precoSection = `Preço: ${preco15}`;
-  } else if (margem === "20") {
-    precoSection = `Preço: ${preco20}`;
+  let produtoSection = "";
+  if (multi) {
+    produtoSection = produtos.map((p, i) => {
+      const preco15 = formatBRL(p.custoNum / 0.85);
+      const preco20 = formatBRL(p.custoNum / 0.80);
+      let precoLine = "";
+      if (margem === "15") precoLine = `Preço: ${preco15}`;
+      else if (margem === "20") precoLine = `Preço: ${preco20}`;
+      else precoLine = `Preço (15%): ${preco15} | Preço (20%): ${preco20}`;
+      return `${i + 1}. ${p.produto}\n${precoLine}`;
+    }).join("\n\n");
   } else {
-    precoSection = `Preço (15%): ${preco15}\nPreço (20%): ${preco20}`;
+    const p = produtos[0];
+    const preco15 = formatBRL(p.custoNum / 0.85);
+    const preco20 = formatBRL(p.custoNum / 0.80);
+    let precoLine = "";
+    if (margem === "15") precoLine = `Preço: ${preco15}`;
+    else if (margem === "20") precoLine = `Preço: ${preco20}`;
+    else precoLine = `Preço (15%): ${preco15}\nPreço (20%): ${preco20}`;
+    produtoSection = `${p.produto}\n${precoLine}`;
   }
 
   const freteSection = nobreak
@@ -40,8 +54,7 @@ function generateEmail(vendedor: string, produto: string, custo: number, margem:
 
 Segue cotação solicitada:
 
-${produto}
-${precoSection}
+${produtoSection}
 
 Faturamento: Via ES
 Expedição: 10-15 dias úteis + frete local
@@ -54,13 +67,13 @@ CNPJ: 71.702.716/0006-93
 Qualquer dúvida estou à disposição.`;
 }
 
-export function EmailPreview({ vendedor, produto, custo, margem }: EmailPreviewProps) {
+export function EmailPreview({ vendedor, produtos, margem }: EmailPreviewProps) {
   const [copied, setCopied] = useState(false);
 
-  if (!vendedor || !produto || !custo) return null;
+  if (!vendedor || produtos.length === 0) return null;
 
-  const emailText = generateEmail(vendedor, produto, custo, margem);
-  const nobreak = isNobreak(produto);
+  const emailText = generateEmail(vendedor, produtos, margem);
+  const nobreak = hasNobreak(produtos);
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(emailText);
@@ -81,6 +94,9 @@ export function EmailPreview({ vendedor, produto, custo, margem }: EmailPreviewP
         >
           {nobreak ? "NOBREAK / ESTABILIZADOR" : "PRODUTO GERAL"}
         </Badge>
+        {produtos.length > 1 && (
+          <Badge variant="outline">{produtos.length} produtos</Badge>
+        )}
       </div>
 
       <div className="rounded-lg border bg-card p-4">
