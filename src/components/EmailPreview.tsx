@@ -84,7 +84,7 @@ export function EmailPreview({ vendedor, produtos, margem }: EmailPreviewProps) 
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
-        <h3 className="text-sm font-semibold text-foreground">Email Gerado</h3>
+        <h3 className="text-sm font-semibold text-warning">Email Gerado</h3>
         <Badge
           className={nobreak
             ? "bg-warning/15 text-warning border-warning/30"
