@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { formatBRL } from "@/lib/format";
 import { useAuth } from "@/contexts/AuthContext";
@@ -10,9 +10,10 @@ import {
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
-import { Search, Plus, Download, Upload, Pencil, X, Check, FileSpreadsheet } from "lucide-react";
+import { Search, Plus, Download, Pencil, X, Check, FileSpreadsheet } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import * as XLSX from "xlsx";
+import ImportMix from "@/components/ImportMix";
 
 interface Produto {
   id: string;
