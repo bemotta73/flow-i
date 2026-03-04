@@ -105,6 +105,7 @@ const ImportMix = ({ onComplete }: ImportMixProps) => {
       const workbook = XLSX.read(data, { type: "array" });
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
       const rows = XLSX.utils.sheet_to_json<any[]>(sheet, { header: 1 }) as any[][];
+      console.log("Excel raw (primeiras 3 linhas):", rows.slice(0, 3));
 
       if (rows.length < 2) {
         toast({ title: "Planilha vazia ou sem dados", variant: "destructive" });
