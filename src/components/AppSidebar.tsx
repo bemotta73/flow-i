@@ -1,4 +1,4 @@
-import { FilePlus2, TableProperties, BarChart3 } from "lucide-react";
+import { FilePlus2, TableProperties, BarChart3, ListChecks, Users } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import vorneLogo from "@/assets/vorne-logo.png";
@@ -12,17 +12,23 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import { LogOut } from "lucide-react";
 
-const items = [
+const adminItems = [
   { title: "Nova Cotação", url: "/", icon: FilePlus2 },
   { title: "Controle de Cotações", url: "/controle", icon: TableProperties },
   { title: "Dashboard", url: "/dashboard", icon: BarChart3 },
+  { title: "Lista Mix", url: "/lista-mix", icon: ListChecks },
+  { title: "Gerenciar Vendedores", url: "/vendedores", icon: Users },
 ];
 
 export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
+  const { signOut, profile } = useAuth();
 
   return (
     <Sidebar collapsible="icon" className="border-r-0 group/sidebar">
@@ -45,7 +51,7 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu className="space-y-1 px-2">
-              {items.map((item) => {
+              {adminItems.map((item) => {
                 const isActive = location.pathname === item.url;
                 return (
                   <SidebarMenuItem key={item.title}>
@@ -76,7 +82,19 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <div className="mt-auto flex flex-col items-center gap-1 px-4 py-4 border-t border-white/10">
+      <div className="mt-auto flex flex-col items-center gap-2 px-4 py-4 border-t border-white/10">
+        {!collapsed && profile && (
+          <span className="text-[10px] text-muted-foreground">{profile.nome}</span>
+        )}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={signOut}
+          className={`text-muted-foreground hover:text-foreground ${collapsed ? "p-1.5" : "gap-2"}`}
+        >
+          <LogOut className="h-4 w-4" />
+          {!collapsed && <span className="text-xs">Sair</span>}
+        </Button>
         <img src={vorneLogo} alt="Vorne AI" className={collapsed ? "h-5 w-5" : "h-8 w-8"} />
         {!collapsed && (
           <span className="text-[9px] text-muted-foreground tracking-wide">
