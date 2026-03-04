@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX unique_lista_mix_product ON lista_mix (COALESCE(part_number, ''), COALESCE(produto, ''), COALESCE(marca, ''), COALESCE(fornecedor, ''));
