@@ -96,10 +96,10 @@ export function ImageUpload({ onExtracted }: ImageUploadProps) {
     <div className="space-y-3">
       <div
         className={cn(
-          "relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 transition-all duration-300 cursor-pointer",
+          "relative flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-10 transition-all duration-200 cursor-pointer",
           isDragging
-            ? "border-officer-green bg-officer-green/10 scale-[1.01]"
-            : "border-muted-foreground/30 hover:border-primary/50 bg-muted/30",
+            ? "border-primary bg-primary/5"
+            : "border-apple-separator hover:border-muted-foreground bg-card",
           isProcessing && "pointer-events-none opacity-70"
         )}
         onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
@@ -121,17 +121,17 @@ export function ImageUpload({ onExtracted }: ImageUploadProps) {
 
         {isProcessing ? (
           <div className="flex flex-col items-center gap-3">
-            <Loader2 className="h-10 w-10 animate-spin text-primary" />
-            <p className="text-sm font-medium text-muted-foreground">Analisando imagem com IA...</p>
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="text-sm text-muted-foreground">Analisando imagem com IA...</p>
           </div>
         ) : (
           <div className="flex flex-col items-center gap-3">
-            <div className="rounded-full bg-primary/15 p-3 transition-transform duration-300 hover:scale-110">
-              <Upload className="h-6 w-6 text-primary" />
+            <div className="rounded-2xl bg-muted p-4 transition-transform duration-200 hover:scale-105">
+              <Upload className="h-5 w-5 text-muted-foreground" />
             </div>
             <div className="text-center">
               <p className="text-sm font-medium text-foreground">Arraste uma imagem, clique ou cole com Ctrl+V</p>
-              <p className="text-xs text-muted-foreground mt-1">Print de tela do portal do distribuidor</p>
+              <p className="text-xs text-apple-placeholder mt-1">Print de tela do portal do distribuidor</p>
             </div>
           </div>
         )}
@@ -139,10 +139,10 @@ export function ImageUpload({ onExtracted }: ImageUploadProps) {
 
       {preview && (
         <div className="relative inline-block animate-fade-in-up">
-          <img src={preview} alt="Preview" className="max-h-40 rounded-lg border shadow-sm" />
+          <img src={preview} alt="Preview" className="max-h-40 rounded-2xl shadow-lg" />
           <button
             onClick={(e) => { e.stopPropagation(); setPreview(null); }}
-            className="absolute -top-2 -right-2 rounded-full bg-destructive p-1 text-destructive-foreground shadow-sm hover:bg-destructive/90"
+            className="absolute -top-2 -right-2 rounded-full bg-destructive p-1 text-destructive-foreground shadow-sm hover:bg-destructive/90 transition-colors"
           >
             <X className="h-3 w-3" />
           </button>

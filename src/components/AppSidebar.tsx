@@ -25,25 +25,25 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon" className="border-r-0">
-      <div className="flex flex-col items-center gap-0.5 px-4 py-6">
+      <div className="flex flex-col items-center gap-1 px-4 py-8">
         {!collapsed ? (
           <>
-            <span className="text-2xl font-bold tracking-tight text-sidebar-foreground">
-              Cota<span className="text-officer-green">Flow</span>
+            <span className="text-xl font-bold tracking-tight text-sidebar-foreground">
+              CotaFlow
             </span>
-            <span className="text-xs text-sidebar-muted-foreground tracking-wide">
+            <span className="text-[10px] text-muted-foreground tracking-widest uppercase">
               Officer Distribuidora
             </span>
           </>
         ) : (
-          <span className="text-lg font-bold text-officer-green">CF</span>
+          <span className="text-sm font-bold text-primary">CF</span>
         )}
       </div>
 
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="space-y-1 px-2">
               {items.map((item) => {
                 const isActive = location.pathname === item.url;
                 return (
@@ -56,16 +56,15 @@ export function AppSidebar() {
                       <NavLink
                         to={item.url}
                         end
-                        className={`relative hover:bg-sidebar-accent/60 ${
-                          isActive ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" : ""
+                        className={`rounded-[10px] transition-all duration-200 ${
+                          isActive
+                            ? "bg-primary/15 text-primary font-medium"
+                            : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
                         }`}
                         activeClassName=""
                       >
-                        {isActive && (
-                          <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-officer-green" />
-                        )}
-                        <item.icon className={`h-5 w-5 ${isActive ? "text-officer-green" : ""}`} />
-                        {!collapsed && <span>{item.title}</span>}
+                        <item.icon className={`h-[18px] w-[18px] ${isActive ? "text-primary" : ""}`} />
+                        {!collapsed && <span className="text-sm">{item.title}</span>}
                       </NavLink>
                     </SidebarMenuButton>
                   </SidebarMenuItem>

@@ -2,20 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 @layer base {
   :root {
-    /* Cool Grey background */
-    --background: 220 3% 47%;
+    /* Apple Dark background */
+    --background: 240 6% 12%;
     --foreground: 0 0% 100%;
 
-    /* White cards */
-    --card: 0 0% 100%;
-    --card-foreground: 220 10% 20%;
+    /* Elevated surfaces #2C2C2E */
+    --card: 240 4% 18%;
+    --card-foreground: 0 0% 100%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 10% 20%;
+    --popover: 240 4% 18%;
+    --popover-foreground: 0 0% 100%;
 
     /* Officer Blue */
     --primary: 203 100% 37%;
@@ -25,45 +25,50 @@
     --secondary: 93 53% 51%;
     --secondary-foreground: 0 0% 100%;
 
-    /* Muted on dark bg */
-    --muted: 220 5% 42%;
-    --muted-foreground: 220 5% 80%;
+    /* Muted - Apple grey */
+    --muted: 240 4% 24%;
+    --muted-foreground: 240 4% 58%;
 
-    /* Green accent */
-    --accent: 93 53% 51%;
+    /* Blue accent */
+    --accent: 203 100% 37%;
     --accent-foreground: 0 0% 100%;
 
     --success: 93 53% 51%;
     --success-foreground: 0 0% 100%;
 
-    --destructive: 0 84% 60%;
+    --warning: 44 100% 60%;
+    --warning-foreground: 0 0% 10%;
+
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 5% 55%;
-    --input: 220 5% 55%;
-    --ring: 93 53% 51%;
+    --border: 240 4% 28%;
+    --input: 240 4% 24%;
+    --ring: 203 100% 37%;
 
     --radius: 0.75rem;
 
-    /* Card-specific muted (for elements inside white cards) */
-    --card-muted: 220 14% 96%;
-    --card-muted-foreground: 220 5% 46%;
-    --card-border: 220 13% 91%;
+    /* Card-internal secondary surfaces #3A3A3C */
+    --card-muted: 240 3% 24%;
+    --card-muted-foreground: 240 4% 58%;
+    --card-border: 240 4% 28%;
 
-    /* Sidebar: dark navy */
-    --sidebar-background: 218 78% 11%;
+    /* Sidebar: darker than bg */
+    --sidebar-background: 240 10% 8%;
     --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 93 53% 51%;
+    --sidebar-primary: 203 100% 37%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 218 78% 16%;
+    --sidebar-accent: 203 100% 37%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 218 78% 16%;
-    --sidebar-ring: 93 53% 51%;
-    --sidebar-muted-foreground: 218 30% 60%;
+    --sidebar-border: 240 4% 14%;
+    --sidebar-ring: 203 100% 37%;
+    --sidebar-muted-foreground: 240 4% 56%;
 
-    /* Gradient button */
-    --primary-gradient-from: 203 100% 37%;
-    --primary-gradient-to: 203 100% 35%;
+    /* Apple grey for labels */
+    --apple-label: 240 4% 56%;
+    --apple-placeholder: 240 3% 39%;
+    --apple-separator: 240 3% 28%;
+    --apple-text-soft: 240 6% 90%;
   }
 }
 
@@ -74,48 +79,72 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
 /* Custom utilities */
 @layer utilities {
-  .card-internal {
-    @apply bg-card text-card-foreground rounded-xl border shadow-[0_2px_12px_rgba(0,0,0,0.08)];
-    border-color: hsl(var(--card-border));
+  .card-elevated {
+    background: hsl(var(--card));
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+    border: none;
   }
 
-  .btn-primary-gradient {
-    background: linear-gradient(135deg, hsl(var(--primary-gradient-from)), hsl(var(--primary-gradient-to)));
-    @apply text-primary-foreground font-semibold transition-all duration-200;
+  .surface-input {
+    background: hsl(var(--muted));
+    border: none;
+    border-radius: 12px;
+    color: hsl(var(--foreground));
   }
 
-  .btn-primary-gradient:hover {
-    box-shadow: 0 0 0 2px hsl(var(--accent) / 0.5), 0 4px 12px rgba(0,0,0,0.15);
+  .surface-input:focus {
+    box-shadow: 0 0 0 3px rgba(0, 114, 187, 0.3);
+    outline: none;
   }
 
-  .table-header-blue {
-    background: hsl(var(--primary));
-    @apply text-primary-foreground;
+  .label-apple {
+    color: hsl(var(--apple-label));
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .table-header-dark {
+    background: hsl(var(--muted));
   }
 
   .table-row-alt:nth-child(even) {
-    background: hsl(220, 40%, 98%);
+    background: hsl(var(--card));
+  }
+
+  .table-row-alt:nth-child(odd) {
+    background: hsl(var(--background));
   }
 
   .table-row-hover:hover {
-    box-shadow: inset 3px 0 0 hsl(var(--accent));
+    box-shadow: inset 3px 0 0 hsl(var(--primary));
+  }
+
+  .day-separator {
+    background: hsl(var(--primary));
+    @apply text-primary-foreground px-4 py-2.5 text-sm font-semibold tracking-wide;
+    border-radius: 8px 8px 0 0;
   }
 }
 
-/* Animations */
+/* Animations — Apple-style */
 @keyframes fade-in-up {
-  from { opacity: 0; transform: translateY(12px); }
+  from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes slide-in-left {
-  from { opacity: 0; transform: translateX(-16px); }
+  from { opacity: 0; transform: translateX(-12px); }
   to { opacity: 1; transform: translateX(0); }
 }
 
@@ -124,14 +153,25 @@
   50% { transform: scale(1.05); }
 }
 
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
 .animate-fade-in-up {
-  animation: fade-in-up 0.35s ease-out both;
+  animation: fade-in-up 0.25s ease-out both;
 }
 
 .animate-slide-in-left {
-  animation: slide-in-left 0.3s ease-out both;
+  animation: slide-in-left 0.2s ease-out both;
 }
 
 .animate-pulse-success {
-  animation: pulse-success 0.4s ease-in-out;
+  animation: pulse-success 0.3s ease-in-out;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, hsl(var(--muted)) 25%, hsl(var(--card)) 50%, hsl(var(--muted)) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
 }

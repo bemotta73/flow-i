@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -160,19 +159,21 @@ export function QuotationForm() {
     ? (produtos.length > 0 ? produtos : (form.produto && custoNum ? [{ ...form, custoNum }] : []))
     : [];
 
+  const inputClass = "surface-input placeholder:text-apple-placeholder focus-visible:ring-0 focus-visible:border-primary focus-visible:shadow-[0_0_0_3px_rgba(0,114,187,0.3)]";
+
   return (
     <div className="space-y-6">
       {/* Image Upload */}
       <ImageUpload onExtracted={handleExtracted} />
 
       {/* Shared fields */}
-      <div className="card-internal p-5 space-y-4 animate-fade-in-up">
-        <p className="text-xs font-semibold text-card-muted-foreground uppercase tracking-wider">Dados da cotação</p>
+      <div className="card-elevated p-6 space-y-5 animate-fade-in-up">
+        <p className="label-apple">Dados da cotação</p>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label className="text-card-foreground">Vendedor *</Label>
+            <label className="label-apple">Vendedor *</label>
             <Select value={vendedor} onValueChange={(v) => { setVendedor(v); setShowEmail(false); }}>
-              <SelectTrigger className="bg-card border-card-border text-card-foreground"><SelectValue placeholder="Selecione" /></SelectTrigger>
+              <SelectTrigger className={inputClass}><SelectValue placeholder="Selecione" /></SelectTrigger>
               <SelectContent>
                 {vendedores.map((v) => (
                   <SelectItem key={v.id} value={v.nome}>{v.nome}</SelectItem>
@@ -182,9 +183,9 @@ export function QuotationForm() {
           </div>
 
           <div className="space-y-2">
-            <Label className="text-card-foreground">Canal *</Label>
+            <label className="label-apple">Canal *</label>
             <Select value={canal} onValueChange={(v) => { setCanal(v); setShowEmail(false); }}>
-              <SelectTrigger className="bg-card border-card-border text-card-foreground"><SelectValue placeholder="Selecione" /></SelectTrigger>
+              <SelectTrigger className={inputClass}><SelectValue placeholder="Selecione" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="Email">Email</SelectItem>
                 <SelectItem value="Teams">Teams</SelectItem>
@@ -197,20 +198,25 @@ export function QuotationForm() {
       {/* Product list */}
       {produtos.length > 0 && (
         <div className="space-y-2 animate-fade-in-up">
-          <Label className="text-sm font-semibold text-foreground">Produtos adicionados ({produtos.length})</Label>
+          <p className="label-apple">Produtos adicionados ({produtos.length})</p>
           <div className="space-y-2">
             {produtos.map((p, i) => (
-              <div key={i} className="flex items-center gap-3 card-internal p-3 animate-slide-in-left" style={{ animationDelay: `${i * 0.05}s` }}>
+              <div key={i} className="group flex items-center gap-3 bg-muted rounded-xl p-3.5 animate-slide-in-left" style={{ animationDelay: `${i * 0.05}s` }}>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-card-foreground truncate">{p.produto}</p>
-                  <p className="text-xs text-card-muted-foreground">
+                  <p className="text-sm font-medium text-foreground truncate">{p.produto}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
                     {p.marca && `${p.marca} · `}
                     Custo: {formatBRL(p.custoNum)} ·{" "}
                     <span className="text-primary">15%: {formatBRL(p.custoNum / 0.85)}</span> ·{" "}
-                    <span className="text-officer-green">20%: {formatBRL(p.custoNum / 0.80)}</span>
+                    <span className="text-success">20%: {formatBRL(p.custoNum / 0.80)}</span>
                   </p>
                 </div>
-                <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0 text-card-muted-foreground hover:text-destructive" onClick={() => handleRemoveProduct(i)}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 shrink-0 text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-destructive transition-all"
+                  onClick={() => handleRemoveProduct(i)}
+                >
                   <X className="h-4 w-4" />
                 </Button>
               </div>
@@ -220,28 +226,28 @@ export function QuotationForm() {
       )}
 
       {/* Product form fields */}
-      <div className="card-internal p-5 space-y-4 animate-fade-in-up">
-        <p className="text-xs font-semibold text-card-muted-foreground uppercase tracking-wider">
+      <div className="card-elevated p-6 space-y-5 animate-fade-in-up">
+        <p className="label-apple">
           {produtos.length > 0 ? "Adicionar próximo produto" : "Dados do produto"}
         </p>
 
         <div className="space-y-2">
-          <Label className="text-card-foreground">Produto *</Label>
-          <Input value={form.produto} onChange={(e) => update("produto", e.target.value)} placeholder="Nome completo do produto" className="bg-card border-card-border text-card-foreground focus-visible:ring-primary" />
+          <label className="label-apple">Produto *</label>
+          <Input value={form.produto} onChange={(e) => update("produto", e.target.value)} placeholder="Nome completo do produto" className={inputClass} />
         </div>
 
         <div className="grid gap-4 sm:grid-cols-3">
           <div className="space-y-2">
-            <Label className="text-card-foreground">Marca</Label>
-            <Input value={form.marca} onChange={(e) => update("marca", e.target.value)} placeholder="Marca" className="bg-card border-card-border text-card-foreground focus-visible:ring-primary" />
+            <label className="label-apple">Marca</label>
+            <Input value={form.marca} onChange={(e) => update("marca", e.target.value)} placeholder="Marca" className={inputClass} />
           </div>
           <div className="space-y-2">
-            <Label className="text-card-foreground">Part Number</Label>
-            <Input value={form.partNumber} onChange={(e) => update("partNumber", e.target.value)} placeholder="PN" className="bg-card border-card-border text-card-foreground focus-visible:ring-primary" />
+            <label className="label-apple">Part Number</label>
+            <Input value={form.partNumber} onChange={(e) => update("partNumber", e.target.value)} placeholder="PN" className={inputClass} />
           </div>
           <div className="space-y-2">
-            <Label className="text-card-foreground">Custo R$ *</Label>
-            <Input value={form.custo} onChange={(e) => update("custo", e.target.value)} placeholder="568,03" className="bg-card border-card-border text-card-foreground focus-visible:ring-primary" />
+            <label className="label-apple">Custo R$ *</label>
+            <Input value={form.custo} onChange={(e) => update("custo", e.target.value)} placeholder="568,03" className={inputClass} />
           </div>
         </div>
 
@@ -249,38 +255,43 @@ export function QuotationForm() {
 
         <div className="grid gap-4 sm:grid-cols-3">
           <div className="space-y-2">
-            <Label className="text-card-foreground">Estoque</Label>
-            <Input value={form.estoque} onChange={(e) => update("estoque", e.target.value)} placeholder="Quantidade" className="bg-card border-card-border text-card-foreground focus-visible:ring-primary" />
+            <label className="label-apple">Estoque</label>
+            <Input value={form.estoque} onChange={(e) => update("estoque", e.target.value)} placeholder="Quantidade" className={inputClass} />
           </div>
           <div className="space-y-2">
-            <Label className="text-card-foreground">Fornecedor</Label>
-            <Input value={form.fornecedor} onChange={(e) => update("fornecedor", e.target.value)} placeholder="Distribuidor" className="bg-card border-card-border text-card-foreground focus-visible:ring-primary" />
+            <label className="label-apple">Fornecedor</label>
+            <Input value={form.fornecedor} onChange={(e) => update("fornecedor", e.target.value)} placeholder="Distribuidor" className={inputClass} />
           </div>
           <div className="space-y-2">
-            <Label className="text-card-foreground">UF</Label>
-            <Input value={form.uf} onChange={(e) => update("uf", e.target.value)} placeholder="SP" className="bg-card border-card-border text-card-foreground focus-visible:ring-primary" />
+            <label className="label-apple">UF</label>
+            <Input value={form.uf} onChange={(e) => update("uf", e.target.value)} placeholder="SP" className={inputClass} />
           </div>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label className="text-card-foreground">Prazo</Label>
-            <Input value={form.prazo} onChange={(e) => update("prazo", e.target.value)} placeholder="Ex: 10-15 dias úteis" className="bg-card border-card-border text-card-foreground focus-visible:ring-primary" />
+            <label className="label-apple">Prazo</label>
+            <Input value={form.prazo} onChange={(e) => update("prazo", e.target.value)} placeholder="Ex: 10-15 dias úteis" className={inputClass} />
           </div>
           <div className="space-y-2">
-            <Label className="text-card-foreground">Link do Produto</Label>
-            <Input value={form.link} onChange={(e) => update("link", e.target.value)} placeholder="URL (opcional)" className="bg-card border-card-border text-card-foreground focus-visible:ring-primary" />
+            <label className="label-apple">Link do Produto</label>
+            <Input value={form.link} onChange={(e) => update("link", e.target.value)} placeholder="URL (opcional)" className={inputClass} />
           </div>
         </div>
 
-        <Button type="button" variant="outline" onClick={handleAddProduct} className="gap-2 border-card-border text-card-foreground hover:bg-card-muted">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleAddProduct}
+          className="gap-2 bg-transparent border-primary text-primary hover:bg-primary/10 rounded-xl transition-all duration-200"
+        >
           <Plus className="h-4 w-4" /> Adicionar Produto
         </Button>
       </div>
 
       {/* Margem selector */}
       <div className="space-y-2">
-        <Label className="text-foreground">Margem para o email</Label>
+        <p className="label-apple">Margem para o email</p>
         <div className="flex gap-2">
           {([
             { value: "15" as MargemSelecionada, label: "Apenas 15%" },
@@ -291,10 +302,10 @@ export function QuotationForm() {
               key={opt.value}
               type="button"
               onClick={() => { setMargemSelecionada(opt.value); setShowEmail(false); }}
-              className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+              className={`px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200 ${
                 margemSelecionada === opt.value
-                  ? "btn-primary-gradient shadow-sm"
-                  : "bg-muted/50 text-muted-foreground hover:bg-muted/70"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-muted-foreground hover:text-foreground"
               }`}
             >
               {opt.label}
@@ -305,11 +316,19 @@ export function QuotationForm() {
 
       {/* Action buttons */}
       <div className="flex gap-3">
-        <Button onClick={handleFinalize} disabled={saving} className="gap-2 btn-primary-gradient border-0">
+        <Button
+          onClick={handleFinalize}
+          disabled={saving}
+          className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl transition-all duration-200"
+        >
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
           Finalizar e Gerar Email
         </Button>
-        <Button onClick={handleClear} variant="outline" className="gap-2 border-muted-foreground/30 text-foreground hover:bg-muted/50">
+        <Button
+          onClick={handleClear}
+          variant="ghost"
+          className="gap-2 text-muted-foreground hover:text-destructive transition-colors"
+        >
           <Eraser className="h-4 w-4" /> Limpar Tudo
         </Button>
       </div>
