@@ -27,6 +27,10 @@ interface Cotacao {
   preco_20: number;
   fornecedor: string | null;
   canal: string;
+  estoque: string | null;
+  uf: string | null;
+  prazo: string | null;
+  link: string | null;
   created_at: string;
 }
 
