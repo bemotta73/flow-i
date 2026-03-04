@@ -123,10 +123,10 @@ const Dashboard = () => {
   const recent10 = cotacoes.slice(0, 10);
 
   const metricCards = [
-    { label: "Total Cotações", value: String(totalCotacoes), icon: FileText, color: "text-primary", sub: "" },
+    { label: "Total Cotações", value: String(totalCotacoes), icon: FileText, color: "text-warning", sub: "" },
     { label: "Produto Mais Cotado", value: topProduto, icon: Package, color: "text-success", sub: `${topProdutoCount}x` },
     { label: "Marca Mais Cotada", value: topMarca, icon: Tag, color: "text-warning", sub: `${topMarcaCount}x` },
-    { label: "Fornecedor Mais Usado", value: topFornecedor, icon: Truck, color: "text-primary", sub: `${topFornecedorCount}x` },
+    { label: "Fornecedor Mais Usado", value: topFornecedor, icon: Truck, color: "text-warning", sub: `${topFornecedorCount}x` },
   ];
 
   return (
@@ -226,7 +226,7 @@ const Dashboard = () => {
               <XAxis dataKey="mes" tick={{ fontSize: 11, fill: "#8E8E93" }} axisLine={false} tickLine={false} />
               <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: "#8E8E93" }} axisLine={false} tickLine={false} />
               <Tooltip contentStyle={{ background: "#2C2C2E", border: "none", borderRadius: 12, color: "#fff" }} />
-              <Line type="monotone" dataKey="total" stroke="#8CC63F" strokeWidth={2} dot={{ r: 4, fill: "#8CC63F" }} />
+              <Line type="monotone" dataKey="total" stroke="#FFCB31" strokeWidth={2} dot={{ r: 4, fill: "#FFCB31" }} />
             </LineChart>
           </ResponsiveContainer>
         </CardContent>
