@@ -295,50 +295,6 @@ const ListaMix = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      {/* Import Preview Dialog */}
-      <Dialog open={importDialogOpen} onOpenChange={setImportDialogOpen}>
-        <DialogContent className="bg-card border-card-border max-w-3xl max-h-[80vh] overflow-auto">
-          <DialogHeader>
-            <DialogTitle className="text-warning font-semibold">Preview da Importação</DialogTitle>
-          </DialogHeader>
-          <p className="text-sm text-muted-foreground">{importPreview?.length || 0} produtos encontrados na planilha</p>
-          <div className="max-h-[50vh] overflow-auto">
-            <Table>
-              <TableHeader>
-                <TableRow className="table-header-dark border-0">
-                  <TableHead className="text-xs text-muted-foreground font-semibold uppercase">Fornecedor</TableHead>
-                  <TableHead className="text-xs text-muted-foreground font-semibold uppercase">Produto</TableHead>
-                  <TableHead className="text-xs text-muted-foreground font-semibold uppercase">Marca</TableHead>
-                  <TableHead className="text-xs text-muted-foreground font-semibold uppercase">Custo</TableHead>
-                  <TableHead className="text-xs text-muted-foreground font-semibold uppercase">PN</TableHead>
-                  <TableHead className="text-xs text-muted-foreground font-semibold uppercase">15%</TableHead>
-                  <TableHead className="text-xs text-muted-foreground font-semibold uppercase">20%</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {importPreview?.map((item, i) => (
-                  <TableRow key={i}>
-                    <TableCell className="text-xs text-muted-foreground">{item.fornecedor}</TableCell>
-                    <TableCell className="text-xs text-foreground">{item.produto}</TableCell>
-                    <TableCell className="text-xs text-muted-foreground">{item.marca}</TableCell>
-                    <TableCell className="text-xs text-foreground">{formatBRL(item.custo)}</TableCell>
-                    <TableCell className="text-xs text-muted-foreground">{item.part_number}</TableCell>
-                    <TableCell className="text-xs text-primary">{formatBRL(item.preco_15)}</TableCell>
-                    <TableCell className="text-xs text-success">{formatBRL(item.preco_20)}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => { setImportDialogOpen(false); setImportPreview(null); }}>Cancelar</Button>
-            <Button onClick={confirmImport} disabled={importing}>
-              {importing ? "Importando..." : "Confirmar Importação"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
