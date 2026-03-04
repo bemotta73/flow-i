@@ -216,7 +216,7 @@ const ImportMix = ({ onComplete }: ImportMixProps) => {
       return;
     }
 
-    setPreviewData(mapped);
+    setPreviewData(dadosMapeados);
     setMappingOpen(false);
     setPreviewOpen(true);
   };
