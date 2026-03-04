@@ -4,10 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatBRL } from "@/lib/format";
 
+export type MargemSelecionada = "15" | "20" | "ambas";
+
 interface EmailPreviewProps {
   vendedor: string;
   produto: string;
   custo: number;
+  margem: MargemSelecionada;
 }
 
 function isNobreak(produto: string): boolean {
@@ -15,10 +18,19 @@ function isNobreak(produto: string): boolean {
   return lower.includes("nobreak") || lower.includes("estabilizador");
 }
 
-function generateEmail(vendedor: string, produto: string, custo: number): string {
-  const preco15 = formatBRL(custo * 1.15);
-  const preco20 = formatBRL(custo * 1.20);
+function generateEmail(vendedor: string, produto: string, custo: number, margem: MargemSelecionada): string {
+  const preco15 = formatBRL(custo / 0.85);
+  const preco20 = formatBRL(custo / 0.80);
   const nobreak = isNobreak(produto);
+
+  let precoSection = "";
+  if (margem === "15") {
+    precoSection = `Preço: ${preco15}`;
+  } else if (margem === "20") {
+    precoSection = `Preço: ${preco20}`;
+  } else {
+    precoSection = `Preço (15%): ${preco15}\nPreço (20%): ${preco20}`;
+  }
 
   const freteSection = nobreak
     ? `Frete FOB: sujeito a consulta de frete`
@@ -29,8 +41,7 @@ function generateEmail(vendedor: string, produto: string, custo: number): string
 Segue cotação solicitada:
 
 ${produto}
-Preço (15%): ${preco15}
-Preço (20%): ${preco20}
+${precoSection}
 
 Faturamento: Via ES
 Expedição: 10-15 dias úteis + frete local
@@ -43,12 +54,12 @@ CNPJ: 71.702.716/0006-93
 Qualquer dúvida estou à disposição.`;
 }
 
-export function EmailPreview({ vendedor, produto, custo }: EmailPreviewProps) {
+export function EmailPreview({ vendedor, produto, custo, margem }: EmailPreviewProps) {
   const [copied, setCopied] = useState(false);
 
   if (!vendedor || !produto || !custo) return null;
 
-  const emailText = generateEmail(vendedor, produto, custo);
+  const emailText = generateEmail(vendedor, produto, custo, margem);
   const nobreak = isNobreak(produto);
 
   const handleCopy = async () => {

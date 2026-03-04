@@ -7,8 +7,8 @@ interface MarginPreviewProps {
 export function MarginPreview({ custo }: MarginPreviewProps) {
   if (!custo || custo <= 0) return null;
 
-  const preco15 = custo * 1.15;
-  const preco20 = custo * 1.20;
+  const preco15 = custo / 0.85;
+  const preco20 = custo / 0.80;
 
   return (
     <div className="grid grid-cols-3 gap-3">
