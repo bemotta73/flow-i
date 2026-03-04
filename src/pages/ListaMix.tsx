@@ -163,6 +163,13 @@ const ListaMix = () => {
     return parseFloat(s) || 0;
   };
 
+  const detectColumnIndex = (headers: string[], keywords: string[]): number => {
+    return headers.findIndex((h) => {
+      const lower = h.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      return keywords.some((k) => lower.includes(k));
+    });
+  };
+
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -171,22 +178,39 @@ const ListaMix = () => {
       const data = new Uint8Array(evt.target?.result as ArrayBuffer);
       const workbook = XLSX.read(data, { type: "array" });
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
-      // Read as array of arrays to handle positional columns (A, B, C)
       const rows = XLSX.utils.sheet_to_json<any[]>(sheet, { header: 1 });
 
-      // Skip header row if detected
-      let startIdx = 0;
-      if (rows.length > 0) {
-        const firstRow = rows[0].map((c: any) => String(c || "").toLowerCase());
-        if (firstRow.some((c: string) => ["fornecedor", "preços", "precos", "produtos"].some(k => c.includes(k)))) {
-          startIdx = 1;
-        }
+      if (rows.length === 0) {
+        toast({ title: "Planilha vazia", variant: "destructive" });
+        return;
       }
 
+      // Try to detect columns from first row
+      const firstRow = (rows[0] || []).map((c: any) => String(c || ""));
+      let fornecedorIdx = detectColumnIndex(firstRow, ["fornecedor"]);
+      let custoIdx = detectColumnIndex(firstRow, ["preco", "precos", "custo", "valor", "price"]);
+      let produtoIdx = detectColumnIndex(firstRow, ["produto", "produtos", "descricao", "item"]);
+
+      let startIdx = 0;
+      const hasHeader = fornecedorIdx !== -1 || custoIdx !== -1 || produtoIdx !== -1;
+
+      if (hasHeader) {
+        startIdx = 1;
+      } else {
+        // Fallback: assume A=fornecedor, B=custo, C=produto
+        fornecedorIdx = 0;
+        custoIdx = 1;
+        produtoIdx = 2;
+      }
+
+      const detectedNames = hasHeader
+        ? `Fornecedor → Col ${String.fromCharCode(65 + fornecedorIdx)}, Custo → Col ${String.fromCharCode(65 + custoIdx)}, Produto → Col ${String.fromCharCode(65 + produtoIdx)}`
+        : "Sem cabeçalho detectado — usando A=Fornecedor, B=Custo, C=Produto";
+
       const mapped = rows.slice(startIdx).map((row) => {
-        const fornecedor = String(row[0] || "").trim();
-        const custo = parseCustoBRL(row[1]);
-        const produto = String(row[2] || "").trim();
+        const fornecedor = String(row[fornecedorIdx] ?? "").trim();
+        const custo = parseCustoBRL(row[custoIdx]);
+        const produto = String(row[produtoIdx] ?? "").trim();
         return {
           produto,
           marca: "",
@@ -198,8 +222,14 @@ const ListaMix = () => {
         };
       }).filter((r) => r.produto && r.custo > 0);
 
+      if (mapped.length === 0) {
+        toast({ title: "Nenhum produto válido encontrado", description: detectedNames, variant: "destructive" });
+        return;
+      }
+
       setImportPreview(mapped);
       setImportDialogOpen(true);
+      toast({ title: "Colunas detectadas", description: detectedNames });
     };
     reader.readAsArrayBuffer(file);
     e.target.value = "";
