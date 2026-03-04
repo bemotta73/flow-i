@@ -84,39 +84,36 @@ export function EmailPreview({ vendedor, produtos, margem }: EmailPreviewProps) 
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
-        <h3 className="text-sm font-semibold">Email Gerado</h3>
+        <h3 className="text-sm font-semibold text-foreground">Email Gerado</h3>
         <Badge
-          variant="secondary"
           className={nobreak
-            ? "bg-accent/20 text-accent-foreground border-accent"
-            : "bg-[hsl(var(--success))]/15 text-[hsl(var(--success))] border-[hsl(var(--success))]/30"
+            ? "bg-amber-500/20 text-amber-200 border-amber-500/40"
+            : "bg-officer-green/20 text-officer-green border-officer-green/40"
           }
         >
           {nobreak ? "NOBREAK / ESTABILIZADOR" : "PRODUTO GERAL"}
         </Badge>
         {produtos.length > 1 && (
-          <Badge variant="outline">{produtos.length} produtos</Badge>
+          <Badge variant="outline" className="border-muted-foreground/40 text-muted-foreground">{produtos.length} produtos</Badge>
         )}
       </div>
 
-      <div className="rounded-lg border bg-card p-4">
-        <pre className="whitespace-pre-wrap text-sm leading-relaxed font-sans">{emailText}</pre>
+      <div className="card-internal p-4">
+        <pre className="whitespace-pre-wrap text-sm leading-relaxed font-sans text-card-foreground">{emailText}</pre>
       </div>
 
       <Button
         onClick={handleCopy}
-        variant={copied ? "default" : "outline"}
         size="sm"
-        className={copied ? "bg-[hsl(var(--success))] hover:bg-[hsl(var(--success))]/90" : ""}
+        className={copied
+          ? "bg-officer-green hover:bg-officer-green/90 text-white animate-pulse-success"
+          : "btn-primary-gradient border-0"
+        }
       >
         {copied ? (
-          <>
-            <Check className="h-4 w-4" /> Copiado! ✓
-          </>
+          <><Check className="h-4 w-4" /> Copiado! ✓</>
         ) : (
-          <>
-            <Copy className="h-4 w-4" /> Copiar
-          </>
+          <><Copy className="h-4 w-4" /> Copiar</>
         )}
       </Button>
     </div>

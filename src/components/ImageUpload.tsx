@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import { Upload, Image as ImageIcon, Loader2, X } from "lucide-react";
+import { Upload, Loader2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -75,7 +75,6 @@ export function ImageUpload({ onExtracted }: ImageUploadProps) {
     if (file) handleFile(file);
   }, [handleFile]);
 
-  // Ctrl+V paste handler
   useEffect(() => {
     const handler = (e: ClipboardEvent) => {
       const items = e.clipboardData?.items;
@@ -97,10 +96,10 @@ export function ImageUpload({ onExtracted }: ImageUploadProps) {
     <div className="space-y-3">
       <div
         className={cn(
-          "relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 transition-all cursor-pointer",
+          "relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 transition-all duration-300 cursor-pointer",
           isDragging
-            ? "border-primary bg-primary/5 scale-[1.01]"
-            : "border-border hover:border-primary/50 hover:bg-muted/50",
+            ? "border-officer-green bg-officer-green/10 scale-[1.01]"
+            : "border-muted-foreground/30 hover:border-primary/50 bg-muted/30",
           isProcessing && "pointer-events-none opacity-70"
         )}
         onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
@@ -127,11 +126,11 @@ export function ImageUpload({ onExtracted }: ImageUploadProps) {
           </div>
         ) : (
           <div className="flex flex-col items-center gap-3">
-            <div className="rounded-full bg-primary/10 p-3">
+            <div className="rounded-full bg-primary/15 p-3 transition-transform duration-300 hover:scale-110">
               <Upload className="h-6 w-6 text-primary" />
             </div>
             <div className="text-center">
-              <p className="text-sm font-medium">Arraste uma imagem, clique ou cole com Ctrl+V</p>
+              <p className="text-sm font-medium text-foreground">Arraste uma imagem, clique ou cole com Ctrl+V</p>
               <p className="text-xs text-muted-foreground mt-1">Print de tela do portal do distribuidor</p>
             </div>
           </div>
@@ -139,7 +138,7 @@ export function ImageUpload({ onExtracted }: ImageUploadProps) {
       </div>
 
       {preview && (
-        <div className="relative inline-block">
+        <div className="relative inline-block animate-fade-in-up">
           <img src={preview} alt="Preview" className="max-h-40 rounded-lg border shadow-sm" />
           <button
             onClick={(e) => { e.stopPropagation(); setPreview(null); }}
