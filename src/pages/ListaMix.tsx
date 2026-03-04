@@ -10,7 +10,7 @@ import {
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
-import { Search, Plus, Download, Pencil, X, Check, FileSpreadsheet } from "lucide-react";
+import { Search, Plus, Download, Pencil, X, Check, FileSpreadsheet, TableProperties, Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import * as XLSX from "xlsx";
 import ImportMix from "@/components/ImportMix";
@@ -37,6 +37,15 @@ interface ProdutoForm {
   fornecedor: string;
 }
 
+interface EditableRow {
+  id: string;
+  fornecedor: string;
+  produto: string;
+  marca: string;
+  part_number: string;
+  custo: string;
+}
+
 const emptyForm: ProdutoForm = { produto: "", marca: "", part_number: "", custo: "", fornecedor: "" };
 
 const ListaMix = () => {
@@ -50,6 +59,11 @@ const ListaMix = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<ProdutoForm>(emptyForm);
   const [saving, setSaving] = useState(false);
+
+  // Inline edit mode
+  const [editMode, setEditMode] = useState(false);
+  const [editableRows, setEditableRows] = useState<EditableRow[]>([]);
+  const [savingAll, setSavingAll] = useState(false);
 
   const fetchProdutos = async () => {
     setLoading(true);
@@ -74,6 +88,63 @@ const ListaMix = () => {
     );
   }, [produtos, search]);
 
+  // --- Inline Edit Mode ---
+  const enterEditMode = () => {
+    setEditableRows(
+      filtered.map((p) => ({
+        id: p.id,
+        fornecedor: p.fornecedor || "",
+        produto: p.produto,
+        marca: p.marca || "",
+        part_number: p.part_number || "",
+        custo: String(p.custo),
+      }))
+    );
+    setEditMode(true);
+  };
+
+  const cancelEditMode = () => {
+    setEditMode(false);
+    setEditableRows([]);
+  };
+
+  const updateEditableRow = (id: string, field: keyof EditableRow, value: string) => {
+    setEditableRows((prev) =>
+      prev.map((r) => (r.id === id ? { ...r, [field]: value } : r))
+    );
+  };
+
+  const getEditCusto = (row: EditableRow): number => {
+    return parseFloat(row.custo.replace(",", ".")) || 0;
+  };
+
+  const saveAllEdits = async () => {
+    setSavingAll(true);
+    let count = 0;
+    for (const row of editableRows) {
+      const custo = getEditCusto(row);
+      const preco_15 = Math.round(custo * 1.15 * 100) / 100;
+      const preco_20 = Math.round(custo * 1.20 * 100) / 100;
+      await supabase.from("lista_mix").update({
+        fornecedor: row.fornecedor.trim() || null,
+        produto: row.produto.trim(),
+        marca: row.marca.trim() || null,
+        part_number: row.part_number.trim() || null,
+        custo,
+        preco_15,
+        preco_20,
+        updated_at: new Date().toISOString(),
+      }).eq("id", row.id);
+      count++;
+    }
+    setSavingAll(false);
+    setEditMode(false);
+    setEditableRows([]);
+    fetchProdutos();
+    toast({ title: "Alterações salvas", description: `${count} produtos atualizados` });
+  };
+
+  // --- Single product dialog ---
   const openAdd = () => {
     setEditingId(null);
     setForm(emptyForm);
@@ -135,13 +206,13 @@ const ListaMix = () => {
   // Export
   const handleExport = () => {
     const rows = filtered.map((p) => ({
+      Fornecedor: p.fornecedor || "",
       Produto: p.produto,
       Marca: p.marca || "",
-      "Part Number": p.part_number || "",
       Custo: formatBRL(p.custo),
+      "Part Number": p.part_number || "",
       "Preço 15%": formatBRL(p.preco_15),
       "Preço 20%": formatBRL(p.preco_20),
-      Fornecedor: p.fornecedor || "",
       Status: p.ativo ? "Ativo" : "Inativo",
     }));
     const ws = XLSX.utils.json_to_sheet(rows);
@@ -149,8 +220,6 @@ const ListaMix = () => {
     XLSX.utils.book_append_sheet(wb, ws, "Lista Mix");
     XLSX.writeFile(wb, "lista-mix.xlsx");
   };
-
-
 
   return (
     <div className="animate-fade-in-up">
@@ -171,13 +240,32 @@ const ListaMix = () => {
           />
         </div>
         <div className="flex gap-2 ml-auto">
-          <ImportMix onComplete={fetchProdutos} />
-          <Button variant="outline" size="sm" className="gap-2 border-warning text-warning hover:bg-warning/10" onClick={handleExport} disabled={filtered.length === 0}>
-            <Download className="h-4 w-4" /> Exportar Excel
-          </Button>
-          <Button size="sm" className="gap-2 bg-warning text-warning-foreground hover:bg-warning/90" onClick={openAdd}>
-            <Plus className="h-4 w-4" /> Adicionar Produto
-          </Button>
+          {isAdmin && !editMode && (
+            <Button variant="outline" size="sm" className="gap-2 border-warning text-warning hover:bg-warning/10" onClick={enterEditMode} disabled={filtered.length === 0}>
+              <TableProperties className="h-4 w-4" /> Editar Tabela
+            </Button>
+          )}
+          {isAdmin && editMode && (
+            <>
+              <Button size="sm" className="gap-2 bg-success text-success-foreground hover:bg-success/90" onClick={saveAllEdits} disabled={savingAll}>
+                <Save className="h-4 w-4" /> {savingAll ? "Salvando..." : "Salvar Alterações"}
+              </Button>
+              <Button variant="outline" size="sm" className="gap-2 border-destructive text-destructive hover:bg-destructive/10" onClick={cancelEditMode}>
+                <X className="h-4 w-4" /> Cancelar
+              </Button>
+            </>
+          )}
+          {!editMode && (
+            <>
+              <ImportMix onComplete={fetchProdutos} />
+              <Button variant="outline" size="sm" className="gap-2 border-warning text-warning hover:bg-warning/10" onClick={handleExport} disabled={filtered.length === 0}>
+                <Download className="h-4 w-4" /> Exportar Excel
+              </Button>
+              <Button size="sm" className="gap-2 bg-warning text-warning-foreground hover:bg-warning/90" onClick={openAdd}>
+                <Plus className="h-4 w-4" /> Adicionar Produto
+              </Button>
+            </>
+          )}
         </div>
       </div>
 
@@ -191,7 +279,75 @@ const ListaMix = () => {
           <FileSpreadsheet className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
           <p className="text-muted-foreground">Nenhum produto encontrado</p>
         </div>
+      ) : editMode ? (
+        /* Editable Table */
+        <div className="card-elevated overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow className="table-header-dark border-0">
+                <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Fornecedor</TableHead>
+                <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Produto</TableHead>
+                <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Marca</TableHead>
+                <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Custo</TableHead>
+                <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">PN</TableHead>
+                <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">15%</TableHead>
+                <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">20%</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {editableRows.map((row, idx) => {
+                const custo = getEditCusto(row);
+                return (
+                  <TableRow key={row.id} className={`transition-all duration-150 ${idx % 2 === 1 ? "table-row-alt" : ""}`}>
+                    <TableCell>
+                      <Input
+                        value={row.fornecedor}
+                        onChange={(e) => updateEditableRow(row.id, "fornecedor", e.target.value)}
+                        className="h-7 text-xs surface-input"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        value={row.produto}
+                        onChange={(e) => updateEditableRow(row.id, "produto", e.target.value)}
+                        className="h-7 text-xs surface-input"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        value={row.marca}
+                        onChange={(e) => updateEditableRow(row.id, "marca", e.target.value)}
+                        className="h-7 text-xs surface-input"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        value={row.custo}
+                        onChange={(e) => updateEditableRow(row.id, "custo", e.target.value)}
+                        className="h-7 text-xs surface-input w-24"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        value={row.part_number}
+                        onChange={(e) => updateEditableRow(row.id, "part_number", e.target.value)}
+                        className="h-7 text-xs surface-input"
+                      />
+                    </TableCell>
+                    <TableCell className="text-xs font-medium text-primary">
+                      {formatBRL(Math.round(custo * 1.15 * 100) / 100)}
+                    </TableCell>
+                    <TableCell className="text-xs font-medium text-success">
+                      {formatBRL(Math.round(custo * 1.20 * 100) / 100)}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </div>
       ) : (
+        /* Read-only Table */
         <div className="card-elevated overflow-hidden">
           <Table>
             <TableHeader>
