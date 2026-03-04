@@ -51,12 +51,6 @@ const ListaMix = () => {
   const [form, setForm] = useState<ProdutoForm>(emptyForm);
   const [saving, setSaving] = useState(false);
 
-  // Import states
-  const [importPreview, setImportPreview] = useState<any[] | null>(null);
-  const [importDialogOpen, setImportDialogOpen] = useState(false);
-  const [importing, setImporting] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
   const fetchProdutos = async () => {
     setLoading(true);
     const { data } = await supabase
