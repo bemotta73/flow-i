@@ -225,41 +225,95 @@ const ImportMix = ({ onComplete }: ImportMixProps) => {
     if (previewData.length === 0) return;
     setImporting(true);
 
-    for (const item of previewData) {
-      const { data: existing } = await supabase
+    try {
+      const { data: existingRows, error: existingError } = await supabase
         .from("lista_mix")
-        .select("id")
-        .or(`produto.eq.${item.produto}${item.part_number ? `,part_number.eq.${item.part_number}` : ""}`)
-        .limit(1);
+        .select("id, fornecedor, part_number, produto, marca");
 
-      const payload = [{
-        fornecedor: item.fornecedor || null,
-        part_number: item.part_number || null,
-        produto: item.produto,
-        marca: item.marca || null,
-        custo: item.custo,
-        preco_15: item.preco_15,
-        preco_20: item.preco_20,
-      }];
+      if (existingError) throw existingError;
 
-      console.log("Payload Supabase:", JSON.stringify(payload[0]));
+      const byPartNumber = new Map<string, { id: string; fornecedor: string | null; part_number: string | null; produto: string; marca: string | null }>();
+      const byComposite = new Map<string, { id: string; fornecedor: string | null; part_number: string | null; produto: string; marca: string | null }>();
 
-      if (existing && existing.length > 0) {
-        await supabase.from("lista_mix").update({
-          ...payload[0],
-          updated_at: new Date().toISOString(),
-        }).eq("id", existing[0].id);
-      } else {
-        await supabase.from("lista_mix").insert(payload);
+      const normalize = (v: string | null | undefined) => String(v || "").trim().toLowerCase();
+      const compositeKey = (produto: string, marca: string | null, fornecedor: string | null) =>
+        `${normalize(produto)}|${normalize(marca)}|${normalize(fornecedor)}`;
+
+      for (const row of existingRows || []) {
+        if (row.part_number) byPartNumber.set(normalize(row.part_number), row);
+        byComposite.set(compositeKey(row.produto, row.marca, row.fornecedor), row);
       }
-    }
 
-    setImporting(false);
-    setPreviewOpen(false);
-    setPreviewData([]);
-    setRawRows(null);
-    toast({ title: "Importação concluída", description: `${previewData.length} produtos processados` });
-    onComplete();
+      let processed = 0;
+
+      for (const item of previewData) {
+        let produto = item.produto.trim();
+        let partNumber = item.part_number.trim();
+
+        // Fallback para planilhas onde PN veio embutido no produto: "PN - Produto"
+        if (!partNumber) {
+          const match = produto.match(/^([^\s-][^\n-]{1,80}?)\s*-\s+(.+)$/);
+          if (match) {
+            partNumber = match[1].trim();
+            produto = match[2].trim();
+          }
+        }
+
+        const payload = {
+          fornecedor: item.fornecedor.trim() || null,
+          part_number: partNumber || null,
+          produto,
+          marca: item.marca.trim() || null,
+          custo: item.custo,
+          preco_15: Math.round(item.custo * 1.15 * 100) / 100,
+          preco_20: Math.round(item.custo * 1.2 * 100) / 100,
+        };
+
+        console.log("Payload Supabase:", JSON.stringify(payload));
+
+        const existingByPn = payload.part_number ? byPartNumber.get(normalize(payload.part_number)) : undefined;
+        const existingByComposite = byComposite.get(compositeKey(payload.produto, payload.marca, payload.fornecedor));
+        const existing = existingByPn || existingByComposite;
+
+        if (existing) {
+          const mergedPayload = {
+            ...payload,
+            // Evita apagar dados já existentes quando a linha vem incompleta
+            part_number: payload.part_number || existing.part_number || null,
+            marca: payload.marca || existing.marca || null,
+            fornecedor: payload.fornecedor || existing.fornecedor || null,
+            updated_at: new Date().toISOString(),
+          };
+
+          const { error } = await supabase
+            .from("lista_mix")
+            .update(mergedPayload)
+            .eq("id", existing.id);
+
+          if (error) throw error;
+        } else {
+          const { error } = await supabase.from("lista_mix").insert(payload);
+          if (error) throw error;
+        }
+
+        processed++;
+      }
+
+      setPreviewOpen(false);
+      setPreviewData([]);
+      setRawRows(null);
+      toast({ title: "Importação concluída", description: `${processed} produtos processados` });
+      onComplete();
+    } catch (error: any) {
+      console.error("Erro na importação:", error);
+      toast({
+        title: "Erro ao importar",
+        description: error?.message || "Falha ao salvar a planilha",
+        variant: "destructive",
+      });
+    } finally {
+      setImporting(false);
+    }
   };
 
   // Sample rows for mapping preview (show first 3 data rows)
