@@ -14,7 +14,7 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+        sans: ['"Inter"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -67,12 +67,15 @@ export default {
           DEFAULT: "hsl(var(--success))",
           foreground: "hsl(var(--success-foreground))",
         },
-        officer: {
-          grey: "#76787A",
-          blue: "#0072BB",
-          green: "#8CC63F",
-          navy: "#0A1628",
-          "blue-dark": "#005A94",
+        warning: {
+          DEFAULT: "hsl(var(--warning))",
+          foreground: "hsl(var(--warning-foreground))",
+        },
+        apple: {
+          label: "hsl(var(--apple-label))",
+          placeholder: "hsl(var(--apple-placeholder))",
+          separator: "hsl(var(--apple-separator))",
+          "text-soft": "hsl(var(--apple-text-soft))",
         },
       },
       borderRadius: {
@@ -80,6 +83,7 @@ export default {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
         xl: "1rem",
+        "2xl": "16px",
       },
       keyframes: {
         "accordion-down": {

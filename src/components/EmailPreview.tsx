@@ -82,38 +82,41 @@ export function EmailPreview({ vendedor, produtos, margem }: EmailPreviewProps) 
   };
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <div className="flex items-center gap-2">
         <h3 className="text-sm font-semibold text-foreground">Email Gerado</h3>
         <Badge
           className={nobreak
-            ? "bg-amber-500/20 text-amber-200 border-amber-500/40"
-            : "bg-officer-green/20 text-officer-green border-officer-green/40"
+            ? "bg-warning/15 text-warning border-warning/30"
+            : "bg-success/15 text-success border-success/30"
           }
         >
           {nobreak ? "NOBREAK / ESTABILIZADOR" : "PRODUTO GERAL"}
         </Badge>
         {produtos.length > 1 && (
-          <Badge variant="outline" className="border-muted-foreground/40 text-muted-foreground">{produtos.length} produtos</Badge>
+          <Badge variant="outline" className="border-muted-foreground/30 text-muted-foreground">
+            {produtos.length} produtos
+          </Badge>
         )}
       </div>
 
-      <div className="card-internal p-4">
-        <pre className="whitespace-pre-wrap text-sm leading-relaxed font-sans text-card-foreground">{emailText}</pre>
+      <div className="card-elevated p-5">
+        <pre className="whitespace-pre-wrap text-sm leading-relaxed font-sans text-apple-text-soft">{emailText}</pre>
       </div>
 
       <Button
         onClick={handleCopy}
         size="sm"
-        className={copied
-          ? "bg-officer-green hover:bg-officer-green/90 text-white animate-pulse-success"
-          : "btn-primary-gradient border-0"
-        }
+        className={`transition-all duration-200 ${
+          copied
+            ? "bg-success hover:bg-success/90 text-success-foreground animate-pulse-success"
+            : "bg-primary hover:bg-primary/90 text-primary-foreground"
+        }`}
       >
         {copied ? (
-          <><Check className="h-4 w-4" /> Copiado! ✓</>
+          <><Check className="h-4 w-4 mr-1.5" /> Copiado! ✓</>
         ) : (
-          <><Copy className="h-4 w-4" /> Copiar</>
+          <><Copy className="h-4 w-4 mr-1.5" /> Copiar</>
         )}
       </Button>
     </div>

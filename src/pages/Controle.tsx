@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { MESES, formatDateTime, formatDate, formatBRL } from "@/lib/format";
+import { MESES, formatBRL } from "@/lib/format";
 import { ExternalLink } from "lucide-react";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -64,8 +64,8 @@ const Controle = () => {
 
   return (
     <div className="animate-fade-in-up">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">Controle de Cotações</h1>
+      <div className="mb-8">
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">Controle de Cotações</h1>
       </div>
 
       {/* Month tabs + Year selector */}
@@ -77,8 +77,8 @@ const Controle = () => {
               onClick={() => setMes(i)}
               className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 ${
                 i === mes
-                  ? "btn-primary-gradient shadow-sm"
-                  : "bg-muted/50 text-muted-foreground hover:bg-muted/70"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-muted-foreground hover:text-foreground"
               }`}
             >
               {m.slice(0, 3)}
@@ -86,7 +86,7 @@ const Controle = () => {
           ))}
         </div>
         <Select value={String(ano)} onValueChange={(v) => setAno(Number(v))}>
-          <SelectTrigger className="w-24 bg-card text-card-foreground border-card-border">
+          <SelectTrigger className="w-24 surface-input">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -99,43 +99,45 @@ const Controle = () => {
 
       {/* Content */}
       {loading ? (
-        <p className="text-muted-foreground text-sm">Carregando...</p>
+        <div className="space-y-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-16 rounded-2xl animate-shimmer" />
+          ))}
+        </div>
       ) : cotacoes.length === 0 ? (
         <p className="text-muted-foreground text-sm">Nenhuma cotação neste período.</p>
       ) : (
         <div className="space-y-6">
           {Object.entries(grouped).map(([day, items]) => (
             <div key={day} className="animate-fade-in-up">
-              <div className="bg-primary text-primary-foreground px-4 py-2.5 rounded-t-xl text-sm font-bold tracking-wide">
-                {day}
-              </div>
-              <div className="card-internal rounded-t-none overflow-hidden">
+              <div className="day-separator">{day}</div>
+              <div className="card-elevated rounded-t-none overflow-hidden">
                 <Table>
                   <TableHeader>
-                    <TableRow className="table-header-blue border-0">
-                      <TableHead className="text-xs text-primary-foreground font-semibold">Hora</TableHead>
-                      <TableHead className="text-xs text-primary-foreground font-semibold">Produto</TableHead>
-                      <TableHead className="text-xs text-primary-foreground font-semibold">Marca</TableHead>
-                      <TableHead className="text-xs text-primary-foreground font-semibold">PN</TableHead>
-                      <TableHead className="text-xs text-primary-foreground font-semibold">Custo</TableHead>
-                      <TableHead className="text-xs text-primary-foreground font-semibold">15%</TableHead>
-                      <TableHead className="text-xs text-primary-foreground font-semibold">20%</TableHead>
-                      <TableHead className="text-xs text-primary-foreground font-semibold">Fornecedor</TableHead>
-                      <TableHead className="text-xs text-primary-foreground font-semibold">Vendedor</TableHead>
-                      <TableHead className="text-xs text-primary-foreground font-semibold">Canal</TableHead>
+                    <TableRow className="table-header-dark border-0">
+                      <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Hora</TableHead>
+                      <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Produto</TableHead>
+                      <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Marca</TableHead>
+                      <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">PN</TableHead>
+                      <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Custo</TableHead>
+                      <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">15%</TableHead>
+                      <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">20%</TableHead>
+                      <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Fornecedor</TableHead>
+                      <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Vendedor</TableHead>
+                      <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Canal</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {items.map((c, idx) => (
-                      <TableRow key={c.id} className={`table-row-hover transition-all duration-150 ${idx % 2 === 1 ? "bg-[#F5F8FC]" : "bg-white"}`}>
-                        <TableCell className="text-xs text-card-foreground">
+                      <TableRow key={c.id} className={`table-row-hover transition-all duration-150 ${idx % 2 === 1 ? "table-row-alt" : ""}`}>
+                        <TableCell className="text-xs text-foreground">
                           {new Date(c.created_at).toLocaleTimeString("pt-BR", {
                             timeZone: "America/Sao_Paulo",
                             hour: "2-digit",
                             minute: "2-digit",
                           })}
                         </TableCell>
-                        <TableCell className="text-xs font-medium max-w-[200px] truncate text-card-foreground">
+                        <TableCell className="text-xs font-medium max-w-[200px] truncate text-foreground">
                           {c.produto}
                           {c.link && (
                             <a href={c.link} target="_blank" rel="noopener noreferrer" className="inline-block ml-1 text-primary hover:text-primary/80">
@@ -143,14 +145,14 @@ const Controle = () => {
                             </a>
                           )}
                         </TableCell>
-                        <TableCell className="text-xs text-card-muted-foreground">{c.marca}</TableCell>
-                        <TableCell className="text-xs text-card-muted-foreground">{c.part_number}</TableCell>
-                        <TableCell className="text-xs text-card-foreground">{formatBRL(c.custo)}</TableCell>
+                        <TableCell className="text-xs text-muted-foreground">{c.marca}</TableCell>
+                        <TableCell className="text-xs text-muted-foreground">{c.part_number}</TableCell>
+                        <TableCell className="text-xs text-foreground">{formatBRL(c.custo)}</TableCell>
                         <TableCell className="text-xs font-medium text-primary">{formatBRL(c.preco_15)}</TableCell>
-                        <TableCell className="text-xs font-medium text-officer-green">{formatBRL(c.preco_20)}</TableCell>
-                        <TableCell className="text-xs text-card-muted-foreground">{c.fornecedor}</TableCell>
-                        <TableCell className="text-xs text-card-foreground">{c.vendedor}</TableCell>
-                        <TableCell className="text-xs text-card-muted-foreground">{c.canal}</TableCell>
+                        <TableCell className="text-xs font-medium text-success">{formatBRL(c.preco_20)}</TableCell>
+                        <TableCell className="text-xs text-muted-foreground">{c.fornecedor}</TableCell>
+                        <TableCell className="text-xs text-foreground">{c.vendedor}</TableCell>
+                        <TableCell className="text-xs text-muted-foreground">{c.canal}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
