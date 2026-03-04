@@ -207,10 +207,10 @@ const ListaMix = () => {
   const handleExport = () => {
     const rows = filtered.map((p) => ({
       Fornecedor: p.fornecedor || "",
+      PN: p.part_number || "",
       Produto: p.produto,
       Marca: p.marca || "",
       Custo: formatBRL(p.custo),
-      "Part Number": p.part_number || "",
       "Preço 15%": formatBRL(p.preco_15),
       "Preço 20%": formatBRL(p.preco_20),
       Status: p.ativo ? "Ativo" : "Inativo",
@@ -286,10 +286,10 @@ const ListaMix = () => {
             <TableHeader>
               <TableRow className="table-header-dark border-0">
                 <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Fornecedor</TableHead>
+                <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">PN</TableHead>
                 <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Produto</TableHead>
                 <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Marca</TableHead>
                 <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Custo</TableHead>
-                <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">PN</TableHead>
                 <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">15%</TableHead>
                 <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">20%</TableHead>
               </TableRow>
@@ -303,6 +303,13 @@ const ListaMix = () => {
                       <Input
                         value={row.fornecedor}
                         onChange={(e) => updateEditableRow(row.id, "fornecedor", e.target.value)}
+                        className="h-7 text-xs surface-input"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        value={row.part_number}
+                        onChange={(e) => updateEditableRow(row.id, "part_number", e.target.value)}
                         className="h-7 text-xs surface-input"
                       />
                     </TableCell>
@@ -327,13 +334,6 @@ const ListaMix = () => {
                         className="h-7 text-xs surface-input w-24"
                       />
                     </TableCell>
-                    <TableCell>
-                      <Input
-                        value={row.part_number}
-                        onChange={(e) => updateEditableRow(row.id, "part_number", e.target.value)}
-                        className="h-7 text-xs surface-input"
-                      />
-                    </TableCell>
                     <TableCell className="text-xs font-medium text-primary">
                       {formatBRL(Math.round(custo * 1.15 * 100) / 100)}
                     </TableCell>
@@ -353,10 +353,13 @@ const ListaMix = () => {
             <TableHeader>
               <TableRow className="table-header-dark border-0">
                 {isAdmin && <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Fornecedor</TableHead>}
+                {isAdmin ? (
+                  <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">PN</TableHead>
+                ) : null}
                 <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Produto</TableHead>
                 <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Marca</TableHead>
+                {!isAdmin && <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">PN</TableHead>}
                 {isAdmin && <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Custo</TableHead>}
-                <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">PN</TableHead>
                 <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">15%</TableHead>
                 <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">20%</TableHead>
                 {isAdmin && <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Status</TableHead>}
@@ -367,10 +370,11 @@ const ListaMix = () => {
               {filtered.map((p, idx) => (
                 <TableRow key={p.id} className={`table-row-hover transition-all duration-150 ${idx % 2 === 1 ? "table-row-alt" : ""} ${!p.ativo ? "opacity-50" : ""}`}>
                   {isAdmin && <TableCell className="text-xs text-muted-foreground">{p.fornecedor}</TableCell>}
+                  {isAdmin && <TableCell className="text-xs text-muted-foreground">{p.part_number}</TableCell>}
                   <TableCell className="text-xs font-medium text-foreground">{p.produto}</TableCell>
                   <TableCell className="text-xs text-muted-foreground">{p.marca}</TableCell>
+                  {!isAdmin && <TableCell className="text-xs text-muted-foreground">{p.part_number}</TableCell>}
                   {isAdmin && <TableCell className="text-xs text-foreground">{formatBRL(p.custo)}</TableCell>}
-                  <TableCell className="text-xs text-muted-foreground">{p.part_number}</TableCell>
                   <TableCell className="text-xs font-medium text-primary">{formatBRL(p.preco_15)}</TableCell>
                   <TableCell className="text-xs font-medium text-success">{formatBRL(p.preco_20)}</TableCell>
                   {isAdmin && (

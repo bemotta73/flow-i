@@ -374,10 +374,10 @@ const ImportMix = ({ onComplete }: ImportMixProps) => {
               <TableHeader>
                 <TableRow className="table-header-dark border-0">
                   <TableHead className="text-xs text-muted-foreground font-semibold uppercase">Fornecedor</TableHead>
+                  <TableHead className="text-xs text-muted-foreground font-semibold uppercase">PN</TableHead>
                   <TableHead className="text-xs text-muted-foreground font-semibold uppercase">Produto</TableHead>
                   <TableHead className="text-xs text-muted-foreground font-semibold uppercase">Marca</TableHead>
                   <TableHead className="text-xs text-muted-foreground font-semibold uppercase">Custo</TableHead>
-                  <TableHead className="text-xs text-muted-foreground font-semibold uppercase">PN</TableHead>
                   <TableHead className="text-xs text-muted-foreground font-semibold uppercase">15%</TableHead>
                   <TableHead className="text-xs text-muted-foreground font-semibold uppercase">20%</TableHead>
                 </TableRow>
@@ -386,10 +386,10 @@ const ImportMix = ({ onComplete }: ImportMixProps) => {
                 {previewData.map((item, i) => (
                   <TableRow key={i}>
                     <TableCell className="text-xs text-muted-foreground">{item.fornecedor}</TableCell>
+                    <TableCell className="text-xs text-muted-foreground">{item.part_number}</TableCell>
                     <TableCell className="text-xs text-foreground">{item.produto}</TableCell>
                     <TableCell className="text-xs text-muted-foreground">{item.marca}</TableCell>
                     <TableCell className="text-xs text-foreground">{formatBRL(item.custo)}</TableCell>
-                    <TableCell className="text-xs text-muted-foreground">{item.part_number}</TableCell>
                     <TableCell className="text-xs text-primary">{formatBRL(item.preco_15)}</TableCell>
                     <TableCell className="text-xs text-success">{formatBRL(item.preco_20)}</TableCell>
                   </TableRow>
