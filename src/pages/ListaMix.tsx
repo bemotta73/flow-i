@@ -172,10 +172,10 @@ const ListaMix = () => {
         </div>
         <div className="flex gap-2 ml-auto">
           <ImportMix onComplete={fetchProdutos} />
-          <Button variant="outline" size="sm" className="gap-2 border-primary text-primary hover:bg-primary/10" onClick={handleExport} disabled={filtered.length === 0}>
+          <Button variant="outline" size="sm" className="gap-2 border-warning text-warning hover:bg-warning/10" onClick={handleExport} disabled={filtered.length === 0}>
             <Download className="h-4 w-4" /> Exportar Excel
           </Button>
-          <Button size="sm" className="gap-2" onClick={openAdd}>
+          <Button size="sm" className="gap-2 bg-warning text-warning-foreground hover:bg-warning/90" onClick={openAdd}>
             <Plus className="h-4 w-4" /> Adicionar Produto
           </Button>
         </div>
