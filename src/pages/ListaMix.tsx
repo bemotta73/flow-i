@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { formatBRL } from "@/lib/format";
 import { useAuth } from "@/contexts/AuthContext";
@@ -10,9 +10,10 @@ import {
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
-import { Search, Plus, Download, Upload, Pencil, X, Check, FileSpreadsheet } from "lucide-react";
+import { Search, Plus, Download, Pencil, X, Check, FileSpreadsheet } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import * as XLSX from "xlsx";
+import ImportMix from "@/components/ImportMix";
 
 interface Produto {
   id: string;
@@ -49,12 +50,6 @@ const ListaMix = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<ProdutoForm>(emptyForm);
   const [saving, setSaving] = useState(false);
-
-  // Import states
-  const [importPreview, setImportPreview] = useState<any[] | null>(null);
-  const [importDialogOpen, setImportDialogOpen] = useState(false);
-  const [importing, setImporting] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchProdutos = async () => {
     setLoading(true);
@@ -155,149 +150,7 @@ const ListaMix = () => {
     XLSX.writeFile(wb, "lista-mix.xlsx");
   };
 
-  // Import
-  const parseCustoBRL = (raw: any): number => {
-    if (typeof raw === "number") return raw;
-    const s = String(raw || "0")
-      .replace(/R\$\s*/g, "")
-      .replace(/\s/g, "")
-      .replace(/\./g, "")
-      .replace(",", ".");
-    return parseFloat(s) || 0;
-  };
 
-  const detectColumnIndex = (headers: string[], keywords: string[]): number => {
-    return headers.findIndex((h) => {
-      const lower = h.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-      return keywords.some((k) => lower.includes(k));
-    });
-  };
-
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (evt) => {
-      const data = new Uint8Array(evt.target?.result as ArrayBuffer);
-      const workbook = XLSX.read(data, { type: "array" });
-      const sheet = workbook.Sheets[workbook.SheetNames[0]];
-      const rows = XLSX.utils.sheet_to_json<any[]>(sheet, { header: 1 });
-
-      if (rows.length === 0) {
-        toast({ title: "Planilha vazia", variant: "destructive" });
-        return;
-      }
-
-      // Find the header row (may not be the first row — skip title rows)
-      let headerRowIdx = -1;
-      let fornecedorIdx = -1, pnIdx = -1, produtoIdx = -1, marcaIdx = -1, custoIdx = -1;
-
-      for (let i = 0; i < Math.min(rows.length, 10); i++) {
-        const cells = (rows[i] || []).map((c: any) => String(c || ""));
-        const f = detectColumnIndex(cells, ["fornecedor"]);
-        const p = detectColumnIndex(cells, ["produto", "produtos", "descricao", "item"]);
-        const c = detectColumnIndex(cells, ["custo", "preco", "precos", "valor", "price"]);
-        // Need at least 2 matches to consider it a header
-        if ([f, p, c].filter((x) => x !== -1).length >= 2) {
-          headerRowIdx = i;
-          fornecedorIdx = f;
-          produtoIdx = p;
-          custoIdx = c;
-          pnIdx = detectColumnIndex(cells, ["pn", "part_number", "part number", "partnumber", "codigo"]);
-          marcaIdx = detectColumnIndex(cells, ["marca", "fabricante", "brand"]);
-          break;
-        }
-      }
-
-      let startIdx: number;
-      if (headerRowIdx !== -1) {
-        startIdx = headerRowIdx + 1;
-      } else {
-        // Fallback: assume A=fornecedor, B=PN, C=produto, D=marca, E=custo
-        fornecedorIdx = 0;
-        pnIdx = 1;
-        produtoIdx = 2;
-        marcaIdx = 3;
-        custoIdx = 4;
-        startIdx = 0;
-      }
-
-      const colLabel = (idx: number) => idx !== -1 ? String.fromCharCode(65 + idx) : "—";
-      const detectedNames = headerRowIdx !== -1
-        ? `Fornecedor→${colLabel(fornecedorIdx)}, PN→${colLabel(pnIdx)}, Produto→${colLabel(produtoIdx)}, Marca→${colLabel(marcaIdx)}, Custo→${colLabel(custoIdx)}`
-        : "Sem cabeçalho — usando A=Fornecedor, B=PN, C=Produto, D=Marca, E=Custo";
-
-      const mapped = rows.slice(startIdx).map((row) => {
-        const fornecedor = fornecedorIdx !== -1 ? String(row[fornecedorIdx] ?? "").trim() : "";
-        const part_number = pnIdx !== -1 ? String(row[pnIdx] ?? "").trim() : "";
-        const produto = produtoIdx !== -1 ? String(row[produtoIdx] ?? "").trim() : "";
-        const marca = marcaIdx !== -1 ? String(row[marcaIdx] ?? "").trim() : "";
-        const custo = custoIdx !== -1 ? parseCustoBRL(row[custoIdx]) : 0;
-        return {
-          produto,
-          marca,
-          part_number,
-          custo,
-          preco_15: Math.round(custo * 1.15 * 100) / 100,
-          preco_20: Math.round(custo * 1.20 * 100) / 100,
-          fornecedor,
-        };
-      }).filter((r) => r.produto && r.custo > 0);
-
-      if (mapped.length === 0) {
-        toast({ title: "Nenhum produto válido encontrado", description: detectedNames, variant: "destructive" });
-        return;
-      }
-
-      setImportPreview(mapped);
-      setImportDialogOpen(true);
-      toast({ title: "Colunas detectadas", description: detectedNames });
-    };
-    reader.readAsArrayBuffer(file);
-    e.target.value = "";
-  };
-
-  const confirmImport = async () => {
-    if (!importPreview) return;
-    setImporting(true);
-
-    for (const item of importPreview) {
-      // Check for existing product by name or PN
-      const { data: existing } = await supabase
-        .from("lista_mix")
-        .select("id")
-        .or(`produto.eq.${item.produto}${item.part_number ? `,part_number.eq.${item.part_number}` : ""}`)
-        .limit(1);
-
-      if (existing && existing.length > 0) {
-        await supabase.from("lista_mix").update({
-          custo: item.custo,
-          preco_15: item.preco_15,
-          preco_20: item.preco_20,
-          marca: item.marca || null,
-          part_number: item.part_number || null,
-          fornecedor: item.fornecedor || null,
-          updated_at: new Date().toISOString(),
-        }).eq("id", existing[0].id);
-      } else {
-        await supabase.from("lista_mix").insert({
-          produto: item.produto,
-          marca: item.marca || null,
-          part_number: item.part_number || null,
-          custo: item.custo,
-          preco_15: item.preco_15,
-          preco_20: item.preco_20,
-          fornecedor: item.fornecedor || null,
-        });
-      }
-    }
-
-    setImporting(false);
-    setImportDialogOpen(false);
-    setImportPreview(null);
-    fetchProdutos();
-    toast({ title: "Importação concluída", description: `${importPreview.length} produtos processados` });
-  };
 
   return (
     <div className="animate-fade-in-up">
@@ -318,10 +171,7 @@ const ListaMix = () => {
           />
         </div>
         <div className="flex gap-2 ml-auto">
-          <Button variant="outline" size="sm" className="gap-2 border-primary text-primary hover:bg-primary/10" onClick={() => fileInputRef.current?.click()}>
-            <Upload className="h-4 w-4" /> Importar Excel
-          </Button>
-          <input ref={fileInputRef} type="file" accept=".xlsx,.xls,.csv" onChange={handleFileSelect} className="hidden" />
+          <ImportMix onComplete={fetchProdutos} />
           <Button variant="outline" size="sm" className="gap-2 border-primary text-primary hover:bg-primary/10" onClick={handleExport} disabled={filtered.length === 0}>
             <Download className="h-4 w-4" /> Exportar Excel
           </Button>
@@ -442,50 +292,6 @@ const ListaMix = () => {
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancelar</Button>
             <Button onClick={handleSave} disabled={saving}>{saving ? "Salvando..." : "Salvar"}</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Import Preview Dialog */}
-      <Dialog open={importDialogOpen} onOpenChange={setImportDialogOpen}>
-        <DialogContent className="bg-card border-card-border max-w-3xl max-h-[80vh] overflow-auto">
-          <DialogHeader>
-            <DialogTitle className="text-warning font-semibold">Preview da Importação</DialogTitle>
-          </DialogHeader>
-          <p className="text-sm text-muted-foreground">{importPreview?.length || 0} produtos encontrados na planilha</p>
-          <div className="max-h-[50vh] overflow-auto">
-            <Table>
-              <TableHeader>
-                <TableRow className="table-header-dark border-0">
-                  <TableHead className="text-xs text-muted-foreground font-semibold uppercase">Fornecedor</TableHead>
-                  <TableHead className="text-xs text-muted-foreground font-semibold uppercase">Produto</TableHead>
-                  <TableHead className="text-xs text-muted-foreground font-semibold uppercase">Marca</TableHead>
-                  <TableHead className="text-xs text-muted-foreground font-semibold uppercase">Custo</TableHead>
-                  <TableHead className="text-xs text-muted-foreground font-semibold uppercase">PN</TableHead>
-                  <TableHead className="text-xs text-muted-foreground font-semibold uppercase">15%</TableHead>
-                  <TableHead className="text-xs text-muted-foreground font-semibold uppercase">20%</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {importPreview?.map((item, i) => (
-                  <TableRow key={i}>
-                    <TableCell className="text-xs text-muted-foreground">{item.fornecedor}</TableCell>
-                    <TableCell className="text-xs text-foreground">{item.produto}</TableCell>
-                    <TableCell className="text-xs text-muted-foreground">{item.marca}</TableCell>
-                    <TableCell className="text-xs text-foreground">{formatBRL(item.custo)}</TableCell>
-                    <TableCell className="text-xs text-muted-foreground">{item.part_number}</TableCell>
-                    <TableCell className="text-xs text-primary">{formatBRL(item.preco_15)}</TableCell>
-                    <TableCell className="text-xs text-success">{formatBRL(item.preco_20)}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => { setImportDialogOpen(false); setImportPreview(null); }}>Cancelar</Button>
-            <Button onClick={confirmImport} disabled={importing}>
-              {importing ? "Importando..." : "Confirmar Importação"}
-            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
