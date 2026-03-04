@@ -1,6 +1,7 @@
 import { FilePlus2, TableProperties, BarChart3 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
+import vorneLogo from "@/assets/vorne-logo.png";
 import {
   Sidebar,
   SidebarContent,
@@ -74,6 +75,15 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+
+      <div className="mt-auto flex flex-col items-center gap-1 px-4 py-4 border-t border-white/10">
+        <img src={vorneLogo} alt="Vorne AI" className={collapsed ? "h-5 w-5" : "h-8 w-8"} />
+        {!collapsed && (
+          <span className="text-[9px] text-muted-foreground tracking-wide">
+            Desenvolvido por <span className="font-medium text-foreground/70">Vorne AI</span>
+          </span>
+        )}
+      </div>
     </Sidebar>
   );
 }
