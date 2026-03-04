@@ -266,7 +266,7 @@ const ImportMix = ({ onComplete }: ImportMixProps) => {
       <Button
         variant="outline"
         size="sm"
-        className="gap-2 border-primary text-primary hover:bg-primary/10"
+        className="gap-2 border-warning text-warning hover:bg-warning/10"
         onClick={() => fileInputRef.current?.click()}
       >
         <Upload className="h-4 w-4" /> Importar Excel
