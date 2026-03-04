@@ -229,6 +229,7 @@ const ImportMix = ({ onComplete }: ImportMixProps) => {
 
       if (existing && existing.length > 0) {
         await supabase.from("lista_mix").update({
+          produto: item.produto,
           custo: item.custo,
           preco_15: item.preco_15,
           preco_20: item.preco_20,
