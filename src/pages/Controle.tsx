@@ -63,9 +63,9 @@ const Controle = () => {
   const years = Array.from({ length: 5 }, (_, i) => now.getFullYear() - 2 + i);
 
   return (
-    <div>
+    <div className="animate-fade-in-up">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold tracking-tight">Controle de Cotações</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">Controle de Cotações</h1>
       </div>
 
       {/* Month tabs + Year selector */}
@@ -75,10 +75,10 @@ const Controle = () => {
             <button
               key={m}
               onClick={() => setMes(i)}
-              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 ${
                 i === mes
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  ? "btn-primary-gradient shadow-sm"
+                  : "bg-muted/50 text-muted-foreground hover:bg-muted/70"
               }`}
             >
               {m.slice(0, 3)}
@@ -86,7 +86,7 @@ const Controle = () => {
           ))}
         </div>
         <Select value={String(ano)} onValueChange={(v) => setAno(Number(v))}>
-          <SelectTrigger className="w-24">
+          <SelectTrigger className="w-24 bg-card text-card-foreground border-card-border">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -105,37 +105,37 @@ const Controle = () => {
       ) : (
         <div className="space-y-6">
           {Object.entries(grouped).map(([day, items]) => (
-            <div key={day}>
-              <div className="bg-primary text-primary-foreground px-4 py-2 rounded-t-lg text-sm font-semibold">
+            <div key={day} className="animate-fade-in-up">
+              <div className="bg-primary text-primary-foreground px-4 py-2.5 rounded-t-xl text-sm font-bold tracking-wide">
                 {day}
               </div>
-              <div className="border border-t-0 rounded-b-lg overflow-hidden">
+              <div className="card-internal rounded-t-none overflow-hidden">
                 <Table>
                   <TableHeader>
-                    <TableRow>
-                      <TableHead className="text-xs">Hora</TableHead>
-                      <TableHead className="text-xs">Produto</TableHead>
-                      <TableHead className="text-xs">Marca</TableHead>
-                      <TableHead className="text-xs">PN</TableHead>
-                      <TableHead className="text-xs">Custo</TableHead>
-                      <TableHead className="text-xs">15%</TableHead>
-                      <TableHead className="text-xs">20%</TableHead>
-                      <TableHead className="text-xs">Fornecedor</TableHead>
-                      <TableHead className="text-xs">Vendedor</TableHead>
-                      <TableHead className="text-xs">Canal</TableHead>
+                    <TableRow className="table-header-blue border-0">
+                      <TableHead className="text-xs text-primary-foreground font-semibold">Hora</TableHead>
+                      <TableHead className="text-xs text-primary-foreground font-semibold">Produto</TableHead>
+                      <TableHead className="text-xs text-primary-foreground font-semibold">Marca</TableHead>
+                      <TableHead className="text-xs text-primary-foreground font-semibold">PN</TableHead>
+                      <TableHead className="text-xs text-primary-foreground font-semibold">Custo</TableHead>
+                      <TableHead className="text-xs text-primary-foreground font-semibold">15%</TableHead>
+                      <TableHead className="text-xs text-primary-foreground font-semibold">20%</TableHead>
+                      <TableHead className="text-xs text-primary-foreground font-semibold">Fornecedor</TableHead>
+                      <TableHead className="text-xs text-primary-foreground font-semibold">Vendedor</TableHead>
+                      <TableHead className="text-xs text-primary-foreground font-semibold">Canal</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {items.map((c) => (
-                      <TableRow key={c.id}>
-                        <TableCell className="text-xs">
+                    {items.map((c, idx) => (
+                      <TableRow key={c.id} className={`table-row-hover transition-all duration-150 ${idx % 2 === 1 ? "bg-[#F5F8FC]" : "bg-white"}`}>
+                        <TableCell className="text-xs text-card-foreground">
                           {new Date(c.created_at).toLocaleTimeString("pt-BR", {
                             timeZone: "America/Sao_Paulo",
                             hour: "2-digit",
                             minute: "2-digit",
                           })}
                         </TableCell>
-                        <TableCell className="text-xs font-medium max-w-[200px] truncate">
+                        <TableCell className="text-xs font-medium max-w-[200px] truncate text-card-foreground">
                           {c.produto}
                           {c.link && (
                             <a href={c.link} target="_blank" rel="noopener noreferrer" className="inline-block ml-1 text-primary hover:text-primary/80">
@@ -143,14 +143,14 @@ const Controle = () => {
                             </a>
                           )}
                         </TableCell>
-                        <TableCell className="text-xs">{c.marca}</TableCell>
-                        <TableCell className="text-xs">{c.part_number}</TableCell>
-                        <TableCell className="text-xs">{formatBRL(c.custo)}</TableCell>
-                        <TableCell className="text-xs">{formatBRL(c.preco_15)}</TableCell>
-                        <TableCell className="text-xs">{formatBRL(c.preco_20)}</TableCell>
-                        <TableCell className="text-xs">{c.fornecedor}</TableCell>
-                        <TableCell className="text-xs">{c.vendedor}</TableCell>
-                        <TableCell className="text-xs">{c.canal}</TableCell>
+                        <TableCell className="text-xs text-card-muted-foreground">{c.marca}</TableCell>
+                        <TableCell className="text-xs text-card-muted-foreground">{c.part_number}</TableCell>
+                        <TableCell className="text-xs text-card-foreground">{formatBRL(c.custo)}</TableCell>
+                        <TableCell className="text-xs font-medium text-primary">{formatBRL(c.preco_15)}</TableCell>
+                        <TableCell className="text-xs font-medium text-officer-green">{formatBRL(c.preco_20)}</TableCell>
+                        <TableCell className="text-xs text-card-muted-foreground">{c.fornecedor}</TableCell>
+                        <TableCell className="text-xs text-card-foreground">{c.vendedor}</TableCell>
+                        <TableCell className="text-xs text-card-muted-foreground">{c.canal}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>

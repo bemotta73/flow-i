@@ -29,14 +29,14 @@ export function AppSidebar() {
         {!collapsed ? (
           <>
             <span className="text-2xl font-bold tracking-tight text-sidebar-foreground">
-              Cota<span className="text-sidebar-primary">Flow</span>
+              Cota<span className="text-officer-green">Flow</span>
             </span>
             <span className="text-xs text-sidebar-muted-foreground tracking-wide">
               Officer Distribuidora
             </span>
           </>
         ) : (
-          <span className="text-lg font-bold text-sidebar-primary">CF</span>
+          <span className="text-lg font-bold text-officer-green">CF</span>
         )}
       </div>
 
@@ -56,10 +56,15 @@ export function AppSidebar() {
                       <NavLink
                         to={item.url}
                         end
-                        className="hover:bg-sidebar-accent/60"
-                        activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                        className={`relative hover:bg-sidebar-accent/60 ${
+                          isActive ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" : ""
+                        }`}
+                        activeClassName=""
                       >
-                        <item.icon className="h-5 w-5" />
+                        {isActive && (
+                          <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-officer-green" />
+                        )}
+                        <item.icon className={`h-5 w-5 ${isActive ? "text-officer-green" : ""}`} />
                         {!collapsed && <span>{item.title}</span>}
                       </NavLink>
                     </SidebarMenuButton>
