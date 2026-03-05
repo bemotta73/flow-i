@@ -88,13 +88,32 @@ export function QuotationForm() {
       toast({ title: "Campos obrigatórios", description: "Preencha produto e custo para adicionar.", variant: "destructive" });
       return;
     }
-    setProdutos((prev) => [...prev, { ...form, custoNum }]);
+    if (editingIndex !== null) {
+      setProdutos((prev) => prev.map((p, i) => i === editingIndex ? { ...form, custoNum } : p));
+      setEditingIndex(null);
+    } else {
+      setProdutos((prev) => [...prev, { ...form, custoNum }]);
+    }
     setForm({ ...emptyProduto });
     setShowEmail(false);
   };
 
+  const handleEditProduct = (index: number) => {
+    const p = produtos[index];
+    setForm({ produto: p.produto, marca: p.marca, partNumber: p.partNumber, custo: p.custo, estoque: p.estoque, fornecedor: p.fornecedor, uf: p.uf, prazo: p.prazo, link: p.link });
+    setEditingIndex(index);
+    setShowEmail(false);
+  };
+
+  const handleCancelEdit = () => {
+    setForm({ ...emptyProduto });
+    setEditingIndex(null);
+  };
+
   const handleRemoveProduct = (index: number) => {
     setProdutos((prev) => prev.filter((_, i) => i !== index));
+    if (editingIndex === index) { setEditingIndex(null); setForm({ ...emptyProduto }); }
+    else if (editingIndex !== null && index < editingIndex) { setEditingIndex(editingIndex - 1); }
     setShowEmail(false);
   };
 
