@@ -47,7 +47,8 @@ export function QuotationForm() {
   const [vendedores, setVendedores] = useState<Vendedor[]>([]);
   const [saving, setSaving] = useState(false);
   const [showEmail, setShowEmail] = useState(false);
-  const [margemSelecionada, setMargemSelecionada] = useState<MargemSelecionada>("ambas");
+  const [margemSelecionada, setMargemSelecionada] = useState<MargemSelecionada>("20");
+  const [customMargem, setCustomMargem] = useState("");
 
   const [vendedor, setVendedor] = useState("");
   const [canal, setCanal] = useState("");
@@ -289,14 +290,13 @@ export function QuotationForm() {
         </Button>
       </div>
 
-      {/* Margem selector */}
       <div className="space-y-2">
         <p className="text-sm font-semibold text-warning">Margem para o Email</p>
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
           {([
-            { value: "15" as MargemSelecionada, label: "Apenas 15%" },
-            { value: "20" as MargemSelecionada, label: "Apenas 20%" },
-            { value: "ambas" as MargemSelecionada, label: "Ambas" },
+            { value: "15" as MargemSelecionada, label: "15%" },
+            { value: "20" as MargemSelecionada, label: "20%" },
+            { value: "custom" as MargemSelecionada, label: "Personalizado" },
           ]).map((opt) => (
             <button
               key={opt.value}
@@ -311,6 +311,17 @@ export function QuotationForm() {
               {opt.label}
             </button>
           ))}
+          {margemSelecionada === "custom" && (
+            <div className="flex items-center gap-1.5">
+              <Input
+                value={customMargem}
+                onChange={(e) => { setCustomMargem(e.target.value); setShowEmail(false); }}
+                placeholder="Ex: 18"
+                className="w-20 h-9 text-sm surface-input"
+              />
+              <span className="text-sm text-muted-foreground">%</span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -336,7 +347,7 @@ export function QuotationForm() {
       {/* Email Preview */}
       {showEmail && allProductsForEmail.length > 0 && (
         <div className="animate-fade-in-up">
-          <EmailPreview vendedor={vendedor} produtos={allProductsForEmail} margem={margemSelecionada} />
+          <EmailPreview vendedor={vendedor} produtos={allProductsForEmail} margem={margemSelecionada} customMargem={parseFloat(customMargem) || undefined} />
         </div>
       )}
     </div>

@@ -201,8 +201,8 @@ const ImportMix = ({ onComplete }: ImportMixProps) => {
         marca: get("marca"),
         part_number: get("part_number"),
         custo,
-        preco_15: Math.round(custo * 1.15 * 100) / 100,
-        preco_20: Math.round(custo * 1.20 * 100) / 100,
+        preco_15: Math.round((custo / 0.85) * 100) / 100,
+        preco_20: Math.round((custo / 0.80) * 100) / 100,
         fornecedor: get("fornecedor"),
       };
     }).filter((r) => r.produto && r.custo > 0);
@@ -265,8 +265,8 @@ const ImportMix = ({ onComplete }: ImportMixProps) => {
           produto,
           marca: item.marca.trim() || null,
           custo: item.custo,
-          preco_15: Math.round(item.custo * 1.15 * 100) / 100,
-          preco_20: Math.round(item.custo * 1.2 * 100) / 100,
+          preco_15: Math.round((item.custo / 0.85) * 100) / 100,
+          preco_20: Math.round((item.custo / 0.80) * 100) / 100,
         };
 
         console.log("Payload Supabase:", JSON.stringify(payload));
