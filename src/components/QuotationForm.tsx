@@ -238,8 +238,8 @@ export function QuotationForm() {
         <div className="grid gap-4 sm:grid-cols-2">
            <div className="space-y-2">
             <label className="label-apple">Vendedor *</label>
-            <Select value={vendedor} onValueChange={(v) => { setVendedor(v); setShowEmail(false); }} disabled={produtos.length > 0}>
-              <SelectTrigger className={cn(inputClass, produtos.length > 0 && "opacity-60 cursor-not-allowed")}><SelectValue placeholder="Selecione" /></SelectTrigger>
+            <Select value={vendedor} onValueChange={(v) => { setVendedor(v); setShowEmail(false); }} disabled={produtos.length > 0 && !!vendedor}>
+              <SelectTrigger className={cn(inputClass, produtos.length > 0 && !!vendedor && "opacity-60 cursor-not-allowed")}><SelectValue placeholder="Selecione" /></SelectTrigger>
               <SelectContent>
                 {vendedores.map((v) => (
                   <SelectItem key={v.id} value={v.nome}>{v.nome}</SelectItem>
@@ -250,8 +250,8 @@ export function QuotationForm() {
 
           <div className="space-y-2">
             <label className="label-apple">Canal *</label>
-            <Select value={canal} onValueChange={(v) => { setCanal(v); setShowEmail(false); }} disabled={produtos.length > 0}>
-              <SelectTrigger className={cn(inputClass, produtos.length > 0 && "opacity-60 cursor-not-allowed")}><SelectValue placeholder="Selecione" /></SelectTrigger>
+            <Select value={canal} onValueChange={(v) => { setCanal(v); setShowEmail(false); }} disabled={produtos.length > 0 && !!canal}>
+              <SelectTrigger className={cn(inputClass, produtos.length > 0 && !!canal && "opacity-60 cursor-not-allowed")}><SelectValue placeholder="Selecione" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="Email">Email</SelectItem>
                 <SelectItem value="Teams">Teams</SelectItem>
