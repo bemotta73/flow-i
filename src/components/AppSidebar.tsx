@@ -75,6 +75,11 @@ export function AppSidebar() {
                       >
                         <item.icon className={`h-[18px] w-[18px] ${isActive ? "text-primary" : ""}`} />
                         {!collapsed && <span className="text-sm">{item.title}</span>}
+                        {item.url === "/alertas" && unreadAlerts > 0 && (
+                          <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-warning text-warning-foreground text-[10px] font-bold px-1">
+                            {unreadAlerts}
+                          </span>
+                        )}
                       </NavLink>
                     </SidebarMenuButton>
                   </SidebarMenuItem>

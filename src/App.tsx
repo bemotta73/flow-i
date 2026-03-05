@@ -11,6 +11,7 @@ import Dashboard from "./pages/Dashboard";
 import ListaMix from "./pages/ListaMix";
 import GerenciarVendedores from "./pages/GerenciarVendedores";
 import ConsultaPrecos from "./pages/ConsultaPrecos";
+import Alertas from "./pages/Alertas";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 
@@ -47,6 +48,7 @@ function AppRoutes() {
         <Route path="/controle" element={<Controle />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/lista-mix" element={<ListaMix />} />
+        <Route path="/alertas" element={<Alertas />} />
         <Route path="/vendedores" element={<GerenciarVendedores />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
