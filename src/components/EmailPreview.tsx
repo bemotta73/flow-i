@@ -5,12 +5,13 @@ import { Badge } from "@/components/ui/badge";
 import { formatBRL } from "@/lib/format";
 import type { ProdutoItem } from "./QuotationForm";
 
-export type MargemSelecionada = "15" | "20" | "ambas";
+export type MargemSelecionada = "15" | "20" | "custom";
 
 interface EmailPreviewProps {
   vendedor: string;
   produtos: ProdutoItem[];
   margem: MargemSelecionada;
+  customMargem?: number;
 }
 
 function hasNobreak(produtos: ProdutoItem[]): boolean {
@@ -20,30 +21,30 @@ function hasNobreak(produtos: ProdutoItem[]): boolean {
   });
 }
 
-function generateEmail(vendedor: string, produtos: ProdutoItem[], margem: MargemSelecionada): string {
+function calcPreco(custo: number, margemPct: number): number {
+  return custo / (1 - margemPct / 100);
+}
+
+function generateEmail(vendedor: string, produtos: ProdutoItem[], margem: MargemSelecionada, customMargem?: number): string {
   const nobreak = hasNobreak(produtos);
   const multi = produtos.length > 1;
+
+  const getPrecoLine = (custoNum: number) => {
+    if (margem === "15") return `Preço: ${formatBRL(calcPreco(custoNum, 15))}`;
+    if (margem === "20") return `Preço: ${formatBRL(calcPreco(custoNum, 20))}`;
+    // custom
+    const pct = customMargem || 20;
+    return `Preço: ${formatBRL(calcPreco(custoNum, pct))}`;
+  };
 
   let produtoSection = "";
   if (multi) {
     produtoSection = produtos.map((p, i) => {
-      const preco15 = formatBRL(p.custoNum / 0.85);
-      const preco20 = formatBRL(p.custoNum / 0.80);
-      let precoLine = "";
-      if (margem === "15") precoLine = `Preço: ${preco15}`;
-      else if (margem === "20") precoLine = `Preço: ${preco20}`;
-      else precoLine = `Preço (15%): ${preco15} | Preço (20%): ${preco20}`;
-      return `${i + 1}. ${p.produto}\n${precoLine}`;
+      return `${i + 1}. ${p.produto}\n${getPrecoLine(p.custoNum)}`;
     }).join("\n\n");
   } else {
     const p = produtos[0];
-    const preco15 = formatBRL(p.custoNum / 0.85);
-    const preco20 = formatBRL(p.custoNum / 0.80);
-    let precoLine = "";
-    if (margem === "15") precoLine = `Preço: ${preco15}`;
-    else if (margem === "20") precoLine = `Preço: ${preco20}`;
-    else precoLine = `Preço (15%): ${preco15}\nPreço (20%): ${preco20}`;
-    produtoSection = `${p.produto}\n${precoLine}`;
+    produtoSection = `${p.produto}\n${getPrecoLine(p.custoNum)}`;
   }
 
   const freteSection = nobreak
@@ -67,12 +68,12 @@ CNPJ: 71.702.716/0006-93
 Qualquer dúvida estou à disposição.`;
 }
 
-export function EmailPreview({ vendedor, produtos, margem }: EmailPreviewProps) {
+export function EmailPreview({ vendedor, produtos, margem, customMargem }: EmailPreviewProps) {
   const [copied, setCopied] = useState(false);
 
   if (!vendedor || produtos.length === 0) return null;
 
-  const emailText = generateEmail(vendedor, produtos, margem);
+  const emailText = generateEmail(vendedor, produtos, margem, customMargem);
   const nobreak = hasNobreak(produtos);
 
   const handleCopy = async () => {
