@@ -387,10 +387,10 @@ const ListaMix = () => {
                   {!isAdmin && <TableCell className="text-xs text-muted-foreground">{p.part_number}</TableCell>}
                   {isAdmin && <TableCell className="text-xs text-foreground">{formatBRL(p.custo)}</TableCell>}
                   <TableCell className="text-xs font-medium text-primary">{formatBRL(p.preco_15)}</TableCell>
-                  <TableCell className="text-xs font-medium text-success">{formatBRL(p.preco_20)}</TableCell>
+                  <TableCell className="text-xs font-medium text-warning">{formatBRL(p.preco_20)}</TableCell>
                   {isAdmin && (
                     <TableCell>
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${p.ativo ? "bg-success/20 text-success" : "bg-destructive/20 text-destructive"}`}>
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${p.ativo ? "bg-warning/20 text-warning" : "bg-destructive/20 text-destructive"}`}>
                         {p.ativo ? "Ativo" : "Inativo"}
                       </span>
                     </TableCell>
