@@ -49,7 +49,6 @@ export function QuotationForm() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [vendedores, setVendedores] = useState<Vendedor[]>([]);
-  const [vendedores, setVendedores] = useState<Vendedor[]>([]);
   const [saving, setSaving] = useState(false);
   const [showEmail, setShowEmail] = useState(false);
   const [margemSelecionada, setMargemSelecionada] = useState<MargemSelecionada>("20");
