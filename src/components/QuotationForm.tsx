@@ -123,6 +123,7 @@ export function QuotationForm() {
     setVendedor("");
     setCanal("");
     setShowEmail(false);
+    setEditingIndex(null);
   };
 
   const handleFinalize = async () => {
