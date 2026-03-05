@@ -7,10 +7,11 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { parseBRLNumber, formatBRL } from "@/lib/format";
+import { cn } from "@/lib/utils";
 import { MarginPreview } from "./MarginPreview";
 import { EmailPreview, type MargemSelecionada } from "./EmailPreview";
 import { ImageUpload, type ExtractedData } from "./ImageUpload";
-import { Save, Eraser, Loader2, Plus, X } from "lucide-react";
+import { Save, Eraser, Loader2, Plus, X, Pencil } from "lucide-react";
 
 interface Vendedor {
   id: string;
@@ -54,6 +55,7 @@ export function QuotationForm() {
   const [canal, setCanal] = useState("");
   const [form, setForm] = useState({ ...emptyProduto });
   const [produtos, setProdutos] = useState<ProdutoItem[]>([]);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
   useEffect(() => {
     supabase.from("vendedores").select("id, nome").eq("ativo", true).then(({ data }) => {
@@ -87,13 +89,32 @@ export function QuotationForm() {
       toast({ title: "Campos obrigatórios", description: "Preencha produto e custo para adicionar.", variant: "destructive" });
       return;
     }
-    setProdutos((prev) => [...prev, { ...form, custoNum }]);
+    if (editingIndex !== null) {
+      setProdutos((prev) => prev.map((p, i) => i === editingIndex ? { ...form, custoNum } : p));
+      setEditingIndex(null);
+    } else {
+      setProdutos((prev) => [...prev, { ...form, custoNum }]);
+    }
     setForm({ ...emptyProduto });
     setShowEmail(false);
   };
 
+  const handleEditProduct = (index: number) => {
+    const p = produtos[index];
+    setForm({ produto: p.produto, marca: p.marca, partNumber: p.partNumber, custo: p.custo, estoque: p.estoque, fornecedor: p.fornecedor, uf: p.uf, prazo: p.prazo, link: p.link });
+    setEditingIndex(index);
+    setShowEmail(false);
+  };
+
+  const handleCancelEdit = () => {
+    setForm({ ...emptyProduto });
+    setEditingIndex(null);
+  };
+
   const handleRemoveProduct = (index: number) => {
     setProdutos((prev) => prev.filter((_, i) => i !== index));
+    if (editingIndex === index) { setEditingIndex(null); setForm({ ...emptyProduto }); }
+    else if (editingIndex !== null && index < editingIndex) { setEditingIndex(editingIndex - 1); }
     setShowEmail(false);
   };
 
@@ -103,6 +124,7 @@ export function QuotationForm() {
     setVendedor("");
     setCanal("");
     setShowEmail(false);
+    setEditingIndex(null);
   };
 
   const handleFinalize = async () => {
@@ -171,10 +193,10 @@ export function QuotationForm() {
       <div className="card-elevated p-6 space-y-5 animate-fade-in-up">
         <p className="text-sm font-semibold text-warning">Dados da Cotação</p>
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-2">
+           <div className="space-y-2">
             <label className="label-apple">Vendedor *</label>
-            <Select value={vendedor} onValueChange={(v) => { setVendedor(v); setShowEmail(false); }}>
-              <SelectTrigger className={inputClass}><SelectValue placeholder="Selecione" /></SelectTrigger>
+            <Select value={vendedor} onValueChange={(v) => { setVendedor(v); setShowEmail(false); }} disabled={produtos.length > 0}>
+              <SelectTrigger className={cn(inputClass, produtos.length > 0 && "opacity-60 cursor-not-allowed")}><SelectValue placeholder="Selecione" /></SelectTrigger>
               <SelectContent>
                 {vendedores.map((v) => (
                   <SelectItem key={v.id} value={v.nome}>{v.nome}</SelectItem>
@@ -185,8 +207,8 @@ export function QuotationForm() {
 
           <div className="space-y-2">
             <label className="label-apple">Canal *</label>
-            <Select value={canal} onValueChange={(v) => { setCanal(v); setShowEmail(false); }}>
-              <SelectTrigger className={inputClass}><SelectValue placeholder="Selecione" /></SelectTrigger>
+            <Select value={canal} onValueChange={(v) => { setCanal(v); setShowEmail(false); }} disabled={produtos.length > 0}>
+              <SelectTrigger className={cn(inputClass, produtos.length > 0 && "opacity-60 cursor-not-allowed")}><SelectValue placeholder="Selecione" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="Email">Email</SelectItem>
                 <SelectItem value="Teams">Teams</SelectItem>
@@ -202,16 +224,24 @@ export function QuotationForm() {
           <p className="label-apple">Produtos adicionados ({produtos.length})</p>
           <div className="space-y-2">
             {produtos.map((p, i) => (
-              <div key={i} className="group flex items-center gap-3 bg-muted rounded-xl p-3.5 animate-slide-in-left" style={{ animationDelay: `${i * 0.05}s` }}>
+              <div key={i} className={cn("group flex items-center gap-3 rounded-xl p-3.5 animate-slide-in-left", editingIndex === i ? "bg-primary/10 ring-1 ring-primary" : "bg-muted")} style={{ animationDelay: `${i * 0.05}s` }}>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-foreground truncate">{p.produto}</p>
                   <p className="text-xs text-muted-foreground mt-0.5">
                     {p.marca && `${p.marca} · `}
                     Custo: {formatBRL(p.custoNum)} ·{" "}
                     <span className="text-primary">15%: {formatBRL(p.custoNum / 0.85)}</span> ·{" "}
-                    <span className="text-success">20%: {formatBRL(p.custoNum / 0.80)}</span>
+                    <span className="text-warning">20%: {formatBRL(p.custoNum / 0.80)}</span>
                   </p>
                 </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 shrink-0 text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-primary transition-all"
+                  onClick={() => handleEditProduct(i)}
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                </Button>
                 <Button
                   variant="ghost"
                   size="icon"
@@ -229,7 +259,7 @@ export function QuotationForm() {
       {/* Product form fields */}
       <div className="card-elevated p-6 space-y-5 animate-fade-in-up">
         <p className="text-sm font-semibold text-warning">
-          {produtos.length > 0 ? "Adicionar Próximo Produto" : "Dados do Produto"}
+          {editingIndex !== null ? `Editando Produto #${editingIndex + 1}` : produtos.length > 0 ? "Adicionar Próximo Produto" : "Dados do Produto"}
         </p>
 
         <div className="space-y-2">
@@ -280,14 +310,26 @@ export function QuotationForm() {
           </div>
         </div>
 
-        <Button
-          type="button"
-          variant="outline"
-          onClick={handleAddProduct}
-          className="gap-2 bg-transparent border-primary text-primary hover:bg-primary/10 rounded-xl transition-all duration-200"
-        >
-          <Plus className="h-4 w-4" /> Adicionar Produto
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleAddProduct}
+            className="gap-2 bg-transparent border-primary text-primary hover:bg-primary/10 rounded-xl transition-all duration-200"
+          >
+            <Plus className="h-4 w-4" /> {editingIndex !== null ? "Salvar Alteração" : "Adicionar Produto"}
+          </Button>
+          {editingIndex !== null && (
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={handleCancelEdit}
+              className="gap-2 text-muted-foreground hover:text-foreground rounded-xl"
+            >
+              Cancelar
+            </Button>
+          )}
+        </div>
       </div>
 
       <div className="space-y-2">
