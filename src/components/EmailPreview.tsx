@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Copy, Check } from "lucide-react";
+import { Copy, Check, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatBRL } from "@/lib/format";
@@ -70,14 +70,21 @@ Qualquer dúvida estou à disposição.`;
 
 export function EmailPreview({ vendedor, produtos, margem, customMargem }: EmailPreviewProps) {
   const [copied, setCopied] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [editedText, setEditedText] = useState("");
 
   if (!vendedor || produtos.length === 0) return null;
 
   const emailText = generateEmail(vendedor, produtos, margem, customMargem);
-  const nobreak = hasNobreak(produtos);
+  const displayText = editing ? editedText : emailText;
+
+  const handleStartEdit = () => {
+    setEditedText(emailText);
+    setEditing(true);
+  };
 
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(emailText);
+    await navigator.clipboard.writeText(displayText);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -87,12 +94,12 @@ export function EmailPreview({ vendedor, produtos, margem, customMargem }: Email
       <div className="flex items-center gap-2">
         <h3 className="text-sm font-semibold text-warning">Email Gerado</h3>
         <Badge
-          className={nobreak
+          className={hasNobreak(produtos)
             ? "bg-warning/15 text-warning border-warning/30"
             : "bg-success/15 text-success border-success/30"
           }
         >
-          {nobreak ? "NOBREAK / ESTABILIZADOR" : "PRODUTO GERAL"}
+          {hasNobreak(produtos) ? "NOBREAK / ESTABILIZADOR" : "PRODUTO GERAL"}
         </Badge>
         {produtos.length > 1 && (
           <Badge variant="outline" className="border-muted-foreground/30 text-muted-foreground">
@@ -102,24 +109,54 @@ export function EmailPreview({ vendedor, produtos, margem, customMargem }: Email
       </div>
 
       <div className="card-elevated p-5">
-        <pre className="whitespace-pre-wrap text-sm leading-relaxed font-sans text-apple-text-soft">{emailText}</pre>
+        {editing ? (
+          <textarea
+            value={editedText}
+            onChange={(e) => setEditedText(e.target.value)}
+            className="w-full min-h-[300px] whitespace-pre-wrap text-sm leading-relaxed font-sans bg-transparent border-none outline-none resize-y text-foreground"
+          />
+        ) : (
+          <pre className="whitespace-pre-wrap text-sm leading-relaxed font-sans text-apple-text-soft">{emailText}</pre>
+        )}
       </div>
 
-      <Button
-        onClick={handleCopy}
-        size="sm"
-        className={`transition-all duration-200 ${
-          copied
-            ? "bg-success hover:bg-success/90 text-success-foreground animate-pulse-success"
-            : "bg-primary hover:bg-primary/90 text-primary-foreground"
-        }`}
-      >
-        {copied ? (
-          <><Check className="h-4 w-4 mr-1.5" /> Copiado! ✓</>
+      <div className="flex gap-2">
+        <Button
+          onClick={handleCopy}
+          size="sm"
+          className={`transition-all duration-200 ${
+            copied
+              ? "bg-success hover:bg-success/90 text-success-foreground animate-pulse-success"
+              : "bg-primary hover:bg-primary/90 text-primary-foreground"
+          }`}
+        >
+          {copied ? (
+            <><Check className="h-4 w-4 mr-1.5" /> Copiado! ✓</>
+          ) : (
+            <><Copy className="h-4 w-4 mr-1.5" /> Copiar</>
+          )}
+        </Button>
+
+        {editing ? (
+          <Button
+            onClick={() => setEditing(false)}
+            size="sm"
+            variant="outline"
+            className="gap-1.5 rounded-xl"
+          >
+            <Check className="h-4 w-4" /> Confirmar Edição
+          </Button>
         ) : (
-          <><Copy className="h-4 w-4 mr-1.5" /> Copiar</>
+          <Button
+            onClick={handleStartEdit}
+            size="sm"
+            variant="ghost"
+            className="gap-1.5 text-muted-foreground hover:text-foreground"
+          >
+            <Pencil className="h-4 w-4" /> Editar Email
+          </Button>
         )}
-      </Button>
+      </div>
     </div>
   );
 }
