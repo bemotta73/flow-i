@@ -127,8 +127,8 @@ const ListaMix = () => {
     let count = 0;
     for (const row of editableRows) {
       const custo = getEditCusto(row);
-      const preco_15 = Math.round(custo * 1.15 * 100) / 100;
-      const preco_20 = Math.round(custo * 1.20 * 100) / 100;
+      const preco_15 = Math.round((custo / 0.85) * 100) / 100;
+      const preco_20 = Math.round((custo / 0.80) * 100) / 100;
       await supabase.from("lista_mix").update({
         fornecedor: row.fornecedor.trim() || null,
         produto: row.produto.trim(),
@@ -174,8 +174,8 @@ const ListaMix = () => {
     }
     setSaving(true);
     const custo = parseFloat(form.custo.replace(",", "."));
-    const preco_15 = Math.round(custo * 1.15 * 100) / 100;
-    const preco_20 = Math.round(custo * 1.20 * 100) / 100;
+    const preco_15 = Math.round((custo / 0.85) * 100) / 100;
+    const preco_20 = Math.round((custo / 0.80) * 100) / 100;
 
     const row = {
       produto: form.produto.trim(),
@@ -346,10 +346,10 @@ const ListaMix = () => {
                       />
                     </TableCell>
                     <TableCell className="text-xs font-medium text-primary">
-                      {formatBRL(Math.round(custo * 1.15 * 100) / 100)}
+                      {formatBRL(Math.round((custo / 0.85) * 100) / 100)}
                     </TableCell>
                     <TableCell className="text-xs font-medium text-success">
-                      {formatBRL(Math.round(custo * 1.20 * 100) / 100)}
+                      {formatBRL(Math.round((custo / 0.80) * 100) / 100)}
                     </TableCell>
                   </TableRow>
                 );
@@ -470,11 +470,11 @@ const ListaMix = () => {
               <div className="grid grid-cols-2 gap-3 p-3 rounded-xl bg-muted">
                 <div>
                   <span className="label-apple">Preço 15%</span>
-                  <p className="text-sm font-medium text-primary">{formatBRL(parseFloat(form.custo.replace(",", ".") || "0") * 1.15)}</p>
+                  <p className="text-sm font-medium text-primary">{formatBRL(parseFloat(form.custo.replace(",", ".") || "0") / 0.85)}</p>
                 </div>
                 <div>
                   <span className="label-apple">Preço 20%</span>
-                  <p className="text-sm font-medium text-success">{formatBRL(parseFloat(form.custo.replace(",", ".") || "0") * 1.20)}</p>
+                  <p className="text-sm font-medium text-success">{formatBRL(parseFloat(form.custo.replace(",", ".") || "0") / 0.80)}</p>
                 </div>
               </div>
             )}
