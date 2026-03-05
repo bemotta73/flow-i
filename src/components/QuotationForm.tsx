@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -11,7 +12,8 @@ import { cn } from "@/lib/utils";
 import { MarginPreview } from "./MarginPreview";
 import { EmailPreview, type MargemSelecionada } from "./EmailPreview";
 import { ImageUpload, type ExtractedData } from "./ImageUpload";
-import { Save, Eraser, Loader2, Plus, X, Pencil } from "lucide-react";
+import { Save, Eraser, Loader2, Plus, X, Pencil, AlertTriangle } from "lucide-react";
+import { checkPriceAlert } from "@/lib/alertas";
 
 interface Vendedor {
   id: string;
@@ -45,6 +47,7 @@ const emptyProduto = {
 
 export function QuotationForm() {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [vendedores, setVendedores] = useState<Vendedor[]>([]);
   const [saving, setSaving] = useState(false);
   const [showEmail, setShowEmail] = useState(false);
@@ -56,6 +59,7 @@ export function QuotationForm() {
   const [form, setForm] = useState({ ...emptyProduto });
   const [produtos, setProdutos] = useState<ProdutoItem[]>([]);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [alertBanners, setAlertBanners] = useState<Array<{ produto: string; variacao: number; custoAnterior: number; custoAtual: number }>>([]);
 
   useEffect(() => {
     supabase.from("vendedores").select("id, nome").eq("ativo", true).then(({ data }) => {
@@ -167,6 +171,23 @@ export function QuotationForm() {
       const { error } = await supabase.from("cotacoes").insert(rows);
       if (error) throw error;
 
+      // Check for price alerts
+      const banners: typeof alertBanners = [];
+      for (const p of allProducts) {
+        try {
+          const alerta = await checkPriceAlert(p.produto, p.partNumber || null, p.fornecedor || null, p.custoNum);
+          if (alerta) {
+            banners.push({
+              produto: p.produto,
+              variacao: alerta.variacao_percentual,
+              custoAnterior: alerta.custo_anterior,
+              custoAtual: alerta.custo_atual,
+            });
+          }
+        } catch {}
+      }
+      setAlertBanners(banners);
+
       setProdutos(allProducts.map((p) => ({ ...p, custoNum: p.custoNum })));
       setForm({ ...emptyProduto });
       setShowEmail(true);
@@ -186,6 +207,28 @@ export function QuotationForm() {
 
   return (
     <div className="space-y-6">
+      {/* Alert Banners */}
+      {alertBanners.length > 0 && (
+        <div className="space-y-2 animate-fade-in-up">
+          {alertBanners.map((b, i) => (
+            <button
+              key={i}
+              onClick={() => navigate("/alertas")}
+              className={`w-full text-left rounded-xl p-3 flex items-center gap-3 transition-all hover:opacity-80 ${
+                b.variacao > 0
+                  ? "bg-warning/15 border border-warning/30 text-warning"
+                  : "bg-secondary/15 border border-secondary/30 text-secondary"
+              }`}
+            >
+              <AlertTriangle className="h-4 w-4 shrink-0" />
+              <span className="text-sm">
+                <strong>{b.produto}</strong> variou {b.variacao > 0 ? "+" : ""}{b.variacao.toFixed(1)}% em relação à última cotação ({formatBRL(b.custoAnterior)} → {formatBRL(b.custoAtual)})
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* Image Upload */}
       <ImageUpload onExtracted={handleExtracted} />
 

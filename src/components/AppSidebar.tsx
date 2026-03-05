@@ -1,4 +1,4 @@
-import { FilePlus2, TableProperties, BarChart3, ListChecks, Users } from "lucide-react";
+import { FilePlus2, TableProperties, BarChart3, ListChecks, Users, Bell } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import vorneLogo from "@/assets/vorne-logo.png";
@@ -15,12 +15,14 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
+import { useUnreadAlerts } from "@/hooks/useUnreadAlerts";
 
 const adminItems = [
   { title: "Nova Cotação", url: "/", icon: FilePlus2 },
   { title: "Controle de Cotações", url: "/controle", icon: TableProperties },
   { title: "Dashboard", url: "/dashboard", icon: BarChart3 },
   { title: "Lista Mix", url: "/lista-mix", icon: ListChecks },
+  { title: "Alertas", url: "/alertas", icon: Bell },
   { title: "Gerenciar Vendedores", url: "/vendedores", icon: Users },
 ];
 
@@ -29,6 +31,7 @@ export function AppSidebar() {
   const collapsed = state === "collapsed";
   const location = useLocation();
   const { signOut, profile } = useAuth();
+  const { count: unreadAlerts } = useUnreadAlerts();
 
   return (
     <Sidebar collapsible="icon" className="border-r-0 group/sidebar">
@@ -72,6 +75,11 @@ export function AppSidebar() {
                       >
                         <item.icon className={`h-[18px] w-[18px] ${isActive ? "text-primary" : ""}`} />
                         {!collapsed && <span className="text-sm">{item.title}</span>}
+                        {item.url === "/alertas" && unreadAlerts > 0 && (
+                          <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-warning text-warning-foreground text-[10px] font-bold px-1">
+                            {unreadAlerts}
+                          </span>
+                        )}
                       </NavLink>
                     </SidebarMenuButton>
                   </SidebarMenuItem>

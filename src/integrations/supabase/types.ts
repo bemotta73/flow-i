@@ -14,6 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
+      alertas: {
+        Row: {
+          created_at: string
+          custo_anterior: number
+          custo_atual: number
+          fornecedor: string | null
+          id: string
+          lido: boolean
+          part_number: string | null
+          produto: string
+          tipo: string
+          variacao_percentual: number
+        }
+        Insert: {
+          created_at?: string
+          custo_anterior: number
+          custo_atual: number
+          fornecedor?: string | null
+          id?: string
+          lido?: boolean
+          part_number?: string | null
+          produto: string
+          tipo: string
+          variacao_percentual: number
+        }
+        Update: {
+          created_at?: string
+          custo_anterior?: number
+          custo_atual?: number
+          fornecedor?: string | null
+          id?: string
+          lido?: boolean
+          part_number?: string | null
+          produto?: string
+          tipo?: string
+          variacao_percentual?: number
+        }
+        Relationships: []
+      }
+      configuracoes: {
+        Row: {
+          chave: string
+          id: string
+          updated_at: string
+          valor: string
+        }
+        Insert: {
+          chave: string
+          id?: string
+          updated_at?: string
+          valor: string
+        }
+        Update: {
+          chave?: string
+          id?: string
+          updated_at?: string
+          valor?: string
+        }
+        Relationships: []
+      }
       cotacoes: {
         Row: {
           canal: string
