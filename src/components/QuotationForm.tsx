@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -11,7 +12,8 @@ import { cn } from "@/lib/utils";
 import { MarginPreview } from "./MarginPreview";
 import { EmailPreview, type MargemSelecionada } from "./EmailPreview";
 import { ImageUpload, type ExtractedData } from "./ImageUpload";
-import { Save, Eraser, Loader2, Plus, X, Pencil } from "lucide-react";
+import { Save, Eraser, Loader2, Plus, X, Pencil, AlertTriangle } from "lucide-react";
+import { checkPriceAlert } from "@/lib/alertas";
 
 interface Vendedor {
   id: string;
