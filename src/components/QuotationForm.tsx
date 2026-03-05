@@ -207,6 +207,28 @@ export function QuotationForm() {
 
   return (
     <div className="space-y-6">
+      {/* Alert Banners */}
+      {alertBanners.length > 0 && (
+        <div className="space-y-2 animate-fade-in-up">
+          {alertBanners.map((b, i) => (
+            <button
+              key={i}
+              onClick={() => navigate("/alertas")}
+              className={`w-full text-left rounded-xl p-3 flex items-center gap-3 transition-all hover:opacity-80 ${
+                b.variacao > 0
+                  ? "bg-warning/15 border border-warning/30 text-warning"
+                  : "bg-secondary/15 border border-secondary/30 text-secondary"
+              }`}
+            >
+              <AlertTriangle className="h-4 w-4 shrink-0" />
+              <span className="text-sm">
+                <strong>{b.produto}</strong> variou {b.variacao > 0 ? "+" : ""}{b.variacao.toFixed(1)}% em relação à última cotação ({formatBRL(b.custoAnterior)} → {formatBRL(b.custoAtual)})
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* Image Upload */}
       <ImageUpload onExtracted={handleExtracted} />
 
