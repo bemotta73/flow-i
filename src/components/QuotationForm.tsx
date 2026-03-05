@@ -47,7 +47,8 @@ export function QuotationForm() {
   const [vendedores, setVendedores] = useState<Vendedor[]>([]);
   const [saving, setSaving] = useState(false);
   const [showEmail, setShowEmail] = useState(false);
-  const [margemSelecionada, setMargemSelecionada] = useState<MargemSelecionada>("ambas");
+  const [margemSelecionada, setMargemSelecionada] = useState<MargemSelecionada>("20");
+  const [customMargem, setCustomMargem] = useState("");
 
   const [vendedor, setVendedor] = useState("");
   const [canal, setCanal] = useState("");
