@@ -47,6 +47,8 @@ const emptyProduto = {
 
 export function QuotationForm() {
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const [vendedores, setVendedores] = useState<Vendedor[]>([]);
   const [vendedores, setVendedores] = useState<Vendedor[]>([]);
   const [saving, setSaving] = useState(false);
   const [showEmail, setShowEmail] = useState(false);
@@ -58,6 +60,7 @@ export function QuotationForm() {
   const [form, setForm] = useState({ ...emptyProduto });
   const [produtos, setProdutos] = useState<ProdutoItem[]>([]);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [alertBanners, setAlertBanners] = useState<Array<{ produto: string; variacao: number; custoAnterior: number; custoAtual: number }>>([]);
 
   useEffect(() => {
     supabase.from("vendedores").select("id, nome").eq("ativo", true).then(({ data }) => {
