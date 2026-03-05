@@ -54,6 +54,7 @@ export function QuotationForm() {
   const [canal, setCanal] = useState("");
   const [form, setForm] = useState({ ...emptyProduto });
   const [produtos, setProdutos] = useState<ProdutoItem[]>([]);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
   useEffect(() => {
     supabase.from("vendedores").select("id, nome").eq("ativo", true).then(({ data }) => {
