@@ -171,6 +171,23 @@ export function QuotationForm() {
       const { error } = await supabase.from("cotacoes").insert(rows);
       if (error) throw error;
 
+      // Check for price alerts
+      const banners: typeof alertBanners = [];
+      for (const p of allProducts) {
+        try {
+          const alerta = await checkPriceAlert(p.produto, p.partNumber || null, p.fornecedor || null, p.custoNum);
+          if (alerta) {
+            banners.push({
+              produto: p.produto,
+              variacao: alerta.variacao_percentual,
+              custoAnterior: alerta.custo_anterior,
+              custoAtual: alerta.custo_atual,
+            });
+          }
+        } catch {}
+      }
+      setAlertBanners(banners);
+
       setProdutos(allProducts.map((p) => ({ ...p, custoNum: p.custoNum })));
       setForm({ ...emptyProduto });
       setShowEmail(true);
