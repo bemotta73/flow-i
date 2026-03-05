@@ -47,11 +47,18 @@ serve(async (req) => {
   "marca": "marca do produto",
   "partNumber": "part number ou código",
   "custo": "preço em formato numérico brasileiro ex: 568,03",
-  "estoque": "apenas o maior número inteiro de unidades disponíveis entre todas as UFs/locais. Somente o número, sem texto. Se não houver estoque ou todos estiverem indisponíveis, retorne 'Não informado'",
+  "estoque": "quantidade de unidades disponíveis (apenas número inteiro)",
   "fornecedor": "nome do distribuidor/fornecedor se visível",
-  "uf": "estado/UF se visível"
+  "uf": "estado/UF de onde vem o menor preço"
 }
-Se algum campo não estiver visível na imagem, use string vazia "".`;
+
+REGRAS IMPORTANTES:
+- Se a imagem mostrar preços em múltiplas UFs, filiais ou locais de estoque, retorne sempre o MENOR preço entre os que possuem estoque disponível (ignorar "Indisponível", "Sem estoque" ou quantidade zero).
+- No campo "custo", retorne o menor preço com estoque disponível.
+- No campo "estoque", retorne a quantidade de estoque correspondente à UF/filial do menor preço escolhido.
+- No campo "uf", retorne a UF correspondente ao menor preço escolhido.
+- Se não houver estoque em nenhuma UF ou todos estiverem indisponíveis, retorne estoque como "Não informado".
+- Se algum campo não estiver visível na imagem, use string vazia "".`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
