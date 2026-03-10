@@ -71,14 +71,14 @@ const ListaMix = () => {
   const [editableRows, setEditableRows] = useState<EditableRow[]>([]);
   const [savingAll, setSavingAll] = useState(false);
 
-  const fetchProdutos = async () => {
-    setLoading(true);
+  const fetchProdutos = async (isInitial = false) => {
+    if (isInitial) setLoading(true);
     const { data } = await supabase
       .from("lista_mix")
       .select("*")
       .order("produto", { ascending: true });
     setProdutos((data as Produto[]) || []);
-    setLoading(false);
+    if (isInitial) setLoading(false);
   };
 
   useEffect(() => { fetchProdutos(); }, []);
