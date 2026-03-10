@@ -28,6 +28,7 @@ interface Produto {
   preco_15: number;
   preco_20: number;
   fornecedor: string | null;
+  link: string | null;
   ativo: boolean;
   created_at: string;
   updated_at: string;
