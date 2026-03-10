@@ -165,6 +165,7 @@ const ListaMix = () => {
       part_number: p.part_number || "",
       custo: String(p.custo),
       fornecedor: p.fornecedor || "",
+      link: p.link || "",
     });
     setDialogOpen(true);
   };
