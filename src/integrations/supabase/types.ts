@@ -138,6 +138,7 @@ export type Database = {
           custo: number
           fornecedor: string | null
           id: string
+          link: string | null
           marca: string | null
           part_number: string | null
           preco_15: number
@@ -151,6 +152,7 @@ export type Database = {
           custo: number
           fornecedor?: string | null
           id?: string
+          link?: string | null
           marca?: string | null
           part_number?: string | null
           preco_15: number
@@ -164,6 +166,7 @@ export type Database = {
           custo?: number
           fornecedor?: string | null
           id?: string
+          link?: string | null
           marca?: string | null
           part_number?: string | null
           preco_15?: number

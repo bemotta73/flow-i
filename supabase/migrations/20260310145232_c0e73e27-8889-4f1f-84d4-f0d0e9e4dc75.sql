@@ -1,0 +1,1 @@
+ALTER TABLE public.lista_mix ADD COLUMN link text DEFAULT NULL;
