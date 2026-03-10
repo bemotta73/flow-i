@@ -28,6 +28,7 @@ interface Produto {
   preco_15: number;
   preco_20: number;
   fornecedor: string | null;
+  link: string | null;
   ativo: boolean;
   created_at: string;
   updated_at: string;
@@ -39,6 +40,7 @@ interface ProdutoForm {
   part_number: string;
   custo: string;
   fornecedor: string;
+  link: string;
 }
 
 interface EditableRow {
@@ -50,7 +52,7 @@ interface EditableRow {
   custo: string;
 }
 
-const emptyForm: ProdutoForm = { produto: "", marca: "", part_number: "", custo: "", fornecedor: "" };
+const emptyForm: ProdutoForm = { produto: "", marca: "", part_number: "", custo: "", fornecedor: "", link: "" };
 
 const ListaMix = () => {
   const { toast } = useToast();
@@ -69,17 +71,17 @@ const ListaMix = () => {
   const [editableRows, setEditableRows] = useState<EditableRow[]>([]);
   const [savingAll, setSavingAll] = useState(false);
 
-  const fetchProdutos = async () => {
-    setLoading(true);
+  const fetchProdutos = async (isInitial = false) => {
+    if (isInitial) setLoading(true);
     const { data } = await supabase
       .from("lista_mix")
       .select("*")
       .order("produto", { ascending: true });
     setProdutos((data as Produto[]) || []);
-    setLoading(false);
+    if (isInitial) setLoading(false);
   };
 
-  useEffect(() => { fetchProdutos(); }, []);
+  useEffect(() => { fetchProdutos(true); }, []);
 
   const filtered = useMemo(() => {
     if (!search.trim()) return produtos;
@@ -163,6 +165,7 @@ const ListaMix = () => {
       part_number: p.part_number || "",
       custo: String(p.custo),
       fornecedor: p.fornecedor || "",
+      link: p.link || "",
     });
     setDialogOpen(true);
   };
@@ -185,6 +188,7 @@ const ListaMix = () => {
       preco_15,
       preco_20,
       fornecedor: form.fornecedor.trim() || null,
+      link: form.link.trim() || null,
       updated_at: new Date().toISOString(),
     };
 
@@ -465,6 +469,10 @@ const ListaMix = () => {
                 <label className="label-apple block mb-1">Fornecedor</label>
                 <Input value={form.fornecedor} onChange={(e) => setForm({ ...form, fornecedor: e.target.value })} className="surface-input" />
               </div>
+            </div>
+            <div>
+              <label className="label-apple block mb-1">Link</label>
+              <Input value={form.link} onChange={(e) => setForm({ ...form, link: e.target.value })} className="surface-input" placeholder="https://..." />
             </div>
             {form.custo && (
               <div className="grid grid-cols-2 gap-3 p-3 rounded-xl bg-muted">
