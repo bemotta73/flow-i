@@ -188,6 +188,7 @@ const ListaMix = () => {
       preco_15,
       preco_20,
       fornecedor: form.fornecedor.trim() || null,
+      link: form.link.trim() || null,
       updated_at: new Date().toISOString(),
     };
 
