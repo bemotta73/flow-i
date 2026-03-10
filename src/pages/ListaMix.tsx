@@ -52,7 +52,7 @@ interface EditableRow {
   custo: string;
 }
 
-const emptyForm: ProdutoForm = { produto: "", marca: "", part_number: "", custo: "", fornecedor: "" };
+const emptyForm: ProdutoForm = { produto: "", marca: "", part_number: "", custo: "", fornecedor: "", link: "" };
 
 const ListaMix = () => {
   const { toast } = useToast();
