@@ -470,6 +470,10 @@ const ListaMix = () => {
                 <Input value={form.fornecedor} onChange={(e) => setForm({ ...form, fornecedor: e.target.value })} className="surface-input" />
               </div>
             </div>
+            <div>
+              <label className="label-apple block mb-1">Link</label>
+              <Input value={form.link} onChange={(e) => setForm({ ...form, link: e.target.value })} className="surface-input" placeholder="https://..." />
+            </div>
             {form.custo && (
               <div className="grid grid-cols-2 gap-3 p-3 rounded-xl bg-muted">
                 <div>
