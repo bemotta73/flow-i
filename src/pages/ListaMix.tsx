@@ -40,6 +40,7 @@ interface ProdutoForm {
   part_number: string;
   custo: string;
   fornecedor: string;
+  link: string;
 }
 
 interface EditableRow {
