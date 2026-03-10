@@ -81,7 +81,7 @@ const ListaMix = () => {
     if (isInitial) setLoading(false);
   };
 
-  useEffect(() => { fetchProdutos(); }, []);
+  useEffect(() => { fetchProdutos(true); }, []);
 
   const filtered = useMemo(() => {
     if (!search.trim()) return produtos;
