@@ -1,12 +1,18 @@
 import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { MESES, formatBRL } from "@/lib/format";
+import { MESES, formatBRL, parseBRLNumber, formatBRLNumber } from "@/lib/format";
 import { exportCotacoesToExcel } from "@/lib/exportExcel";
-import { ExternalLink, Download } from "lucide-react";
+import { ExternalLink, Download, Pencil, Save, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
+} from "@/components/ui/dialog";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
@@ -27,6 +33,11 @@ interface Cotacao {
   prazo: string | null;
   link: string | null;
   created_at: string;
+  cotacao_grupo: string | null;
+}
+
+function calcPreco(custo: number, margemPct: number): number {
+  return custo / (1 - margemPct / 100);
 }
 
 const Controle = () => {
@@ -35,23 +46,32 @@ const Controle = () => {
   const [ano, setAno] = useState(now.getFullYear());
   const [cotacoes, setCotacoes] = useState<Cotacao[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editingCotacao, setEditingCotacao] = useState<Cotacao | null>(null);
+  const [editForm, setEditForm] = useState({ produto: "", marca: "", part_number: "", custo: "", fornecedor: "", vendedor: "", canal: "", link: "" });
+  const [saving, setSaving] = useState(false);
+  // Email edit state
+  const [emailCotacao, setEmailCotacao] = useState<Cotacao | null>(null);
+  const [emailText, setEmailText] = useState("");
+  const [emailCopied, setEmailCopied] = useState(false);
+  const { toast } = useToast();
+
+  const fetchData = async (showLoading = true) => {
+    if (showLoading) setLoading(true);
+    const startDate = new Date(ano, mes, 1).toISOString();
+    const endDate = new Date(ano, mes + 1, 0, 23, 59, 59).toISOString();
+
+    const { data } = await supabase
+      .from("cotacoes")
+      .select("*")
+      .gte("created_at", startDate)
+      .lte("created_at", endDate)
+      .order("created_at", { ascending: false });
+
+    setCotacoes((data as Cotacao[]) || []);
+    if (showLoading) setLoading(false);
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      const startDate = new Date(ano, mes, 1).toISOString();
-      const endDate = new Date(ano, mes + 1, 0, 23, 59, 59).toISOString();
-
-      const { data } = await supabase
-        .from("cotacoes")
-        .select("*")
-        .gte("created_at", startDate)
-        .lte("created_at", endDate)
-        .order("created_at", { ascending: false });
-
-      setCotacoes((data as Cotacao[]) || []);
-      setLoading(false);
-    };
     fetchData();
   }, [mes, ano]);
 
@@ -66,6 +86,97 @@ const Controle = () => {
   }, [cotacoes]);
 
   const years = Array.from({ length: 5 }, (_, i) => now.getFullYear() - 2 + i);
+
+  const handleEdit = (c: Cotacao) => {
+    setEditingCotacao(c);
+    setEditForm({
+      produto: c.produto,
+      marca: c.marca || "",
+      part_number: c.part_number || "",
+      custo: formatBRLNumber(c.custo),
+      fornecedor: c.fornecedor || "",
+      vendedor: c.vendedor,
+      canal: c.canal,
+      link: c.link || "",
+    });
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingCotacao) return;
+    setSaving(true);
+    const custoNum = parseBRLNumber(editForm.custo);
+    const { error } = await supabase
+      .from("cotacoes")
+      .update({
+        produto: editForm.produto,
+        marca: editForm.marca || null,
+        part_number: editForm.part_number || null,
+        custo: custoNum,
+        preco_15: calcPreco(custoNum, 15),
+        preco_20: calcPreco(custoNum, 20),
+        fornecedor: editForm.fornecedor || null,
+        vendedor: editForm.vendedor,
+        canal: editForm.canal,
+        link: editForm.link || null,
+      })
+      .eq("id", editingCotacao.id);
+
+    setSaving(false);
+    if (error) {
+      toast({ title: "Erro ao salvar", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Cotação atualizada" });
+      setEditingCotacao(null);
+      fetchData(false);
+    }
+  };
+
+  // Generate email from a cotação (or group)
+  const handleGenerateEmail = (c: Cotacao) => {
+    // Find all cotações in the same group
+    const group = c.cotacao_grupo
+      ? cotacoes.filter((x) => x.cotacao_grupo === c.cotacao_grupo)
+      : [c];
+
+    const hasNobreak = group.some((p) => {
+      const lower = p.produto.toLowerCase();
+      return lower.includes("nobreak") || lower.includes("estabilizador");
+    });
+
+    const produtoSection = group.length > 1
+      ? group.map((p, i) => `${i + 1}. ${p.produto}\nPreço 15%: ${formatBRL(p.preco_15)}\nPreço 20%: ${formatBRL(p.preco_20)}`).join("\n\n")
+      : `${group[0].produto}\nPreço 15%: ${formatBRL(group[0].preco_15)}\nPreço 20%: ${formatBRL(group[0].preco_20)}`;
+
+    const freteSection = hasNobreak
+      ? `Frete FOB: sujeito a consulta de frete`
+      : `Frete Grátis: Pedidos acima de 3.000,00.\nExceto: NOBREAK e ESTABILIZADORES por tamanho e peso = sujeito a consulta de frete`;
+
+    const text = `Olá ${c.vendedor},
+
+Segue cotação solicitada:
+
+${produtoSection}
+
+Faturamento: Via ES
+Expedição: 10-15 dias úteis + frete local
+Prazo: 28 dias
+${freteSection}
+
+RAZÃO SOCIAL: OFFICER DISTRIBUIDORA DE TECNOLOGIA E INFORMATICA
+CNPJ: 71.702.716/0006-93
+
+Qualquer dúvida estou à disposição.`;
+
+    setEmailText(text);
+    setEmailCotacao(c);
+    setEmailCopied(false);
+  };
+
+  const handleCopyEmail = async () => {
+    await navigator.clipboard.writeText(emailText);
+    setEmailCopied(true);
+    setTimeout(() => setEmailCopied(false), 2000);
+  };
 
   return (
     <div className="animate-fade-in-up">
@@ -139,6 +250,7 @@ const Controle = () => {
                       <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Fornecedor</TableHead>
                       <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Vendedor</TableHead>
                       <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Canal</TableHead>
+                      <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider w-[70px]"></TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -167,6 +279,24 @@ const Controle = () => {
                         <TableCell className="text-xs text-muted-foreground">{c.fornecedor}</TableCell>
                         <TableCell className="text-xs text-foreground">{c.vendedor}</TableCell>
                         <TableCell className="text-xs text-muted-foreground">{c.canal}</TableCell>
+                        <TableCell className="text-xs">
+                          <div className="flex gap-1">
+                            <button
+                              onClick={() => handleEdit(c)}
+                              className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                              title="Editar"
+                            >
+                              <Pencil className="h-3.5 w-3.5" />
+                            </button>
+                            <button
+                              onClick={() => handleGenerateEmail(c)}
+                              className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-primary transition-colors"
+                              title="Gerar Email"
+                            >
+                              <ExternalLink className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -176,6 +306,89 @@ const Controle = () => {
           ))}
         </div>
       )}
+
+      {/* Edit Dialog */}
+      <Dialog open={!!editingCotacao} onOpenChange={(open) => !open && setEditingCotacao(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Editar Cotação</DialogTitle>
+            <DialogDescription>Altere os campos desejados e salve.</DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-3">
+            <div>
+              <Label className="text-xs">Produto</Label>
+              <Input value={editForm.produto} onChange={(e) => setEditForm((f) => ({ ...f, produto: e.target.value }))} />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label className="text-xs">Marca</Label>
+                <Input value={editForm.marca} onChange={(e) => setEditForm((f) => ({ ...f, marca: e.target.value }))} />
+              </div>
+              <div>
+                <Label className="text-xs">Part Number</Label>
+                <Input value={editForm.part_number} onChange={(e) => setEditForm((f) => ({ ...f, part_number: e.target.value }))} />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label className="text-xs">Custo</Label>
+                <Input value={editForm.custo} onChange={(e) => setEditForm((f) => ({ ...f, custo: e.target.value }))} />
+              </div>
+              <div>
+                <Label className="text-xs">Fornecedor</Label>
+                <Input value={editForm.fornecedor} onChange={(e) => setEditForm((f) => ({ ...f, fornecedor: e.target.value }))} />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label className="text-xs">Vendedor</Label>
+                <Input value={editForm.vendedor} onChange={(e) => setEditForm((f) => ({ ...f, vendedor: e.target.value }))} />
+              </div>
+              <div>
+                <Label className="text-xs">Canal</Label>
+                <Input value={editForm.canal} onChange={(e) => setEditForm((f) => ({ ...f, canal: e.target.value }))} />
+              </div>
+            </div>
+            <div>
+              <Label className="text-xs">Link</Label>
+              <Input value={editForm.link} onChange={(e) => setEditForm((f) => ({ ...f, link: e.target.value }))} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" size="sm" onClick={() => setEditingCotacao(null)}>
+              <X className="h-4 w-4 mr-1" /> Cancelar
+            </Button>
+            <Button size="sm" onClick={handleSaveEdit} disabled={saving}>
+              <Save className="h-4 w-4 mr-1" /> {saving ? "Salvando..." : "Salvar"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Email Dialog */}
+      <Dialog open={!!emailCotacao} onOpenChange={(open) => !open && setEmailCotacao(null)}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Email da Cotação</DialogTitle>
+            <DialogDescription>Edite o texto se necessário e copie.</DialogDescription>
+          </DialogHeader>
+          <textarea
+            value={emailText}
+            onChange={(e) => setEmailText(e.target.value)}
+            className="w-full min-h-[300px] whitespace-pre-wrap text-sm leading-relaxed font-sans bg-muted/50 rounded-lg p-4 border border-border outline-none resize-y text-foreground"
+          />
+          <DialogFooter>
+            <Button variant="ghost" size="sm" onClick={() => setEmailCotacao(null)}>Fechar</Button>
+            <Button
+              size="sm"
+              onClick={handleCopyEmail}
+              className={emailCopied ? "bg-success hover:bg-success/90 text-success-foreground" : ""}
+            >
+              {emailCopied ? "Copiado! ✓" : "Copiar Email"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
