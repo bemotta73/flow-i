@@ -198,7 +198,7 @@ const ImportMix = ({ onComplete }: ImportMixProps) => {
       const custo = "custo" in fieldToCol ? parseCustoBRL(row[fieldToCol["custo"]]) : 0;
       return {
         produto: get("produto"),
-        marca: get("marca"),
+        marca: capitalizeMarca(get("marca")),
         part_number: get("part_number"),
         custo,
         preco_15: Math.round((custo / 0.85) * 100) / 100,
