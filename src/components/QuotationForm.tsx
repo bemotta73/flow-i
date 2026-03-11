@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { parseBRLNumber, formatBRL } from "@/lib/format";
+import { parseBRLNumber, formatBRL, capitalizeMarca } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { MarginPreview } from "./MarginPreview";
 import { EmailPreview, type MargemSelecionada } from "./EmailPreview";
