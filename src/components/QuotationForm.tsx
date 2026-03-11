@@ -79,7 +79,7 @@ export function QuotationForm() {
     setForm((prev) => ({
       ...prev,
       produto: data.produto || prev.produto,
-      marca: data.marca || prev.marca,
+      marca: capitalizeMarca(data.marca || prev.marca),
       partNumber: data.partNumber || prev.partNumber,
       custo: data.custo || prev.custo,
       estoque: data.estoque || prev.estoque,

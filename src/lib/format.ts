@@ -65,3 +65,10 @@ export function formatDate(date: string | Date): string {
     year: 'numeric',
   });
 }
+
+/**
+ * Capitalizes each word in a brand name (uppercase first letter)
+ */
+export function capitalizeMarca(value: string): string {
+  return value.replace(/\b\w/g, (char) => char.toUpperCase());
+}
