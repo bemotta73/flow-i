@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { formatBRL } from "@/lib/format";
+import { formatBRL, capitalizeMarca } from "@/lib/format";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -338,7 +338,7 @@ const ListaMix = () => {
                     <TableCell>
                       <Input
                         value={row.marca}
-                        onChange={(e) => updateEditableRow(row.id, "marca", e.target.value)}
+                        onChange={(e) => updateEditableRow(row.id, "marca", capitalizeMarca(e.target.value))}
                         className="h-7 text-xs surface-input"
                       />
                     </TableCell>
@@ -453,7 +453,7 @@ const ListaMix = () => {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="label-apple block mb-1">Marca</label>
-                <Input value={form.marca} onChange={(e) => setForm({ ...form, marca: e.target.value })} className="surface-input" />
+                <Input value={form.marca} onChange={(e) => setForm({ ...form, marca: capitalizeMarca(e.target.value) })} className="surface-input" />
               </div>
               <div>
                 <label className="label-apple block mb-1">Part Number</label>

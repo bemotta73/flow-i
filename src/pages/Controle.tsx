@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { MESES, formatBRL, parseBRLNumber, formatBRLNumber } from "@/lib/format";
+import { MESES, formatBRL, parseBRLNumber, formatBRLNumber, capitalizeMarca } from "@/lib/format";
 import { exportCotacoesToExcel } from "@/lib/exportExcel";
 import { ExternalLink, Download, Pencil, Save, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -322,7 +322,7 @@ Qualquer dúvida estou à disposição.`;
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label className="text-xs">Marca</Label>
-                <Input value={editForm.marca} onChange={(e) => setEditForm((f) => ({ ...f, marca: e.target.value }))} />
+                <Input value={editForm.marca} onChange={(e) => setEditForm((f) => ({ ...f, marca: capitalizeMarca(e.target.value) }))} />
               </div>
               <div>
                 <Label className="text-xs">Part Number</Label>

@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { parseBRLNumber, formatBRL } from "@/lib/format";
+import { parseBRLNumber, formatBRL, capitalizeMarca } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { MarginPreview } from "./MarginPreview";
 import { EmailPreview, type MargemSelecionada } from "./EmailPreview";
@@ -71,7 +71,7 @@ export function QuotationForm() {
   const custoNum = parseBRLNumber(form.custo);
 
   const update = (field: string, value: string) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
+    setForm((prev) => ({ ...prev, [field]: field === "marca" ? capitalizeMarca(value) : value }));
     setShowEmail(false);
   };
 
@@ -79,7 +79,7 @@ export function QuotationForm() {
     setForm((prev) => ({
       ...prev,
       produto: data.produto || prev.produto,
-      marca: data.marca || prev.marca,
+      marca: capitalizeMarca(data.marca || prev.marca),
       partNumber: data.partNumber || prev.partNumber,
       custo: data.custo || prev.custo,
       estoque: data.estoque || prev.estoque,
