@@ -445,7 +445,7 @@ export function QuotationForm() {
       {/* Email Preview */}
       {showEmail && allProductsForEmail.length > 0 && (
         <div className="animate-fade-in-up">
-          <EmailPreview vendedor={vendedor} produtos={allProductsForEmail} margem={margemSelecionada} customMargem={parseFloat(customMargem) || undefined} />
+          <EmailPreview vendedor={vendedor} produtos={allProductsForEmail} margem={margemSelecionada} customMargem={parseFloat(customMargem) || undefined} observacao={observacao} />
         </div>
       )}
     </div>
