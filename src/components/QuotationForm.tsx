@@ -71,7 +71,7 @@ export function QuotationForm() {
   const custoNum = parseBRLNumber(form.custo);
 
   const update = (field: string, value: string) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
+    setForm((prev) => ({ ...prev, [field]: field === "marca" ? capitalizeMarca(value) : value }));
     setShowEmail(false);
   };
 
