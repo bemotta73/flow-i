@@ -71,14 +71,14 @@ CNPJ: 71.702.716/0006-93
 Qualquer dúvida estou à disposição.`;
 }
 
-export function EmailPreview({ vendedor, produtos, margem, customMargem }: EmailPreviewProps) {
+export function EmailPreview({ vendedor, produtos, margem, customMargem, observacao }: EmailPreviewProps) {
   const [copied, setCopied] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editedText, setEditedText] = useState("");
 
   if (!vendedor || produtos.length === 0) return null;
 
-  const emailText = generateEmail(vendedor, produtos, margem, customMargem);
+  const emailText = generateEmail(vendedor, produtos, margem, customMargem, observacao);
   const displayText = editing ? editedText : emailText;
 
   const handleStartEdit = () => {
