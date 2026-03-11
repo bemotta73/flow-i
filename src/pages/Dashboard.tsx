@@ -111,13 +111,18 @@ const Dashboard = () => {
 
   const pieData = useMemo(() => {
     const counts: Record<string, number> = {};
+    const canonical: Record<string, string> = {};
     cotacoes.forEach((c) => {
-      if (c.marca) counts[c.marca] = (counts[c.marca] || 0) + 1;
+      if (c.marca) {
+        const key = c.marca.toLowerCase();
+        if (!canonical[key]) canonical[key] = c.marca;
+        counts[key] = (counts[key] || 0) + 1;
+      }
     });
     return Object.entries(counts)
       .sort((a, b) => b[1] - a[1])
       .slice(0, 6)
-      .map(([name, value]) => ({ name, value }));
+      .map(([key, value]) => ({ name: canonical[key], value }));
   }, [cotacoes]);
 
   const lineData = useMemo(() => {
