@@ -60,6 +60,7 @@ export function QuotationForm() {
   const [produtos, setProdutos] = useState<ProdutoItem[]>([]);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [alertBanners, setAlertBanners] = useState<Array<{ produto: string; variacao: number; custoAnterior: number; custoAtual: number }>>([]);
+  const [observacao, setObservacao] = useState("");
 
   useEffect(() => {
     supabase.from("vendedores").select("id, nome").eq("ativo", true).then(({ data }) => {
@@ -375,6 +376,18 @@ export function QuotationForm() {
         </div>
       </div>
 
+      {/* Observação para o email */}
+      <div className="card-elevated p-6 space-y-3 animate-fade-in-up">
+        <p className="text-sm font-semibold text-warning">Observação para o Email</p>
+        <p className="text-xs text-muted-foreground">Texto opcional que será adicionado ao final do email, antes dos dados da empresa.</p>
+        <textarea
+          value={observacao}
+          onChange={(e) => { setObservacao(e.target.value); setShowEmail(false); }}
+          placeholder="Ex: Valor especial válido por 48h, Condição exclusiva para este pedido..."
+          className="w-full min-h-[80px] rounded-xl border border-border bg-background px-4 py-3 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:border-primary focus-visible:shadow-[0_0_0_3px_rgba(0,114,187,0.3)] resize-y"
+        />
+      </div>
+
       <div className="space-y-2">
         <p className="text-sm font-semibold text-warning">Margem para o Email</p>
         <div className="flex gap-2 items-center">
@@ -432,7 +445,7 @@ export function QuotationForm() {
       {/* Email Preview */}
       {showEmail && allProductsForEmail.length > 0 && (
         <div className="animate-fade-in-up">
-          <EmailPreview vendedor={vendedor} produtos={allProductsForEmail} margem={margemSelecionada} customMargem={parseFloat(customMargem) || undefined} />
+          <EmailPreview vendedor={vendedor} produtos={allProductsForEmail} margem={margemSelecionada} customMargem={parseFloat(customMargem) || undefined} observacao={observacao} />
         </div>
       )}
     </div>

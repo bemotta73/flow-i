@@ -12,6 +12,7 @@ interface EmailPreviewProps {
   produtos: ProdutoItem[];
   margem: MargemSelecionada;
   customMargem?: number;
+  observacao?: string;
 }
 
 function hasNobreak(produtos: ProdutoItem[]): boolean {
@@ -25,7 +26,7 @@ function calcPreco(custo: number, margemPct: number): number {
   return custo / (1 - margemPct / 100);
 }
 
-function generateEmail(vendedor: string, produtos: ProdutoItem[], margem: MargemSelecionada, customMargem?: number): string {
+function generateEmail(vendedor: string, produtos: ProdutoItem[], margem: MargemSelecionada, customMargem?: number, observacao?: string): string {
   const nobreak = hasNobreak(produtos);
   const multi = produtos.length > 1;
 
@@ -51,6 +52,8 @@ function generateEmail(vendedor: string, produtos: ProdutoItem[], margem: Margem
     ? `Frete FOB: sujeito a consulta de frete`
     : `Frete Grátis: Pedidos acima de 3.000,00.\nExceto: NOBREAK e ESTABILIZADORES por tamanho e peso = sujeito a consulta de frete`;
 
+  const obsSection = observacao?.trim() ? `\n${observacao.trim()}\n` : "";
+
   return `Olá ${vendedor},
 
 Segue cotação solicitada:
@@ -61,21 +64,21 @@ Faturamento: Via ES
 Expedição: 10-15 dias úteis + frete local
 Prazo: 28 dias
 ${freteSection}
-
+${obsSection}
 RAZÃO SOCIAL: OFFICER DISTRIBUIDORA DE TECNOLOGIA E INFORMATICA
 CNPJ: 71.702.716/0006-93
 
 Qualquer dúvida estou à disposição.`;
 }
 
-export function EmailPreview({ vendedor, produtos, margem, customMargem }: EmailPreviewProps) {
+export function EmailPreview({ vendedor, produtos, margem, customMargem, observacao }: EmailPreviewProps) {
   const [copied, setCopied] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editedText, setEditedText] = useState("");
 
   if (!vendedor || produtos.length === 0) return null;
 
-  const emailText = generateEmail(vendedor, produtos, margem, customMargem);
+  const emailText = generateEmail(vendedor, produtos, margem, customMargem, observacao);
   const displayText = editing ? editedText : emailText;
 
   const handleStartEdit = () => {
