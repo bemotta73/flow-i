@@ -322,7 +322,7 @@ Qualquer dúvida estou à disposição.`;
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label className="text-xs">Marca</Label>
-                <Input value={editForm.marca} onChange={(e) => setEditForm((f) => ({ ...f, marca: e.target.value }))} />
+                <Input value={editForm.marca} onChange={(e) => setEditForm((f) => ({ ...f, marca: capitalizeMarca(e.target.value) }))} />
               </div>
               <div>
                 <Label className="text-xs">Part Number</Label>
