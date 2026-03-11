@@ -60,6 +60,7 @@ export function QuotationForm() {
   const [produtos, setProdutos] = useState<ProdutoItem[]>([]);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [alertBanners, setAlertBanners] = useState<Array<{ produto: string; variacao: number; custoAnterior: number; custoAtual: number }>>([]);
+  const [observacao, setObservacao] = useState("");
 
   useEffect(() => {
     supabase.from("vendedores").select("id, nome").eq("ativo", true).then(({ data }) => {
