@@ -52,6 +52,8 @@ function generateEmail(vendedor: string, produtos: ProdutoItem[], margem: Margem
     ? `Frete FOB: sujeito a consulta de frete`
     : `Frete Grátis: Pedidos acima de 3.000,00.\nExceto: NOBREAK e ESTABILIZADORES por tamanho e peso = sujeito a consulta de frete`;
 
+  const obsSection = observacao?.trim() ? `\n${observacao.trim()}\n` : "";
+
   return `Olá ${vendedor},
 
 Segue cotação solicitada:
@@ -62,7 +64,7 @@ Faturamento: Via ES
 Expedição: 10-15 dias úteis + frete local
 Prazo: 28 dias
 ${freteSection}
-
+${obsSection}
 RAZÃO SOCIAL: OFFICER DISTRIBUIDORA DE TECNOLOGIA E INFORMATICA
 CNPJ: 71.702.716/0006-93
 
