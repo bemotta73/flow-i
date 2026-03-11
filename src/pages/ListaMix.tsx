@@ -338,7 +338,7 @@ const ListaMix = () => {
                     <TableCell>
                       <Input
                         value={row.marca}
-                        onChange={(e) => updateEditableRow(row.id, "marca", e.target.value)}
+                        onChange={(e) => updateEditableRow(row.id, "marca", capitalizeMarca(e.target.value))}
                         className="h-7 text-xs surface-input"
                       />
                     </TableCell>
