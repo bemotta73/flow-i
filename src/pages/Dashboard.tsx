@@ -81,12 +81,17 @@ const Dashboard = () => {
 
   const topItem = (field: keyof Cotacao) => {
     const counts: Record<string, number> = {};
+    const canonical: Record<string, string> = {};
     cotacoes.forEach((c) => {
       const val = c[field] as string;
-      if (val) counts[val] = (counts[val] || 0) + 1;
+      if (val) {
+        const key = val.toLowerCase();
+        if (!canonical[key]) canonical[key] = val;
+        counts[key] = (counts[key] || 0) + 1;
+      }
     });
     const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
-    return sorted[0] || ["—", 0];
+    return sorted[0] ? [canonical[sorted[0][0]], sorted[0][1]] : ["—", 0];
   };
 
   const [topProduto, topProdutoCount] = topItem("produto");
