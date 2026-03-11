@@ -12,6 +12,7 @@ interface EmailPreviewProps {
   produtos: ProdutoItem[];
   margem: MargemSelecionada;
   customMargem?: number;
+  observacao?: string;
 }
 
 function hasNobreak(produtos: ProdutoItem[]): boolean {
