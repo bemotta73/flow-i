@@ -26,7 +26,7 @@ function calcPreco(custo: number, margemPct: number): number {
   return custo / (1 - margemPct / 100);
 }
 
-function generateEmail(vendedor: string, produtos: ProdutoItem[], margem: MargemSelecionada, customMargem?: number): string {
+function generateEmail(vendedor: string, produtos: ProdutoItem[], margem: MargemSelecionada, customMargem?: number, observacao?: string): string {
   const nobreak = hasNobreak(produtos);
   const multi = produtos.length > 1;
 
