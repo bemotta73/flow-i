@@ -200,6 +200,56 @@ export type Database = {
         }
         Relationships: []
       }
+      promocoes: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          data_fim: string | null
+          data_inicio: string
+          desconto_percentual: number | null
+          descricao: string | null
+          id: string
+          imagem_url: string | null
+          preco_promocional: number | null
+          produto_id: string | null
+          titulo: string
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          data_fim?: string | null
+          data_inicio?: string
+          desconto_percentual?: number | null
+          descricao?: string | null
+          id?: string
+          imagem_url?: string | null
+          preco_promocional?: number | null
+          produto_id?: string | null
+          titulo: string
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          data_fim?: string | null
+          data_inicio?: string
+          desconto_percentual?: number | null
+          descricao?: string | null
+          id?: string
+          imagem_url?: string | null
+          preco_promocional?: number | null
+          produto_id?: string | null
+          titulo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "promocoes_produto_id_fkey"
+            columns: ["produto_id"]
+            isOneToOne: false
+            referencedRelation: "lista_mix"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           id: string

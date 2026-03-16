@@ -8,7 +8,7 @@ import {
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
-import { UserPlus, UserCheck, UserX } from "lucide-react";
+import { UserPlus, UserCheck, UserX, KeyRound } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Vendedor {
@@ -30,9 +30,14 @@ const GerenciarVendedores = () => {
   const [password, setPassword] = useState("");
   const [saving, setSaving] = useState(false);
 
+  // Password reset dialog
+  const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
+  const [selectedVendedor, setSelectedVendedor] = useState<Vendedor | null>(null);
+  const [newPassword, setNewPassword] = useState("");
+  const [resettingPassword, setResettingPassword] = useState(false);
+
   const fetchVendedores = async () => {
     setLoading(true);
-    // Get all profiles that have vendedor role
     const { data: roles } = await supabase
       .from("user_roles")
       .select("user_id, role");
@@ -74,7 +79,6 @@ const GerenciarVendedores = () => {
     }
     setSaving(true);
 
-    const { data: { session } } = await supabase.auth.getSession();
     const res = await supabase.functions.invoke("create-user", {
       body: { email, password, nome, role: "vendedor" },
     });
@@ -103,6 +107,38 @@ const GerenciarVendedores = () => {
       toast({ title: v.ativo ? "Vendedor desativado" : "Vendedor reativado" });
       fetchVendedores();
     }
+  };
+
+  const handleResetPassword = async () => {
+    if (!newPassword.trim()) {
+      toast({ title: "Erro", description: "Digite a nova senha", variant: "destructive" });
+      return;
+    }
+    if (newPassword.length < 6) {
+      toast({ title: "Erro", description: "Senha deve ter no mínimo 6 caracteres", variant: "destructive" });
+      return;
+    }
+    setResettingPassword(true);
+
+    const res = await supabase.functions.invoke("update-vendor-password", {
+      body: { userId: selectedVendedor!.id, newPassword },
+    });
+
+    if (res.error || res.data?.error) {
+      toast({ title: "Erro", description: res.data?.error || res.error?.message || "Erro ao redefinir senha", variant: "destructive" });
+    } else {
+      toast({ title: "Senha redefinida com sucesso" });
+      setPasswordDialogOpen(false);
+      setNewPassword("");
+      setSelectedVendedor(null);
+    }
+    setResettingPassword(false);
+  };
+
+  const openPasswordDialog = (v: Vendedor) => {
+    setSelectedVendedor(v);
+    setNewPassword("");
+    setPasswordDialogOpen(true);
   };
 
   return (
@@ -136,7 +172,7 @@ const GerenciarVendedores = () => {
                 <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Email</TableHead>
                 <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Status</TableHead>
                 <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Criado em</TableHead>
-                <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider w-20">Ação</TableHead>
+                <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider w-28">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -153,12 +189,22 @@ const GerenciarVendedores = () => {
                     {new Date(v.created_at).toLocaleDateString("pt-BR")}
                   </TableCell>
                   <TableCell>
-                    <button
-                      onClick={() => toggleStatus(v)}
-                      className={`p-1.5 rounded-lg transition-colors ${v.ativo ? "hover:bg-destructive/20 text-destructive" : "hover:bg-success/20 text-success"}`}
-                    >
-                      {v.ativo ? <UserX className="h-4 w-4" /> : <UserCheck className="h-4 w-4" />}
-                    </button>
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => openPasswordDialog(v)}
+                        className="p-1.5 rounded-lg transition-colors hover:bg-warning/20 text-warning"
+                        title="Redefinir senha"
+                      >
+                        <KeyRound className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => toggleStatus(v)}
+                        className={`p-1.5 rounded-lg transition-colors ${v.ativo ? "hover:bg-destructive/20 text-destructive" : "hover:bg-success/20 text-success"}`}
+                        title={v.ativo ? "Desativar" : "Reativar"}
+                      >
+                        {v.ativo ? <UserX className="h-4 w-4" /> : <UserCheck className="h-4 w-4" />}
+                      </button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
@@ -167,6 +213,7 @@ const GerenciarVendedores = () => {
         </div>
       )}
 
+      {/* Create dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="bg-card border-card-border">
           <DialogHeader>
@@ -189,6 +236,38 @@ const GerenciarVendedores = () => {
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancelar</Button>
             <Button onClick={handleCreate} disabled={saving}>{saving ? "Criando..." : "Criar Vendedor"}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Password reset dialog */}
+      <Dialog open={passwordDialogOpen} onOpenChange={setPasswordDialogOpen}>
+        <DialogContent className="bg-card border-card-border">
+          <DialogHeader>
+            <DialogTitle className="text-warning font-semibold">Redefinir Senha</DialogTitle>
+          </DialogHeader>
+          {selectedVendedor && (
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                Redefinir senha de <span className="font-medium text-foreground">{selectedVendedor.nome}</span> ({selectedVendedor.email})
+              </p>
+              <div>
+                <label className="label-apple block mb-1">Nova Senha *</label>
+                <Input
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="surface-input"
+                  placeholder="Mínimo 6 caracteres"
+                />
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPasswordDialogOpen(false)}>Cancelar</Button>
+            <Button onClick={handleResetPassword} disabled={resettingPassword}>
+              {resettingPassword ? "Salvando..." : "Redefinir Senha"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

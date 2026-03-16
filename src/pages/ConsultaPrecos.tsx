@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
-import { Search, LogOut, Package } from "lucide-react";
+import { Search, LogOut, Package, Tag } from "lucide-react";
 import vorneLogo from "@/assets/vorne-logo.png";
 
 interface Produto {
@@ -19,32 +19,54 @@ interface Produto {
   preco_20: number;
 }
 
+interface Promocao {
+  id: string;
+  titulo: string;
+  descricao: string | null;
+  imagem_url: string | null;
+  desconto_percentual: number | null;
+  preco_promocional: number | null;
+  data_fim: string | null;
+  produto_id: string | null;
+}
+
 const ConsultaPrecos = () => {
   const { signOut, profile } = useAuth();
   const [produtos, setProdutos] = useState<Produto[]>([]);
+  const [promocoes, setPromocoes] = useState<Promocao[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [marcaFilter, setMarcaFilter] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetch = async () => {
+    const fetchAll = async () => {
       setLoading(true);
-      const { data } = await supabase
-        .from("lista_mix")
-        .select("id, produto, marca, part_number, preco_15, preco_20")
-        .eq("ativo", true)
-        .order("produto");
-      setProdutos((data as Produto[]) || []);
+      const [{ data: prods }, { data: promos }] = await Promise.all([
+        supabase
+          .from("lista_mix")
+          .select("id, produto, marca, part_number, preco_15, preco_20")
+          .eq("ativo", true)
+          .order("produto"),
+        supabase
+          .from("promocoes")
+          .select("id, titulo, descricao, imagem_url, desconto_percentual, preco_promocional, data_fim, produto_id")
+          .eq("ativo", true)
+          .order("created_at", { ascending: false }),
+      ]);
+      setProdutos((prods as Produto[]) || []);
+      // Filter out expired promotions
+      const activePromos = ((promos as Promocao[]) || []).filter(
+        (p) => !p.data_fim || new Date(p.data_fim) > new Date()
+      );
+      setPromocoes(activePromos);
       setLoading(false);
     };
-    fetch();
+    fetchAll();
 
-    // Realtime updates
     const channel = supabase
-      .channel("lista_mix_changes")
-      .on("postgres_changes", { event: "*", schema: "public", table: "lista_mix" }, () => {
-        fetch();
-      })
+      .channel("consulta_changes")
+      .on("postgres_changes", { event: "*", schema: "public", table: "lista_mix" }, () => { fetchAll(); })
+      .on("postgres_changes", { event: "*", schema: "public", table: "promocoes" }, () => { fetchAll(); })
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
@@ -85,6 +107,50 @@ const ConsultaPrecos = () => {
       </header>
 
       <main className="max-w-5xl mx-auto p-6 animate-fade-in-up">
+        {/* Promotions banner */}
+        {promocoes.length > 0 && (
+          <div className="mb-8 space-y-3">
+            {promocoes.map((promo) => {
+              const linkedProduct = promo.produto_id ? produtos.find((p) => p.id === promo.produto_id) : null;
+              return (
+                <div key={promo.id} className="card-elevated overflow-hidden rounded-xl border border-warning/30 bg-gradient-to-r from-warning/10 to-warning/5">
+                  <div className="flex items-center gap-4 p-4">
+                    {promo.imagem_url ? (
+                      <img src={promo.imagem_url} alt={promo.titulo} className="h-20 w-20 rounded-lg object-cover flex-shrink-0" />
+                    ) : (
+                      <div className="h-20 w-20 rounded-lg bg-warning/20 flex items-center justify-center flex-shrink-0">
+                        <Tag className="h-8 w-8 text-warning" />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-base font-bold text-warning">{promo.titulo}</h3>
+                      {promo.descricao && <p className="text-sm text-muted-foreground mt-0.5 line-clamp-2">{promo.descricao}</p>}
+                      {linkedProduct && (
+                        <p className="text-xs text-muted-foreground mt-1">Produto: {linkedProduct.produto}</p>
+                      )}
+                      {promo.data_fim && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Válido até {new Date(promo.data_fim).toLocaleDateString("pt-BR")}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                      {promo.desconto_percentual && (
+                        <span className="px-3 py-1 rounded-full bg-warning text-warning-foreground text-sm font-bold">
+                          -{promo.desconto_percentual}%
+                        </span>
+                      )}
+                      {promo.preco_promocional && (
+                        <span className="text-lg font-bold text-success">{formatBRL(promo.preco_promocional)}</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
         <div className="mb-6">
           <h2 className="text-lg font-semibold text-warning">Consulta de Preços</h2>
           <p className="text-sm text-muted-foreground">Busque produtos e veja os preços de venda</p>
