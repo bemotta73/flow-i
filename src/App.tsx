@@ -62,6 +62,7 @@ function AppRoutes() {
         <Route path="/lista-mix" element={<ListaMix />} />
         <Route path="/alertas" element={<Alertas />} />
         <Route path="/vendedores" element={<GerenciarVendedores />} />
+        <Route path="/promocoes" element={<Promocoes />} />
         <Route path="/login" element={<Navigate to="/" replace />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

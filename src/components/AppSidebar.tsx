@@ -24,6 +24,7 @@ const adminItems = [
   { title: "Lista Mix", url: "/lista-mix", icon: ListChecks },
   { title: "Alertas", url: "/alertas", icon: Bell },
   { title: "Gerenciar Vendedores", url: "/vendedores", icon: Users },
+  { title: "Promoções", url: "/promocoes", icon: Tag },
 ];
 
 export function AppSidebar() {
