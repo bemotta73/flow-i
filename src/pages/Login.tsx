@@ -53,7 +53,10 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="w-full max-w-sm animate-fade-in-up">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-warning tracking-tight">Flow-!</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            <span className="text-foreground">Flow</span>
+            <span className="text-primary">i</span>
+          </h1>
           <p className="text-xs text-muted-foreground tracking-widest uppercase mt-1">
             Officer Distribuidora
           </p>
@@ -155,8 +158,8 @@ const Login = () => {
 
         <div className="flex flex-col items-center gap-1 mt-8">
           <img src={vorneLogo} alt="Vorne AI" className="h-8 w-8" />
-          <span className="text-[9px] text-muted-foreground tracking-wide">
-            Desenvolvido por <span className="font-medium text-foreground/70">Vorne AI</span>
+          <span className="text-[9px] text-apple-label tracking-wide">
+            Desenvolvido por <span className="font-medium text-muted-foreground">Vorne AI</span>
           </span>
         </div>
       </div>

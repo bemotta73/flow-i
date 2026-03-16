@@ -23,7 +23,6 @@ function AppRoutes() {
   const { user, role, loading } = useAuth();
   const location = window.location;
 
-  // Reset password page is always accessible
   if (location.pathname === "/reset-password") {
     return (
       <Routes>
@@ -36,7 +35,10 @@ function AppRoutes() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center animate-fade-in-up">
-          <h1 className="text-2xl font-bold text-warning mb-2">Flow-!</h1>
+          <h1 className="text-2xl font-bold mb-2">
+            <span className="text-foreground">Flow</span>
+            <span className="text-primary">i</span>
+          </h1>
           <p className="text-sm text-muted-foreground">Carregando...</p>
         </div>
       </div>
@@ -47,12 +49,10 @@ function AppRoutes() {
     return <Login />;
   }
 
-  // Vendedor goes to price consultation only
   if (role === "vendedor") {
     return <ConsultaPrecos />;
   }
 
-  // Admin gets full app
   return (
     <AppLayout>
       <Routes>

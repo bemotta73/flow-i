@@ -73,7 +73,7 @@ const Alertas = () => {
   return (
     <div className="animate-fade-in-up">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold tracking-tight text-warning">Alertas de Preço</h1>
+        <h1 className="text-[28px] font-bold tracking-tight text-foreground">Alertas de Preço</h1>
         <p className="text-sm text-muted-foreground mt-1">
           Monitore variações significativas nos custos dos produtos
         </p>
@@ -89,7 +89,7 @@ const Alertas = () => {
           className="w-20 h-8 text-sm surface-input"
         />
         <span className="text-sm text-muted-foreground">%</span>
-        <Button size="sm" onClick={saveLimite} disabled={savingLimite} className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl">
+        <Button size="sm" onClick={saveLimite} disabled={savingLimite}>
           Salvar
         </Button>
       </div>
@@ -104,10 +104,10 @@ const Alertas = () => {
           <button
             key={f.value}
             onClick={() => setFiltro(f.value)}
-            className={`px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200 ${
+            className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-150 ${
               filtro === f.value
                 ? "bg-primary text-primary-foreground"
-                : "bg-muted text-muted-foreground hover:text-foreground"
+                : "bg-card text-muted-foreground hover:text-foreground"
             }`}
           >
             {f.label}
@@ -118,7 +118,7 @@ const Alertas = () => {
       {/* List */}
       {loading ? (
         <div className="space-y-3">
-          {[1, 2, 3].map((i) => <div key={i} className="h-20 rounded-2xl animate-shimmer" />)}
+          {[1, 2, 3].map((i) => <div key={i} className="h-20 rounded-xl animate-shimmer" />)}
         </div>
       ) : alertas.length === 0 ? (
         <div className="text-center py-16">
@@ -129,16 +129,15 @@ const Alertas = () => {
         <div className="space-y-3">
           {alertas.map((a) => {
             const isAumento = a.tipo === "aumento";
-            const color = isAumento ? "text-warning" : "text-secondary";
-            const bgColor = isAumento ? "bg-warning/10 border-warning/20" : "bg-secondary/10 border-secondary/20";
+            const borderColor = isAumento ? "border-l-warning" : "border-l-success";
 
             return (
               <div
                 key={a.id}
-                className={`card-elevated p-4 border transition-all duration-200 ${bgColor} ${a.lido ? "opacity-60" : ""}`}
+                className={`card-elevated p-4 border-l-[3px] ${borderColor} transition-all duration-200 ${a.lido ? "opacity-60" : ""}`}
               >
                 <div className="flex items-start gap-4">
-                  <div className={`mt-1 ${color}`}>
+                  <div className={isAumento ? "text-warning mt-1" : "text-success mt-1"}>
                     {isAumento ? <TrendingUp className="h-5 w-5" /> : <TrendingDown className="h-5 w-5" />}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -150,7 +149,7 @@ const Alertas = () => {
                         </Badge>
                       )}
                       {!a.lido && (
-                        <span className="h-2 w-2 rounded-full bg-warning animate-pulse" />
+                        <span className="h-2 w-2 rounded-full bg-destructive animate-pulse" />
                       )}
                     </div>
                     {a.fornecedor && (
@@ -160,7 +159,7 @@ const Alertas = () => {
                       <span className="text-muted-foreground">{formatBRL(a.custo_anterior)}</span>
                       <span className="text-muted-foreground">→</span>
                       <span className="font-semibold text-foreground">{formatBRL(a.custo_atual)}</span>
-                      <span className={`font-bold ${color}`}>
+                      <span className={`font-bold ${isAumento ? "text-warning" : "text-success"}`}>
                         {isAumento ? "▲" : "▼"} {a.variacao_percentual > 0 ? "+" : ""}{a.variacao_percentual.toFixed(1)}%
                       </span>
                     </div>

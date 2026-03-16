@@ -34,7 +34,7 @@ interface Cotacao {
   created_at: string;
 }
 
-const PIE_COLORS = ["#0072BB", "#8CC63F", "#FFCB31", "#E05252", "#8E8E93", "#7B61FF"];
+const PIE_COLORS = ["#14B8A6", "#3B82F6", "#F59E0B", "#8B5CF6", "#EF4444", "#22C55E"];
 
 const Dashboard = () => {
   const now = new Date();
@@ -139,25 +139,27 @@ const Dashboard = () => {
   const recent10 = cotacoes.slice(0, 10);
 
   const metricCards = [
-    { label: "Total Cotações", value: String(totalCotacoes), icon: FileText, color: "text-warning", sub: "" },
-    { label: "Produto Mais Cotado", value: topProduto, icon: Package, color: "text-warning", sub: `${topProdutoCount}x` },
-    { label: "Marca Mais Cotada", value: topMarca, icon: Tag, color: "text-warning", sub: `${topMarcaCount}x` },
-    { label: "Fornecedor Mais Usado", value: topFornecedor, icon: Truck, color: "text-warning", sub: `${topFornecedorCount}x` },
+    { label: "Total Cotações", value: String(totalCotacoes), icon: FileText, sub: "" },
+    { label: "Produto Mais Cotado", value: topProduto, icon: Package, sub: `${topProdutoCount}x` },
+    { label: "Marca Mais Cotada", value: topMarca, icon: Tag, sub: `${topMarcaCount}x` },
+    { label: "Fornecedor Mais Usado", value: topFornecedor, icon: Truck, sub: `${topFornecedorCount}x` },
   ];
+
+  const tooltipStyle = { background: "#1E293B", border: "none", borderRadius: 8, color: "#F1F5F9" };
 
   return (
     <div className="animate-fade-in-up">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold tracking-tight text-warning">Dashboard</h1>
+        <h1 className="text-[28px] font-bold tracking-tight text-foreground">Dashboard</h1>
       </div>
 
       {/* Filters */}
       <div className="flex items-center gap-3 mb-6 flex-wrap">
-        <div className="flex flex-wrap gap-1">
+        <div className="flex flex-wrap gap-1 bg-card rounded-lg p-1">
           <button
             onClick={() => setMes(null)}
-            className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 ${
-              mes === null ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"
+            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-150 ${
+              mes === null ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
             }`}
           >
             TODOS
@@ -166,8 +168,8 @@ const Dashboard = () => {
             <button
               key={m}
               onClick={() => setMes(i)}
-              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 ${
-                i === mes ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"
+              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-150 ${
+                i === mes ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
               }`}
             >
               {m.slice(0, 3)}
@@ -185,7 +187,7 @@ const Dashboard = () => {
         <Button
           variant="outline"
           size="sm"
-          className="ml-auto gap-2 border-primary text-primary hover:bg-primary/10"
+          className="ml-auto gap-2 border-border text-foreground hover:bg-card"
           onClick={() => exportCotacoesToExcel(cotacoes, `cotacoes-dashboard-${mes !== null ? MESES[mes].toLowerCase() : "todos"}-${ano}.xlsx`)}
           disabled={cotacoes.length === 0}
         >
@@ -194,15 +196,15 @@ const Dashboard = () => {
       </div>
 
       {/* Metric Cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
         {metricCards.map((m, idx) => (
           <Card key={idx} className="card-elevated border-0 animate-fade-in-up" style={{ animationDelay: `${idx * 0.07}s` }}>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="label-apple">{m.label}</CardTitle>
-              <m.icon className="h-4 w-4 text-muted-foreground" />
+              <m.icon className="h-4 w-4 text-primary/40" />
             </CardHeader>
             <CardContent>
-              <p className={`font-bold truncate text-lg ${m.color}`}>{m.value}</p>
+              <p className="font-bold truncate text-lg text-foreground">{m.value}</p>
               {m.sub && <p className="text-xs text-muted-foreground mt-0.5">{m.sub}</p>}
             </CardContent>
           </Card>
@@ -212,21 +214,27 @@ const Dashboard = () => {
       {/* Charts */}
       <div className="grid gap-6 lg:grid-cols-2 mb-8">
         <Card className="card-elevated border-0">
-          <CardHeader><CardTitle className="text-sm font-semibold text-warning">Cotações por Dia</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="text-[13px] font-semibold text-primary uppercase tracking-wide">Cotações por Dia</CardTitle></CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={250}>
               <BarChart data={barData}>
-                <XAxis dataKey="dia" tick={{ fontSize: 11, fill: "#8E8E93" }} axisLine={false} tickLine={false} />
-                <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: "#8E8E93" }} axisLine={false} tickLine={false} />
-                <Tooltip contentStyle={{ background: "#2C2C2E", border: "none", borderRadius: 12, color: "#fff" }} />
-                <Bar dataKey="total" fill="#0072BB" radius={[6, 6, 0, 0]} />
+                <defs>
+                  <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#3B82F6" />
+                    <stop offset="100%" stopColor="#14B8A6" />
+                  </linearGradient>
+                </defs>
+                <XAxis dataKey="dia" tick={{ fontSize: 11, fill: "#94A3B8" }} axisLine={false} tickLine={false} />
+                <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: "#94A3B8" }} axisLine={false} tickLine={false} />
+                <Tooltip contentStyle={tooltipStyle} />
+                <Bar dataKey="total" fill="url(#barGradient)" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
 
         <Card className="card-elevated border-0">
-          <CardHeader><CardTitle className="text-sm font-semibold text-warning">Distribuição por Marca</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="text-[13px] font-semibold text-primary uppercase tracking-wide">Distribuição por Marca</CardTitle></CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={250}>
               <PieChart>
@@ -235,7 +243,7 @@ const Dashboard = () => {
                     <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip contentStyle={{ background: "#2C2C2E", border: "none", borderRadius: 12, color: "#fff" }} />
+                <Tooltip contentStyle={tooltipStyle} />
               </PieChart>
             </ResponsiveContainer>
           </CardContent>
@@ -243,15 +251,15 @@ const Dashboard = () => {
       </div>
 
       <Card className="card-elevated border-0 mb-8">
-        <CardHeader><CardTitle className="text-sm font-semibold text-warning">Evolução Mensal ({ano})</CardTitle></CardHeader>
+        <CardHeader><CardTitle className="text-[13px] font-semibold text-primary uppercase tracking-wide">Evolução Mensal ({ano})</CardTitle></CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={250}>
             <LineChart data={lineData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#48484A" />
-              <XAxis dataKey="mes" tick={{ fontSize: 11, fill: "#8E8E93" }} axisLine={false} tickLine={false} />
-              <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: "#8E8E93" }} axisLine={false} tickLine={false} />
-              <Tooltip contentStyle={{ background: "#2C2C2E", border: "none", borderRadius: 12, color: "#fff" }} />
-              <Line type="monotone" dataKey="total" stroke="#FFCB31" strokeWidth={2} dot={{ r: 4, fill: "#FFCB31" }} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" />
+              <XAxis dataKey="mes" tick={{ fontSize: 11, fill: "#94A3B8" }} axisLine={false} tickLine={false} />
+              <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: "#94A3B8" }} axisLine={false} tickLine={false} />
+              <Tooltip contentStyle={tooltipStyle} />
+              <Line type="monotone" dataKey="total" stroke="#14B8A6" strokeWidth={2} dot={{ r: 4, fill: "#14B8A6" }} />
             </LineChart>
           </ResponsiveContainer>
         </CardContent>
@@ -259,7 +267,7 @@ const Dashboard = () => {
 
       {/* Recent table */}
       <Card className="card-elevated border-0">
-        <CardHeader><CardTitle className="text-sm font-semibold text-warning">Últimas 10 Cotações</CardTitle></CardHeader>
+        <CardHeader><CardTitle className="text-[13px] font-semibold text-primary uppercase tracking-wide">Últimas 10 Cotações</CardTitle></CardHeader>
         <CardContent>
           {recent10.length === 0 ? (
             <p className="text-sm text-muted-foreground">Nenhuma cotação no período.</p>
@@ -267,25 +275,25 @@ const Dashboard = () => {
             <Table>
               <TableHeader>
                 <TableRow className="table-header-dark border-0">
-                  <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Data/Hora</TableHead>
-                  <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Produto</TableHead>
-                  <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Marca</TableHead>
-                  <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Custo</TableHead>
-                  <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">15%</TableHead>
-                  <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">20%</TableHead>
-                  <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Vendedor</TableHead>
+                  <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Data/Hora</TableHead>
+                  <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Produto</TableHead>
+                  <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Marca</TableHead>
+                  <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Custo</TableHead>
+                  <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">15%</TableHead>
+                  <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">20%</TableHead>
+                  <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Vendedor</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {recent10.map((c, idx) => (
                   <TableRow key={c.id} className={`table-row-hover transition-all duration-150 ${idx % 2 === 1 ? "table-row-alt" : ""}`}>
-                    <TableCell className="text-xs text-foreground">{formatDateTime(c.created_at)}</TableCell>
-                    <TableCell className="text-xs font-medium max-w-[200px] truncate text-foreground">{c.produto}</TableCell>
-                    <TableCell className="text-xs text-muted-foreground">{c.marca}</TableCell>
-                    <TableCell className="text-xs text-foreground">{formatBRL(c.custo)}</TableCell>
-                    <TableCell className="text-xs font-medium text-primary">{formatBRL(c.preco_15)}</TableCell>
-                    <TableCell className="text-xs font-medium text-success">{formatBRL(c.preco_20)}</TableCell>
-                    <TableCell className="text-xs text-foreground">{c.vendedor}</TableCell>
+                    <TableCell className="text-xs text-foreground px-4 py-3">{formatDateTime(c.created_at)}</TableCell>
+                    <TableCell className="text-xs font-medium max-w-[200px] truncate text-foreground px-4 py-3">{c.produto}</TableCell>
+                    <TableCell className="text-xs text-muted-foreground px-4 py-3">{c.marca}</TableCell>
+                    <TableCell className="text-xs text-foreground px-4 py-3">{formatBRL(c.custo)}</TableCell>
+                    <TableCell className="text-xs font-medium text-secondary px-4 py-3">{formatBRL(c.preco_15)}</TableCell>
+                    <TableCell className="text-xs font-medium text-success px-4 py-3">{formatBRL(c.preco_20)}</TableCell>
+                    <TableCell className="text-xs text-foreground px-4 py-3">{c.vendedor}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

@@ -172,7 +172,6 @@ export function QuotationForm() {
       const { error } = await supabase.from("cotacoes").insert(rows);
       if (error) throw error;
 
-      // Check for price alerts
       const banners: typeof alertBanners = [];
       for (const p of allProducts) {
         try {
@@ -204,7 +203,7 @@ export function QuotationForm() {
     ? (produtos.length > 0 ? produtos : (form.produto && custoNum ? [{ ...form, custoNum }] : []))
     : [];
 
-  const inputClass = "surface-input placeholder:text-apple-placeholder focus-visible:ring-0 focus-visible:border-primary focus-visible:shadow-[0_0_0_3px_rgba(0,114,187,0.3)]";
+  const inputClass = "surface-input";
 
   return (
     <div className="space-y-6">
@@ -218,7 +217,7 @@ export function QuotationForm() {
               className={`w-full text-left rounded-xl p-3 flex items-center gap-3 transition-all hover:opacity-80 ${
                 b.variacao > 0
                   ? "bg-warning/15 border border-warning/30 text-warning"
-                  : "bg-secondary/15 border border-secondary/30 text-secondary"
+                  : "bg-success/15 border border-success/30 text-success"
               }`}
             >
               <AlertTriangle className="h-4 w-4 shrink-0" />
@@ -235,7 +234,7 @@ export function QuotationForm() {
 
       {/* Shared fields */}
       <div className="card-elevated p-6 space-y-5 animate-fade-in-up">
-        <p className="text-sm font-semibold text-warning">Dados da Cotação</p>
+        <p className="text-[13px] font-semibold text-primary uppercase tracking-wide">Dados da Cotação</p>
         <div className="grid gap-4 sm:grid-cols-2">
            <div className="space-y-2">
             <label className="label-apple">Vendedor *</label>
@@ -268,14 +267,14 @@ export function QuotationForm() {
           <p className="label-apple">Produtos adicionados ({produtos.length})</p>
           <div className="space-y-2">
             {produtos.map((p, i) => (
-              <div key={i} className={cn("group flex items-center gap-3 rounded-xl p-3.5 animate-slide-in-left", editingIndex === i ? "bg-primary/10 ring-1 ring-primary" : "bg-muted")} style={{ animationDelay: `${i * 0.05}s` }}>
+              <div key={i} className={cn("group flex items-center gap-3 rounded-xl p-3.5 animate-slide-in-left", editingIndex === i ? "bg-primary/10 ring-1 ring-primary" : "bg-card")} style={{ animationDelay: `${i * 0.05}s` }}>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-foreground truncate">{p.produto}</p>
                   <p className="text-xs text-muted-foreground mt-0.5">
                     {p.marca && `${p.marca} · `}
                     Custo: {formatBRL(p.custoNum)} ·{" "}
-                    <span className="text-primary">15%: {formatBRL(p.custoNum / 0.85)}</span> ·{" "}
-                    <span className="text-warning">20%: {formatBRL(p.custoNum / 0.80)}</span>
+                    <span className="text-secondary">15%: {formatBRL(p.custoNum / 0.85)}</span> ·{" "}
+                    <span className="text-success">20%: {formatBRL(p.custoNum / 0.80)}</span>
                   </p>
                 </div>
                 <Button
@@ -302,7 +301,7 @@ export function QuotationForm() {
 
       {/* Product form fields */}
       <div className="card-elevated p-6 space-y-5 animate-fade-in-up">
-        <p className="text-sm font-semibold text-warning">
+        <p className="text-[13px] font-semibold text-primary uppercase tracking-wide">
           {editingIndex !== null ? `Editando Produto #${editingIndex + 1}` : produtos.length > 0 ? "Adicionar Próximo Produto" : "Dados do Produto"}
         </p>
 
@@ -359,7 +358,7 @@ export function QuotationForm() {
             type="button"
             variant="outline"
             onClick={handleAddProduct}
-            className="gap-2 bg-transparent border-primary text-primary hover:bg-primary/10 rounded-xl transition-all duration-200"
+            className="gap-2 border-border text-foreground hover:bg-card rounded-lg transition-all duration-150"
           >
             <Plus className="h-4 w-4" /> {editingIndex !== null ? "Salvar Alteração" : "Adicionar Produto"}
           </Button>
@@ -368,7 +367,7 @@ export function QuotationForm() {
               type="button"
               variant="ghost"
               onClick={handleCancelEdit}
-              className="gap-2 text-muted-foreground hover:text-foreground rounded-xl"
+              className="gap-2 text-muted-foreground hover:text-foreground rounded-lg"
             >
               Cancelar
             </Button>
@@ -378,18 +377,18 @@ export function QuotationForm() {
 
       {/* Observação para o email */}
       <div className="card-elevated p-6 space-y-3 animate-fade-in-up">
-        <p className="text-sm font-semibold text-warning">Observação para o Email</p>
+        <p className="text-[13px] font-semibold text-primary uppercase tracking-wide">Observação para o Email</p>
         <p className="text-xs text-muted-foreground">Texto opcional que será adicionado ao final do email, antes dos dados da empresa.</p>
         <textarea
           value={observacao}
           onChange={(e) => { setObservacao(e.target.value); setShowEmail(false); }}
           placeholder="Ex: Valor especial válido por 48h, Condição exclusiva para este pedido..."
-          className="w-full min-h-[80px] rounded-xl border border-border bg-background px-4 py-3 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:border-primary focus-visible:shadow-[0_0_0_3px_rgba(0,114,187,0.3)] resize-y"
+          className="w-full min-h-[80px] rounded-lg border border-border bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:border-primary focus-visible:shadow-[0_0_0_3px_hsla(168,76%,37%,0.15)] resize-y"
         />
       </div>
 
       <div className="space-y-2">
-        <p className="text-sm font-semibold text-warning">Margem para o Email</p>
+        <p className="text-[13px] font-semibold text-primary uppercase tracking-wide">Margem para o Email</p>
         <div className="flex gap-2 items-center">
           {([
             { value: "15" as MargemSelecionada, label: "15%" },
@@ -400,10 +399,10 @@ export function QuotationForm() {
               key={opt.value}
               type="button"
               onClick={() => { setMargemSelecionada(opt.value); setShowEmail(false); }}
-              className={`px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200 ${
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-150 ${
                 margemSelecionada === opt.value
                   ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground hover:text-foreground"
+                  : "bg-card text-muted-foreground hover:text-foreground"
               }`}
             >
               {opt.label}
@@ -428,7 +427,7 @@ export function QuotationForm() {
         <Button
           onClick={handleFinalize}
           disabled={saving}
-          className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl transition-all duration-200"
+          className="gap-2 rounded-lg transition-all duration-150"
         >
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
           Finalizar e Gerar Email

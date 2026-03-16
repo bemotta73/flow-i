@@ -96,10 +96,10 @@ export function ImageUpload({ onExtracted }: ImageUploadProps) {
     <div className="space-y-3">
       <div
         className={cn(
-          "relative flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-10 transition-all duration-200 cursor-pointer",
+          "relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-10 transition-all duration-150 cursor-pointer",
           isDragging
             ? "border-primary bg-primary/5"
-            : "border-apple-separator hover:border-muted-foreground bg-card",
+            : "border-border hover:border-muted-foreground bg-background",
           isProcessing && "pointer-events-none opacity-70"
         )}
         onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
@@ -126,12 +126,12 @@ export function ImageUpload({ onExtracted }: ImageUploadProps) {
           </div>
         ) : (
           <div className="flex flex-col items-center gap-3">
-            <div className="rounded-2xl bg-muted p-4 transition-transform duration-200 hover:scale-105">
+            <div className="rounded-xl bg-card p-4 transition-transform duration-150 hover:scale-105">
               <Upload className="h-5 w-5 text-muted-foreground" />
             </div>
             <div className="text-center">
               <p className="text-sm font-medium text-foreground">Arraste uma imagem, clique ou cole com Ctrl+V</p>
-              <p className="text-xs text-apple-placeholder mt-1">Print de tela do portal do distribuidor</p>
+              <p className="text-xs text-muted-foreground mt-1">Print de tela do portal do distribuidor</p>
             </div>
           </div>
         )}
@@ -139,7 +139,7 @@ export function ImageUpload({ onExtracted }: ImageUploadProps) {
 
       {preview && (
         <div className="relative inline-block animate-fade-in-up">
-          <img src={preview} alt="Preview" className="max-h-40 rounded-2xl shadow-lg" />
+          <img src={preview} alt="Preview" className="max-h-40 rounded-xl shadow-lg" />
           <button
             onClick={(e) => { e.stopPropagation(); setPreview(null); }}
             className="absolute -top-2 -right-2 rounded-full bg-destructive p-1 text-destructive-foreground shadow-sm hover:bg-destructive/90 transition-colors"

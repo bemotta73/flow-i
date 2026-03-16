@@ -54,7 +54,6 @@ const ConsultaPrecos = () => {
           .order("created_at", { ascending: false }),
       ]);
       setProdutos((prods as Produto[]) || []);
-      // Filter out expired promotions
       const activePromos = ((promos as Promocao[]) || []).filter(
         (p) => !p.data_fim || new Date(p.data_fim) > new Date()
       );
@@ -96,8 +95,11 @@ const ConsultaPrecos = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="h-14 flex items-center px-6 border-b border-apple-separator">
-        <h1 className="text-xl font-bold text-warning tracking-tight">Flow-!</h1>
+      <header className="h-14 flex items-center px-6 border-b border-card">
+        <h1 className="text-xl font-bold tracking-tight">
+          <span className="text-foreground">Flow</span>
+          <span className="text-primary">i</span>
+        </h1>
         <span className="text-[10px] text-muted-foreground tracking-widest uppercase ml-2">Officer Distribuidora</span>
         <div className="flex-1" />
         {profile && <span className="text-xs text-muted-foreground mr-4">Olá, {profile.nome}</span>}
@@ -113,17 +115,17 @@ const ConsultaPrecos = () => {
             {promocoes.map((promo) => {
               const linkedProduct = promo.produto_id ? produtos.find((p) => p.id === promo.produto_id) : null;
               return (
-                <div key={promo.id} className="card-elevated overflow-hidden rounded-xl border border-warning/30 bg-gradient-to-r from-warning/10 to-warning/5">
+                <div key={promo.id} className="card-elevated overflow-hidden rounded-xl bg-gradient-to-r from-primary/10 to-primary/5">
                   <div className="flex items-center gap-4 p-4">
                     {promo.imagem_url ? (
                       <img src={promo.imagem_url} alt={promo.titulo} className="h-20 w-20 rounded-lg object-cover flex-shrink-0" />
                     ) : (
-                      <div className="h-20 w-20 rounded-lg bg-warning/20 flex items-center justify-center flex-shrink-0">
-                        <Tag className="h-8 w-8 text-warning" />
+                      <div className="h-20 w-20 rounded-lg bg-primary/20 flex items-center justify-center flex-shrink-0">
+                        <Tag className="h-8 w-8 text-primary" />
                       </div>
                     )}
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-base font-bold text-warning">{promo.titulo}</h3>
+                      <h3 className="text-base font-bold text-primary">{promo.titulo}</h3>
                       {promo.descricao && <p className="text-sm text-muted-foreground mt-0.5 line-clamp-2">{promo.descricao}</p>}
                       {linkedProduct && (
                         <p className="text-xs text-muted-foreground mt-1">Produto: {linkedProduct.produto}</p>
@@ -136,7 +138,7 @@ const ConsultaPrecos = () => {
                     </div>
                     <div className="flex flex-col items-end gap-1 flex-shrink-0">
                       {promo.desconto_percentual && (
-                        <span className="px-3 py-1 rounded-full bg-warning text-warning-foreground text-sm font-bold">
+                        <span className="px-3 py-1 rounded-full bg-primary text-primary-foreground text-sm font-bold">
                           -{promo.desconto_percentual}%
                         </span>
                       )}
@@ -152,7 +154,7 @@ const ConsultaPrecos = () => {
         )}
 
         <div className="mb-6">
-          <h2 className="text-lg font-semibold text-warning">Consulta de Preços</h2>
+          <h2 className="text-lg font-semibold text-foreground">Consulta de Preços</h2>
           <p className="text-sm text-muted-foreground">Busque produtos e veja os preços de venda</p>
         </div>
 
@@ -173,7 +175,7 @@ const ConsultaPrecos = () => {
             <button
               onClick={() => setMarcaFilter(null)}
               className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
-                !marcaFilter ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"
+                !marcaFilter ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground hover:text-foreground"
               }`}
             >
               Todas
@@ -183,7 +185,7 @@ const ConsultaPrecos = () => {
                 key={m}
                 onClick={() => setMarcaFilter(marcaFilter === m ? null : m)}
                 className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
-                  marcaFilter === m ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"
+                  marcaFilter === m ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground hover:text-foreground"
                 }`}
               >
                 {m}
@@ -195,7 +197,7 @@ const ConsultaPrecos = () => {
         {/* Results */}
         {loading ? (
           <div className="space-y-3">
-            {[1, 2, 3].map((i) => <div key={i} className="h-12 rounded-2xl animate-shimmer" />)}
+            {[1, 2, 3].map((i) => <div key={i} className="h-12 rounded-xl animate-shimmer" />)}
           </div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-16">
@@ -207,21 +209,21 @@ const ConsultaPrecos = () => {
             <Table>
               <TableHeader>
                 <TableRow className="table-header-dark border-0">
-                  <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Produto</TableHead>
-                  <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Marca</TableHead>
-                  <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Part Number</TableHead>
-                  <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Preço 15%</TableHead>
-                  <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Preço 20%</TableHead>
+                  <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Produto</TableHead>
+                  <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Marca</TableHead>
+                  <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Part Number</TableHead>
+                  <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Preço 15%</TableHead>
+                  <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Preço 20%</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filtered.map((p, idx) => (
                   <TableRow key={p.id} className={`table-row-hover transition-all duration-150 ${idx % 2 === 1 ? "table-row-alt" : ""}`}>
-                    <TableCell className="text-sm font-medium text-foreground">{p.produto}</TableCell>
-                    <TableCell className="text-sm text-muted-foreground">{p.marca || "—"}</TableCell>
-                    <TableCell className="text-sm text-muted-foreground">{p.part_number || "—"}</TableCell>
-                    <TableCell className="text-sm font-semibold text-primary">{formatBRL(p.preco_15)}</TableCell>
-                    <TableCell className="text-sm font-semibold text-success">{formatBRL(p.preco_20)}</TableCell>
+                    <TableCell className="text-sm font-medium text-foreground px-4 py-3">{p.produto}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground px-4 py-3">{p.marca || "—"}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground px-4 py-3">{p.part_number || "—"}</TableCell>
+                    <TableCell className="text-sm font-semibold text-secondary px-4 py-3">{formatBRL(p.preco_15)}</TableCell>
+                    <TableCell className="text-sm font-semibold text-success px-4 py-3">{formatBRL(p.preco_20)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -232,8 +234,8 @@ const ConsultaPrecos = () => {
         {/* Footer */}
         <div className="flex flex-col items-center gap-1 mt-12">
           <img src={vorneLogo} alt="Vorne AI" className="h-8 w-8" />
-          <span className="text-[9px] text-muted-foreground tracking-wide">
-            Desenvolvido por <span className="font-medium text-foreground/70">Vorne AI</span>
+          <span className="text-[9px] text-apple-label tracking-wide">
+            Desenvolvido por <span className="font-medium text-muted-foreground">Vorne AI</span>
           </span>
         </div>
       </main>
