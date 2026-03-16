@@ -11,6 +11,7 @@ import Dashboard from "./pages/Dashboard";
 import ListaMix from "./pages/ListaMix";
 import GerenciarVendedores from "./pages/GerenciarVendedores";
 import ConsultaPrecos from "./pages/ConsultaPrecos";
+import Promocoes from "./pages/Promocoes";
 import Alertas from "./pages/Alertas";
 import Login from "./pages/Login";
 import ResetPassword from "./pages/ResetPassword";
