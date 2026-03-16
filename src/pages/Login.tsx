@@ -53,7 +53,7 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="w-full max-w-sm animate-fade-in-up">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-warning tracking-tight">CotaFlow</h1>
+          <h1 className="text-3xl font-bold text-warning tracking-tight">Flow-!</h1>
           <p className="text-xs text-muted-foreground tracking-widest uppercase mt-1">
             Officer Distribuidora
           </p>

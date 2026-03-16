@@ -97,7 +97,7 @@ const ConsultaPrecos = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="h-14 flex items-center px-6 border-b border-apple-separator">
-        <h1 className="text-xl font-bold text-warning tracking-tight">CotaFlow</h1>
+        <h1 className="text-xl font-bold text-warning tracking-tight">Flow-!</h1>
         <span className="text-[10px] text-muted-foreground tracking-widest uppercase ml-2">Officer Distribuidora</span>
         <div className="flex-1" />
         {profile && <span className="text-xs text-muted-foreground mr-4">Olá, {profile.nome}</span>}
