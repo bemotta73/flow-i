@@ -20,6 +20,16 @@ const queryClient = new QueryClient();
 
 function AppRoutes() {
   const { user, role, loading } = useAuth();
+  const location = window.location;
+
+  // Reset password page is always accessible
+  if (location.pathname === "/reset-password") {
+    return (
+      <Routes>
+        <Route path="/reset-password" element={<ResetPassword />} />
+      </Routes>
+    );
+  }
 
   if (loading) {
     return (
