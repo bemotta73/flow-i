@@ -1,0 +1,21 @@
+{
+  "name": "CotaFlow",
+  "short_name": "CotaFlow",
+  "description": "Controle de Cotações - Officer Distribuidora",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1C1C1E",
+  "theme_color": "#0072BB",
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
