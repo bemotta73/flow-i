@@ -49,7 +49,6 @@ const Controle = () => {
   const [editingCotacao, setEditingCotacao] = useState<Cotacao | null>(null);
   const [editForm, setEditForm] = useState({ produto: "", marca: "", part_number: "", custo: "", fornecedor: "", vendedor: "", canal: "", link: "" });
   const [saving, setSaving] = useState(false);
-  // Email edit state
   const [emailCotacao, setEmailCotacao] = useState<Cotacao | null>(null);
   const [emailText, setEmailText] = useState("");
   const [emailCopied, setEmailCopied] = useState(false);
@@ -131,9 +130,7 @@ const Controle = () => {
     }
   };
 
-  // Generate email from a cotação (or group)
   const handleGenerateEmail = (c: Cotacao) => {
-    // Find all cotações in the same group
     const group = c.cotacao_grupo
       ? cotacoes.filter((x) => x.cotacao_grupo === c.cotacao_grupo)
       : [c];
@@ -181,20 +178,20 @@ Qualquer dúvida estou à disposição.`;
   return (
     <div className="animate-fade-in-up">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold tracking-tight text-warning">Controle de Cotações</h1>
+        <h1 className="text-[28px] font-bold tracking-tight text-foreground">Controle de Cotações</h1>
       </div>
 
       {/* Month tabs + Year selector */}
       <div className="flex items-center gap-3 mb-6 flex-wrap">
-        <div className="flex flex-wrap gap-1">
+        <div className="flex flex-wrap gap-1 bg-card rounded-lg p-1">
           {MESES.map((m, i) => (
             <button
               key={m}
               onClick={() => setMes(i)}
-              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 ${
+              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-150 ${
                 i === mes
                   ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground hover:text-foreground"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
               {m.slice(0, 3)}
@@ -214,7 +211,7 @@ Qualquer dúvida estou à disposição.`;
         <Button
           variant="outline"
           size="sm"
-          className="ml-auto gap-2 border-primary text-primary hover:bg-primary/10"
+          className="ml-auto gap-2 border-border text-foreground hover:bg-card"
           onClick={() => exportCotacoesToExcel(cotacoes, `cotacoes-${MESES[mes]?.toLowerCase() || "todos"}-${ano}.xlsx`)}
           disabled={cotacoes.length === 0}
         >
@@ -226,7 +223,7 @@ Qualquer dúvida estou à disposição.`;
       {loading ? (
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-16 rounded-2xl animate-shimmer" />
+            <div key={i} className="h-16 rounded-xl animate-shimmer" />
           ))}
         </div>
       ) : cotacoes.length === 0 ? (
@@ -240,30 +237,30 @@ Qualquer dúvida estou à disposição.`;
                 <Table>
                   <TableHeader>
                     <TableRow className="table-header-dark border-0">
-                      <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Hora</TableHead>
-                      <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Produto</TableHead>
-                      <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Marca</TableHead>
-                      <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">PN</TableHead>
-                      <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Custo</TableHead>
-                      <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">15%</TableHead>
-                      <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">20%</TableHead>
-                      <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Fornecedor</TableHead>
-                      <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Vendedor</TableHead>
-                      <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Canal</TableHead>
-                      <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider w-[70px]"></TableHead>
+                      <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Hora</TableHead>
+                      <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Produto</TableHead>
+                      <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Marca</TableHead>
+                      <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">PN</TableHead>
+                      <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Custo</TableHead>
+                      <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">15%</TableHead>
+                      <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">20%</TableHead>
+                      <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Fornecedor</TableHead>
+                      <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Vendedor</TableHead>
+                      <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Canal</TableHead>
+                      <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3 w-[70px]"></TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {items.map((c, idx) => (
                       <TableRow key={c.id} className={`table-row-hover transition-all duration-150 ${idx % 2 === 1 ? "table-row-alt" : ""}`}>
-                        <TableCell className="text-xs text-foreground">
+                        <TableCell className="text-xs text-foreground px-4 py-3">
                           {new Date(c.created_at).toLocaleTimeString("pt-BR", {
                             timeZone: "America/Sao_Paulo",
                             hour: "2-digit",
                             minute: "2-digit",
                           })}
                         </TableCell>
-                        <TableCell className="text-xs font-medium max-w-[200px] truncate text-foreground">
+                        <TableCell className="text-xs font-medium max-w-[200px] truncate text-foreground px-4 py-3">
                           {c.produto}
                           {c.link && (
                             <a href={c.link} target="_blank" rel="noopener noreferrer" className="inline-block ml-1 text-primary hover:text-primary/80">
@@ -271,26 +268,26 @@ Qualquer dúvida estou à disposição.`;
                             </a>
                           )}
                         </TableCell>
-                        <TableCell className="text-xs text-muted-foreground">{c.marca}</TableCell>
-                        <TableCell className="text-xs text-muted-foreground">{c.part_number}</TableCell>
-                        <TableCell className="text-xs text-foreground">{formatBRL(c.custo)}</TableCell>
-                        <TableCell className="text-xs font-medium text-primary">{formatBRL(c.preco_15)}</TableCell>
-                        <TableCell className="text-xs font-medium text-success">{formatBRL(c.preco_20)}</TableCell>
-                        <TableCell className="text-xs text-muted-foreground">{c.fornecedor}</TableCell>
-                        <TableCell className="text-xs text-foreground">{c.vendedor}</TableCell>
-                        <TableCell className="text-xs text-muted-foreground">{c.canal}</TableCell>
-                        <TableCell className="text-xs">
+                        <TableCell className="text-xs text-muted-foreground px-4 py-3">{c.marca}</TableCell>
+                        <TableCell className="text-xs text-muted-foreground px-4 py-3">{c.part_number}</TableCell>
+                        <TableCell className="text-xs text-foreground px-4 py-3">{formatBRL(c.custo)}</TableCell>
+                        <TableCell className="text-xs font-medium text-secondary px-4 py-3">{formatBRL(c.preco_15)}</TableCell>
+                        <TableCell className="text-xs font-medium text-success px-4 py-3">{formatBRL(c.preco_20)}</TableCell>
+                        <TableCell className="text-xs text-muted-foreground px-4 py-3">{c.fornecedor}</TableCell>
+                        <TableCell className="text-xs text-foreground px-4 py-3">{c.vendedor}</TableCell>
+                        <TableCell className="text-xs text-muted-foreground px-4 py-3">{c.canal}</TableCell>
+                        <TableCell className="text-xs px-4 py-3">
                           <div className="flex gap-1">
                             <button
                               onClick={() => handleEdit(c)}
-                              className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                              className="p-1 rounded hover:bg-card text-muted-foreground hover:text-foreground transition-colors"
                               title="Editar"
                             >
                               <Pencil className="h-3.5 w-3.5" />
                             </button>
                             <button
                               onClick={() => handleGenerateEmail(c)}
-                              className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-primary transition-colors"
+                              className="p-1 rounded hover:bg-card text-muted-foreground hover:text-primary transition-colors"
                               title="Gerar Email"
                             >
                               <ExternalLink className="h-3.5 w-3.5" />
@@ -375,7 +372,7 @@ Qualquer dúvida estou à disposição.`;
           <textarea
             value={emailText}
             onChange={(e) => setEmailText(e.target.value)}
-            className="w-full min-h-[300px] whitespace-pre-wrap text-sm leading-relaxed font-sans bg-muted/50 rounded-lg p-4 border border-border outline-none resize-y text-foreground"
+            className="w-full min-h-[300px] whitespace-pre-wrap text-sm leading-relaxed font-sans bg-background rounded-lg p-4 border border-border outline-none resize-y text-foreground"
           />
           <DialogFooter>
             <Button variant="ghost" size="sm" onClick={() => setEmailCotacao(null)}>Fechar</Button>

@@ -61,16 +61,13 @@ const ImportMix = ({ onComplete }: ImportMixProps) => {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Raw spreadsheet data
   const [rawRows, setRawRows] = useState<any[][] | null>(null);
   const [fileHeaders, setFileHeaders] = useState<string[]>([]);
 
-  // Mapping step
   const [mappingOpen, setMappingOpen] = useState(false);
   const [columnMapping, setColumnMapping] = useState<Record<number, string>>({});
-  const [dataStartRow, setDataStartRow] = useState(3); // 1-indexed for user display
+  const [dataStartRow, setDataStartRow] = useState(3);
 
-  // Preview step
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewData, setPreviewData] = useState<MappedItem[]>([]);
   const [importing, setImporting] = useState(false);
@@ -114,7 +111,6 @@ const ImportMix = ({ onComplete }: ImportMixProps) => {
 
       setRawRows(rows);
 
-      // Try to find header row in first 10 rows
       let headerRowIdx = -1;
       for (let i = 0; i < Math.min(rows.length, 10); i++) {
         const cells = (rows[i] || []).map((c: any) => String(c || ""));
@@ -130,7 +126,6 @@ const ImportMix = ({ onComplete }: ImportMixProps) => {
         }
       }
 
-      // Determine max columns from first few rows
       const maxCols = Math.max(...rows.slice(0, 5).map((r) => (r || []).length), 5);
       let detectedHeaders: string[];
       let detectedMapping: Record<number, string>;
@@ -141,9 +136,8 @@ const ImportMix = ({ onComplete }: ImportMixProps) => {
           String(rows[headerRowIdx]?.[i] ?? `Coluna ${String.fromCharCode(65 + i)}`)
         );
         detectedMapping = detectMapping(detectedHeaders);
-        detectedStartRow = headerRowIdx + 2; // 1-indexed for display
+        detectedStartRow = headerRowIdx + 2;
       } else {
-        // Fallback: A=fornecedor, B=PN, C=produto, D=marca, E=custo
         detectedHeaders = Array.from({ length: maxCols }, (_, i) =>
           `Coluna ${String.fromCharCode(65 + i)}`
         );
@@ -164,7 +158,6 @@ const ImportMix = ({ onComplete }: ImportMixProps) => {
   const handleMappingChange = (colIdx: number, field: string) => {
     setColumnMapping((prev) => {
       const updated = { ...prev };
-      // If field is not "ignorar", remove it from any other column
       if (field !== "ignorar") {
         for (const key of Object.keys(updated)) {
           if (updated[Number(key)] === field) {
@@ -180,7 +173,6 @@ const ImportMix = ({ onComplete }: ImportMixProps) => {
   const goToPreview = () => {
     if (!rawRows) return;
 
-    // Build inverse mapping: field -> colIdx
     const fieldToCol: Record<string, number> = {};
     for (const [idx, field] of Object.entries(columnMapping)) {
       if (field !== "ignorar") fieldToCol[field] = Number(idx);
@@ -191,7 +183,7 @@ const ImportMix = ({ onComplete }: ImportMixProps) => {
       return;
     }
 
-    const startIdx = dataStartRow - 1; // Convert to 0-indexed
+    const startIdx = dataStartRow - 1;
     const dadosMapeados: MappedItem[] = rawRows.slice(startIdx).map((row) => {
       const get = (field: string) =>
         field in fieldToCol ? String(row[fieldToCol[field]] ?? "").trim() : "";
@@ -250,7 +242,6 @@ const ImportMix = ({ onComplete }: ImportMixProps) => {
         let produto = item.produto.trim();
         let partNumber = item.part_number.trim();
 
-        // Fallback para planilhas onde PN veio embutido no produto: "PN - Produto"
         if (!partNumber) {
           const match = produto.match(/^([^\s-][^\n-]{1,80}?)\s*-\s+(.+)$/);
           if (match) {
@@ -278,7 +269,6 @@ const ImportMix = ({ onComplete }: ImportMixProps) => {
         if (existing) {
           const mergedPayload = {
             ...payload,
-            // Evita apagar dados já existentes quando a linha vem incompleta
             part_number: payload.part_number || existing.part_number || null,
             marca: payload.marca || existing.marca || null,
             fornecedor: payload.fornecedor || existing.fornecedor || null,
@@ -316,7 +306,6 @@ const ImportMix = ({ onComplete }: ImportMixProps) => {
     }
   };
 
-  // Sample rows for mapping preview (show first 3 data rows)
   const sampleRows = rawRows ? rawRows.slice(dataStartRow - 1, dataStartRow + 2) : [];
 
   return (
@@ -324,7 +313,7 @@ const ImportMix = ({ onComplete }: ImportMixProps) => {
       <Button
         variant="outline"
         size="sm"
-        className="gap-2 border-warning text-warning hover:bg-warning/10"
+        className="gap-2 border-border text-foreground hover:bg-card"
         onClick={() => fileInputRef.current?.click()}
       >
         <Upload className="h-4 w-4" /> Importar Excel
@@ -339,15 +328,14 @@ const ImportMix = ({ onComplete }: ImportMixProps) => {
 
       {/* Step 1: Column Mapping Dialog */}
       <Dialog open={mappingOpen} onOpenChange={(open) => { if (!open) { setMappingOpen(false); setRawRows(null); } }}>
-        <DialogContent className="bg-card border-card-border max-w-3xl max-h-[85vh] overflow-auto">
+        <DialogContent className="max-w-3xl max-h-[85vh] overflow-auto">
           <DialogHeader>
-            <DialogTitle className="text-warning font-semibold">Mapeamento de Colunas</DialogTitle>
+            <DialogTitle className="text-primary font-semibold">Mapeamento de Colunas</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
             Ajuste o mapeamento das colunas da planilha para os campos do sistema.
           </p>
 
-          {/* Start row selector */}
           <div className="flex items-center gap-3 my-2">
             <label className="text-sm font-medium text-foreground whitespace-nowrap">Dados começam na linha:</label>
             <Input
@@ -360,25 +348,24 @@ const ImportMix = ({ onComplete }: ImportMixProps) => {
             />
           </div>
 
-          {/* Mapping table */}
           <div className="overflow-auto">
             <Table>
               <TableHeader>
                 <TableRow className="table-header-dark border-0">
-                  <TableHead className="text-xs text-muted-foreground font-semibold uppercase">Coluna</TableHead>
-                  <TableHead className="text-xs text-muted-foreground font-semibold uppercase">Cabeçalho Detectado</TableHead>
-                  <TableHead className="text-xs text-muted-foreground font-semibold uppercase">Campo do Sistema</TableHead>
-                  <TableHead className="text-xs text-muted-foreground font-semibold uppercase">Amostra</TableHead>
+                  <TableHead className="text-[11px] text-apple-label font-semibold uppercase">Coluna</TableHead>
+                  <TableHead className="text-[11px] text-apple-label font-semibold uppercase">Cabeçalho Detectado</TableHead>
+                  <TableHead className="text-[11px] text-apple-label font-semibold uppercase">Campo do Sistema</TableHead>
+                  <TableHead className="text-[11px] text-apple-label font-semibold uppercase">Amostra</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {fileHeaders.map((header, idx) => (
                   <TableRow key={idx}>
-                    <TableCell className="text-xs font-medium text-foreground">
+                    <TableCell className="text-xs font-medium text-foreground px-4 py-3">
                       {String.fromCharCode(65 + idx)}
                     </TableCell>
-                    <TableCell className="text-xs text-muted-foreground">{header}</TableCell>
-                    <TableCell>
+                    <TableCell className="text-xs text-muted-foreground px-4 py-3">{header}</TableCell>
+                    <TableCell className="px-4 py-3">
                       <Select
                         value={columnMapping[idx] || "ignorar"}
                         onValueChange={(val) => handleMappingChange(idx, val)}
@@ -395,7 +382,7 @@ const ImportMix = ({ onComplete }: ImportMixProps) => {
                         </SelectContent>
                       </Select>
                     </TableCell>
-                    <TableCell className="text-xs text-muted-foreground max-w-[200px] truncate">
+                    <TableCell className="text-xs text-muted-foreground max-w-[200px] truncate px-4 py-3">
                       {sampleRows.map((row, ri) => (
                         <span key={ri}>
                           {ri > 0 && " | "}
@@ -420,9 +407,9 @@ const ImportMix = ({ onComplete }: ImportMixProps) => {
 
       {/* Step 2: Preview Dialog */}
       <Dialog open={previewOpen} onOpenChange={(open) => { if (!open) { setPreviewOpen(false); setPreviewData([]); } }}>
-        <DialogContent className="bg-card border-card-border max-w-3xl max-h-[85vh] overflow-auto">
+        <DialogContent className="max-w-3xl max-h-[85vh] overflow-auto">
           <DialogHeader>
-            <DialogTitle className="text-warning font-semibold">Preview da Importação</DialogTitle>
+            <DialogTitle className="text-primary font-semibold">Preview da Importação</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
             {previewData.length} produtos encontrados na planilha
@@ -431,25 +418,25 @@ const ImportMix = ({ onComplete }: ImportMixProps) => {
             <Table>
               <TableHeader>
                 <TableRow className="table-header-dark border-0">
-                  <TableHead className="text-xs text-muted-foreground font-semibold uppercase">Fornecedor</TableHead>
-                  <TableHead className="text-xs text-muted-foreground font-semibold uppercase">PN</TableHead>
-                  <TableHead className="text-xs text-muted-foreground font-semibold uppercase">Produto</TableHead>
-                  <TableHead className="text-xs text-muted-foreground font-semibold uppercase">Marca</TableHead>
-                  <TableHead className="text-xs text-muted-foreground font-semibold uppercase">Custo</TableHead>
-                  <TableHead className="text-xs text-muted-foreground font-semibold uppercase">15%</TableHead>
-                  <TableHead className="text-xs text-muted-foreground font-semibold uppercase">20%</TableHead>
+                  <TableHead className="text-[11px] text-apple-label font-semibold uppercase px-4 py-3">Fornecedor</TableHead>
+                  <TableHead className="text-[11px] text-apple-label font-semibold uppercase px-4 py-3">PN</TableHead>
+                  <TableHead className="text-[11px] text-apple-label font-semibold uppercase px-4 py-3">Produto</TableHead>
+                  <TableHead className="text-[11px] text-apple-label font-semibold uppercase px-4 py-3">Marca</TableHead>
+                  <TableHead className="text-[11px] text-apple-label font-semibold uppercase px-4 py-3">Custo</TableHead>
+                  <TableHead className="text-[11px] text-apple-label font-semibold uppercase px-4 py-3">15%</TableHead>
+                  <TableHead className="text-[11px] text-apple-label font-semibold uppercase px-4 py-3">20%</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {previewData.map((item, i) => (
                   <TableRow key={i}>
-                    <TableCell className="text-xs text-muted-foreground">{item.fornecedor}</TableCell>
-                    <TableCell className="text-xs text-muted-foreground">{item.part_number}</TableCell>
-                    <TableCell className="text-xs text-foreground">{item.produto}</TableCell>
-                    <TableCell className="text-xs text-muted-foreground">{item.marca}</TableCell>
-                    <TableCell className="text-xs text-foreground">{formatBRL(item.custo)}</TableCell>
-                    <TableCell className="text-xs text-primary">{formatBRL(item.preco_15)}</TableCell>
-                    <TableCell className="text-xs text-success">{formatBRL(item.preco_20)}</TableCell>
+                    <TableCell className="text-xs text-muted-foreground px-4 py-3">{item.fornecedor}</TableCell>
+                    <TableCell className="text-xs text-muted-foreground px-4 py-3">{item.part_number}</TableCell>
+                    <TableCell className="text-xs text-foreground px-4 py-3">{item.produto}</TableCell>
+                    <TableCell className="text-xs text-muted-foreground px-4 py-3">{item.marca}</TableCell>
+                    <TableCell className="text-xs text-foreground px-4 py-3">{formatBRL(item.custo)}</TableCell>
+                    <TableCell className="text-xs text-secondary px-4 py-3">{formatBRL(item.preco_15)}</TableCell>
+                    <TableCell className="text-xs text-success px-4 py-3">{formatBRL(item.preco_20)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

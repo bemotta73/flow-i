@@ -66,7 +66,6 @@ const ListaMix = () => {
   const [form, setForm] = useState<ProdutoForm>(emptyForm);
   const [saving, setSaving] = useState(false);
 
-  // Inline edit mode
   const [editMode, setEditMode] = useState(false);
   const [editableRows, setEditableRows] = useState<EditableRow[]>([]);
   const [savingAll, setSavingAll] = useState(false);
@@ -94,7 +93,6 @@ const ListaMix = () => {
     );
   }, [produtos, search]);
 
-  // --- Inline Edit Mode ---
   const enterEditMode = () => {
     setEditableRows(
       filtered.map((p) => ({
@@ -150,7 +148,6 @@ const ListaMix = () => {
     toast({ title: "Alterações salvas", description: `${count} produtos atualizados` });
   };
 
-  // --- Single product dialog ---
   const openAdd = () => {
     setEditingId(null);
     setForm(emptyForm);
@@ -217,7 +214,6 @@ const ListaMix = () => {
     toast({ title: "Produto excluído", description: p.produto });
   };
 
-  // Export
   const handleExport = () => {
     const rows = filtered.map((p) => ({
       Fornecedor: p.fornecedor || "",
@@ -238,7 +234,7 @@ const ListaMix = () => {
   return (
     <div className="animate-fade-in-up">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold tracking-tight text-warning">Lista Mix</h1>
+        <h1 className="text-[28px] font-bold tracking-tight text-foreground">Lista Mix</h1>
         <p className="text-sm text-muted-foreground mt-1">Gerencie a base de produtos e preços</p>
       </div>
 
@@ -255,7 +251,7 @@ const ListaMix = () => {
         </div>
         <div className="flex gap-2 ml-auto">
           {isAdmin && !editMode && (
-            <Button variant="outline" size="sm" className="gap-2 border-warning text-warning hover:bg-warning/10" onClick={enterEditMode} disabled={filtered.length === 0}>
+            <Button variant="outline" size="sm" className="gap-2 border-border text-foreground hover:bg-card" onClick={enterEditMode} disabled={filtered.length === 0}>
               <TableProperties className="h-4 w-4" /> Editar Tabela
             </Button>
           )}
@@ -273,10 +269,10 @@ const ListaMix = () => {
           {!editMode && (
             <>
               <ImportMix onComplete={fetchProdutos} />
-              <Button variant="outline" size="sm" className="gap-2 border-warning text-warning hover:bg-warning/10" onClick={handleExport} disabled={filtered.length === 0}>
+              <Button variant="outline" size="sm" className="gap-2 border-border text-foreground hover:bg-card" onClick={handleExport} disabled={filtered.length === 0}>
                 <Download className="h-4 w-4" /> Exportar Excel
               </Button>
-              <Button size="sm" className="gap-2 bg-warning text-warning-foreground hover:bg-warning/90" onClick={openAdd}>
+              <Button size="sm" className="gap-2" onClick={openAdd}>
                 <Plus className="h-4 w-4" /> Adicionar Produto
               </Button>
             </>
@@ -287,7 +283,7 @@ const ListaMix = () => {
       {/* Table */}
       {loading ? (
         <div className="space-y-3">
-          {[1, 2, 3].map((i) => <div key={i} className="h-12 rounded-2xl animate-shimmer" />)}
+          {[1, 2, 3].map((i) => <div key={i} className="h-12 rounded-xl animate-shimmer" />)}
         </div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-16">
@@ -295,18 +291,17 @@ const ListaMix = () => {
           <p className="text-muted-foreground">Nenhum produto encontrado</p>
         </div>
       ) : editMode ? (
-        /* Editable Table */
         <div className="card-elevated overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow className="table-header-dark border-0">
-                <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Fornecedor</TableHead>
-                <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">PN</TableHead>
-                <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Produto</TableHead>
-                <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Marca</TableHead>
-                <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Custo</TableHead>
-                <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">15%</TableHead>
-                <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">20%</TableHead>
+                <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Fornecedor</TableHead>
+                <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">PN</TableHead>
+                <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Produto</TableHead>
+                <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Marca</TableHead>
+                <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Custo</TableHead>
+                <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">15%</TableHead>
+                <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">20%</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -314,45 +309,25 @@ const ListaMix = () => {
                 const custo = getEditCusto(row);
                 return (
                   <TableRow key={row.id} className={`transition-all duration-150 ${idx % 2 === 1 ? "table-row-alt" : ""}`}>
-                    <TableCell>
-                      <Input
-                        value={row.fornecedor}
-                        onChange={(e) => updateEditableRow(row.id, "fornecedor", e.target.value)}
-                        className="h-7 text-xs surface-input"
-                      />
+                    <TableCell className="px-4 py-2">
+                      <Input value={row.fornecedor} onChange={(e) => updateEditableRow(row.id, "fornecedor", e.target.value)} className="h-7 text-xs surface-input" />
                     </TableCell>
-                    <TableCell>
-                      <Input
-                        value={row.part_number}
-                        onChange={(e) => updateEditableRow(row.id, "part_number", e.target.value)}
-                        className="h-7 text-xs surface-input"
-                      />
+                    <TableCell className="px-4 py-2">
+                      <Input value={row.part_number} onChange={(e) => updateEditableRow(row.id, "part_number", e.target.value)} className="h-7 text-xs surface-input" />
                     </TableCell>
-                    <TableCell>
-                      <Input
-                        value={row.produto}
-                        onChange={(e) => updateEditableRow(row.id, "produto", e.target.value)}
-                        className="h-7 text-xs surface-input"
-                      />
+                    <TableCell className="px-4 py-2">
+                      <Input value={row.produto} onChange={(e) => updateEditableRow(row.id, "produto", e.target.value)} className="h-7 text-xs surface-input" />
                     </TableCell>
-                    <TableCell>
-                      <Input
-                        value={row.marca}
-                        onChange={(e) => updateEditableRow(row.id, "marca", capitalizeMarca(e.target.value))}
-                        className="h-7 text-xs surface-input"
-                      />
+                    <TableCell className="px-4 py-2">
+                      <Input value={row.marca} onChange={(e) => updateEditableRow(row.id, "marca", capitalizeMarca(e.target.value))} className="h-7 text-xs surface-input" />
                     </TableCell>
-                    <TableCell>
-                      <Input
-                        value={row.custo}
-                        onChange={(e) => updateEditableRow(row.id, "custo", e.target.value)}
-                        className="h-7 text-xs surface-input w-24"
-                      />
+                    <TableCell className="px-4 py-2">
+                      <Input value={row.custo} onChange={(e) => updateEditableRow(row.id, "custo", e.target.value)} className="h-7 text-xs surface-input w-24" />
                     </TableCell>
-                    <TableCell className="text-xs font-medium text-primary">
+                    <TableCell className="text-xs font-medium text-secondary px-4 py-3">
                       {formatBRL(Math.round((custo / 0.85) * 100) / 100)}
                     </TableCell>
-                    <TableCell className="text-xs font-medium text-success">
+                    <TableCell className="text-xs font-medium text-success px-4 py-3">
                       {formatBRL(Math.round((custo / 0.80) * 100) / 100)}
                     </TableCell>
                   </TableRow>
@@ -362,59 +337,58 @@ const ListaMix = () => {
           </Table>
         </div>
       ) : (
-        /* Read-only Table */
         <div className="card-elevated overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow className="table-header-dark border-0">
-                {isAdmin && <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Fornecedor</TableHead>}
+                {isAdmin && <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Fornecedor</TableHead>}
                 {isAdmin ? (
-                  <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">PN</TableHead>
+                  <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">PN</TableHead>
                 ) : null}
-                <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Produto</TableHead>
-                <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Marca</TableHead>
-                {!isAdmin && <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">PN</TableHead>}
-                {isAdmin && <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Custo</TableHead>}
-                <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">15%</TableHead>
-                <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">20%</TableHead>
-                {isAdmin && <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Status</TableHead>}
-                {isAdmin && <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider w-20">Ações</TableHead>}
+                <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Produto</TableHead>
+                <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Marca</TableHead>
+                {!isAdmin && <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">PN</TableHead>}
+                {isAdmin && <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Custo</TableHead>}
+                <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">15%</TableHead>
+                <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">20%</TableHead>
+                {isAdmin && <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Status</TableHead>}
+                {isAdmin && <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3 w-20">Ações</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
               {filtered.map((p, idx) => (
                 <TableRow key={p.id} className={`table-row-hover transition-all duration-150 ${idx % 2 === 1 ? "table-row-alt" : ""} ${!p.ativo ? "opacity-50" : ""}`}>
-                  {isAdmin && <TableCell className="text-xs text-muted-foreground">{p.fornecedor}</TableCell>}
-                  {isAdmin && <TableCell className="text-xs text-muted-foreground">{p.part_number}</TableCell>}
-                  <TableCell className="text-xs font-medium text-foreground">{p.produto}</TableCell>
-                  <TableCell className="text-xs text-muted-foreground">{p.marca}</TableCell>
-                  {!isAdmin && <TableCell className="text-xs text-muted-foreground">{p.part_number}</TableCell>}
-                  {isAdmin && <TableCell className="text-xs text-foreground">{formatBRL(p.custo)}</TableCell>}
-                  <TableCell className="text-xs font-medium text-primary">{formatBRL(p.preco_15)}</TableCell>
-                  <TableCell className="text-xs font-medium text-warning">{formatBRL(p.preco_20)}</TableCell>
+                  {isAdmin && <TableCell className="text-xs text-muted-foreground px-4 py-3">{p.fornecedor}</TableCell>}
+                  {isAdmin && <TableCell className="text-xs text-muted-foreground px-4 py-3">{p.part_number}</TableCell>}
+                  <TableCell className="text-xs font-medium text-foreground px-4 py-3">{p.produto}</TableCell>
+                  <TableCell className="text-xs text-muted-foreground px-4 py-3">{p.marca}</TableCell>
+                  {!isAdmin && <TableCell className="text-xs text-muted-foreground px-4 py-3">{p.part_number}</TableCell>}
+                  {isAdmin && <TableCell className="text-xs text-foreground px-4 py-3">{formatBRL(p.custo)}</TableCell>}
+                  <TableCell className="text-xs font-medium text-secondary px-4 py-3">{formatBRL(p.preco_15)}</TableCell>
+                  <TableCell className="text-xs font-medium text-success px-4 py-3">{formatBRL(p.preco_20)}</TableCell>
                   {isAdmin && (
-                    <TableCell>
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${p.ativo ? "bg-warning/20 text-warning" : "bg-destructive/20 text-destructive"}`}>
+                    <TableCell className="px-4 py-3">
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${p.ativo ? "bg-success/20 text-success" : "bg-destructive/20 text-destructive"}`}>
                         {p.ativo ? "Ativo" : "Inativo"}
                       </span>
                     </TableCell>
                   )}
                   {isAdmin && (
-                    <TableCell>
+                    <TableCell className="px-4 py-3">
                       <div className="flex gap-1">
-                        <button onClick={() => openEdit(p)} className="p-1.5 rounded-lg hover:bg-primary/20 text-primary transition-colors">
+                        <button onClick={() => openEdit(p)} className="p-1.5 rounded-lg hover:bg-primary/20 text-muted-foreground hover:text-primary transition-colors">
                           <Pencil className="h-3.5 w-3.5" />
                         </button>
-                        <button onClick={() => toggleAtivo(p)} className={`p-1.5 rounded-lg transition-colors ${p.ativo ? "hover:bg-destructive/20 text-destructive" : "hover:bg-success/20 text-success"}`}>
+                        <button onClick={() => toggleAtivo(p)} className={`p-1.5 rounded-lg transition-colors ${p.ativo ? "hover:bg-destructive/20 text-muted-foreground hover:text-destructive" : "hover:bg-success/20 text-muted-foreground hover:text-success"}`}>
                           {p.ativo ? <X className="h-3.5 w-3.5" /> : <Check className="h-3.5 w-3.5" />}
                         </button>
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
-                            <button className="p-1.5 rounded-lg hover:bg-destructive/20 text-destructive transition-colors">
+                            <button className="p-1.5 rounded-lg hover:bg-destructive/20 text-muted-foreground hover:text-destructive transition-colors">
                               <Trash2 className="h-3.5 w-3.5" />
                             </button>
                           </AlertDialogTrigger>
-                          <AlertDialogContent className="bg-card border-card-border">
+                          <AlertDialogContent>
                             <AlertDialogHeader>
                               <AlertDialogTitle>Excluir produto?</AlertDialogTitle>
                               <AlertDialogDescription>
@@ -439,9 +413,9 @@ const ListaMix = () => {
 
       {/* Add/Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="bg-card border-card-border">
+        <DialogContent>
           <DialogHeader>
-            <DialogTitle className="text-warning font-semibold">
+            <DialogTitle className="text-primary font-semibold">
               {editingId ? "Editar Produto" : "Adicionar Produto"}
             </DialogTitle>
           </DialogHeader>
@@ -475,10 +449,10 @@ const ListaMix = () => {
               <Input value={form.link} onChange={(e) => setForm({ ...form, link: e.target.value })} className="surface-input" placeholder="https://..." />
             </div>
             {form.custo && (
-              <div className="grid grid-cols-2 gap-3 p-3 rounded-xl bg-muted">
+              <div className="grid grid-cols-2 gap-3 p-3 rounded-xl bg-background">
                 <div>
                   <span className="label-apple">Preço 15%</span>
-                  <p className="text-sm font-medium text-primary">{formatBRL(parseFloat(form.custo.replace(",", ".") || "0") / 0.85)}</p>
+                  <p className="text-sm font-medium text-secondary">{formatBRL(parseFloat(form.custo.replace(",", ".") || "0") / 0.85)}</p>
                 </div>
                 <div>
                   <span className="label-apple">Preço 20%</span>

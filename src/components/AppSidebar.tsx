@@ -39,15 +39,19 @@ export function AppSidebar() {
       <div className="flex flex-col items-center gap-1 px-4 py-8">
         {!collapsed ? (
           <>
-            <span className="text-xl font-bold tracking-tight text-sidebar-foreground">
-              Flow-!
+            <span className="text-xl font-bold tracking-tight">
+              <span className="text-foreground">Flow</span>
+              <span className="text-primary">i</span>
             </span>
             <span className="text-[10px] text-muted-foreground tracking-widest uppercase">
               Officer Distribuidora
             </span>
           </>
         ) : (
-          <span className="text-sm font-bold text-primary">F!</span>
+          <span className="text-sm font-bold">
+            <span className="text-foreground">F</span>
+            <span className="text-primary">i</span>
+          </span>
         )}
       </div>
 
@@ -67,17 +71,17 @@ export function AppSidebar() {
                       <NavLink
                         to={item.url}
                         end
-                        className={`rounded-[10px] transition-all duration-200 ${
+                        className={`rounded-lg transition-all duration-150 ${
                           isActive
-                            ? "bg-primary/15 text-primary font-medium"
-                            : "text-muted-foreground hover:bg-warning/15 hover:text-warning"
+                            ? "bg-primary/12 text-primary font-medium"
+                            : "text-muted-foreground hover:bg-card hover:text-foreground"
                         }`}
                         activeClassName=""
                       >
                         <item.icon className={`h-[18px] w-[18px] ${isActive ? "text-primary" : ""}`} />
                         {!collapsed && <span className="text-sm">{item.title}</span>}
                         {item.url === "/alertas" && unreadAlerts > 0 && (
-                          <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-warning text-warning-foreground text-[10px] font-bold px-1">
+                          <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold px-1">
                             {unreadAlerts}
                           </span>
                         )}
@@ -91,7 +95,7 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <div className="mt-auto flex flex-col items-center gap-2 px-4 py-4 border-t border-white/10">
+      <div className="mt-auto flex flex-col items-center gap-2 px-4 py-4 border-t border-border">
         {!collapsed && profile && (
           <span className="text-[10px] text-muted-foreground">{profile.nome}</span>
         )}
@@ -106,8 +110,8 @@ export function AppSidebar() {
         </Button>
         <img src={vorneLogo} alt="Vorne AI" className={collapsed ? "h-5 w-5" : "h-8 w-8"} />
         {!collapsed && (
-          <span className="text-[9px] text-muted-foreground tracking-wide">
-            Desenvolvido por <span className="font-medium text-foreground/70">Vorne AI</span>
+          <span className="text-[9px] text-apple-label tracking-wide">
+            Desenvolvido por <span className="font-medium text-muted-foreground">Vorne AI</span>
           </span>
         )}
       </div>

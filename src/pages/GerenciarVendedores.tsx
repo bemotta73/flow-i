@@ -30,7 +30,6 @@ const GerenciarVendedores = () => {
   const [password, setPassword] = useState("");
   const [saving, setSaving] = useState(false);
 
-  // Password reset dialog
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
   const [selectedVendedor, setSelectedVendedor] = useState<Vendedor | null>(null);
   const [newPassword, setNewPassword] = useState("");
@@ -144,7 +143,7 @@ const GerenciarVendedores = () => {
   return (
     <div className="animate-fade-in-up">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold tracking-tight text-warning">Gerenciar Vendedores</h1>
+        <h1 className="text-[28px] font-bold tracking-tight text-foreground">Gerenciar Vendedores</h1>
         <p className="text-sm text-muted-foreground mt-1">Crie e gerencie as contas dos vendedores</p>
       </div>
 
@@ -156,7 +155,7 @@ const GerenciarVendedores = () => {
 
       {loading ? (
         <div className="space-y-3">
-          {[1, 2, 3].map((i) => <div key={i} className="h-12 rounded-2xl animate-shimmer" />)}
+          {[1, 2, 3].map((i) => <div key={i} className="h-12 rounded-xl animate-shimmer" />)}
         </div>
       ) : vendedores.length === 0 ? (
         <div className="text-center py-16">
@@ -168,31 +167,31 @@ const GerenciarVendedores = () => {
           <Table>
             <TableHeader>
               <TableRow className="table-header-dark border-0">
-                <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Nome</TableHead>
-                <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Email</TableHead>
-                <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Status</TableHead>
-                <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Criado em</TableHead>
-                <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider w-28">Ações</TableHead>
+                <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Nome</TableHead>
+                <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Email</TableHead>
+                <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Status</TableHead>
+                <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Criado em</TableHead>
+                <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3 w-28">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {vendedores.map((v, idx) => (
                 <TableRow key={v.id} className={`table-row-hover transition-all duration-150 ${idx % 2 === 1 ? "table-row-alt" : ""}`}>
-                  <TableCell className="text-sm font-medium text-foreground">{v.nome}</TableCell>
-                  <TableCell className="text-sm text-muted-foreground">{v.email}</TableCell>
-                  <TableCell>
+                  <TableCell className="text-sm font-medium text-foreground px-4 py-3">{v.nome}</TableCell>
+                  <TableCell className="text-sm text-muted-foreground px-4 py-3">{v.email}</TableCell>
+                  <TableCell className="px-4 py-3">
                     <span className={`text-xs px-2 py-0.5 rounded-full ${v.ativo ? "bg-success/20 text-success" : "bg-destructive/20 text-destructive"}`}>
                       {v.ativo ? "Ativo" : "Inativo"}
                     </span>
                   </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
+                  <TableCell className="text-sm text-muted-foreground px-4 py-3">
                     {new Date(v.created_at).toLocaleDateString("pt-BR")}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="px-4 py-3">
                     <div className="flex items-center gap-1">
                       <button
                         onClick={() => openPasswordDialog(v)}
-                        className="p-1.5 rounded-lg transition-colors hover:bg-warning/20 text-warning"
+                        className="p-1.5 rounded-lg transition-colors hover:bg-primary/20 text-primary"
                         title="Redefinir senha"
                       >
                         <KeyRound className="h-4 w-4" />
@@ -215,9 +214,9 @@ const GerenciarVendedores = () => {
 
       {/* Create dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="bg-card border-card-border">
+        <DialogContent>
           <DialogHeader>
-            <DialogTitle className="text-warning font-semibold">Novo Vendedor</DialogTitle>
+            <DialogTitle className="text-primary font-semibold">Novo Vendedor</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
             <div>
@@ -242,9 +241,9 @@ const GerenciarVendedores = () => {
 
       {/* Password reset dialog */}
       <Dialog open={passwordDialogOpen} onOpenChange={setPasswordDialogOpen}>
-        <DialogContent className="bg-card border-card-border">
+        <DialogContent>
           <DialogHeader>
-            <DialogTitle className="text-warning font-semibold">Redefinir Senha</DialogTitle>
+            <DialogTitle className="text-primary font-semibold">Redefinir Senha</DialogTitle>
           </DialogHeader>
           {selectedVendedor && (
             <div className="space-y-3">

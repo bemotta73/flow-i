@@ -12,15 +12,15 @@ export function MarginPreview({ custo }: MarginPreviewProps) {
 
   return (
     <div className="grid grid-cols-3 gap-3 animate-fade-in-up">
-      <div className="rounded-xl bg-muted p-3 text-center">
+      <div className="rounded-lg bg-background border border-border p-3 text-center">
         <p className="label-apple mb-1">Custo</p>
-        <p className="text-sm font-semibold text-muted-foreground">{formatBRL(custo)}</p>
+        <p className="text-sm font-semibold text-foreground">{formatBRL(custo)}</p>
       </div>
-      <div className="rounded-xl bg-primary/10 p-3 text-center">
+      <div className="rounded-lg bg-secondary/10 p-3 text-center">
         <p className="label-apple mb-1">Margem 15%</p>
-        <p className="text-sm font-bold text-primary">{formatBRL(preco15)}</p>
+        <p className="text-sm font-bold text-secondary">{formatBRL(preco15)}</p>
       </div>
-      <div className="rounded-xl bg-success/10 p-3 text-center">
+      <div className="rounded-lg bg-success/10 p-3 text-center">
         <p className="label-apple mb-1">Margem 20%</p>
         <p className="text-sm font-bold text-success">{formatBRL(preco20)}</p>
       </div>

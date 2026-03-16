@@ -46,7 +46,6 @@ const Promocoes = () => {
   const [editing, setEditing] = useState<Promocao | null>(null);
   const [saving, setSaving] = useState(false);
 
-  // Form
   const [titulo, setTitulo] = useState("");
   const [descricao, setDescricao] = useState("");
   const [imagemUrl, setImagemUrl] = useState("");
@@ -156,7 +155,7 @@ const Promocoes = () => {
   return (
     <div className="animate-fade-in-up">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold tracking-tight text-warning">Promoções</h1>
+        <h1 className="text-[28px] font-bold tracking-tight text-foreground">Promoções</h1>
         <p className="text-sm text-muted-foreground mt-1">Gerencie banners e descontos temporários para os vendedores</p>
       </div>
 
@@ -168,7 +167,7 @@ const Promocoes = () => {
 
       {loading ? (
         <div className="space-y-3">
-          {[1, 2, 3].map((i) => <div key={i} className="h-12 rounded-2xl animate-shimmer" />)}
+          {[1, 2, 3].map((i) => <div key={i} className="h-12 rounded-xl animate-shimmer" />)}
         </div>
       ) : promocoes.length === 0 ? (
         <div className="text-center py-16">
@@ -180,13 +179,13 @@ const Promocoes = () => {
           <Table>
             <TableHeader>
               <TableRow className="table-header-dark border-0">
-                <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Título</TableHead>
-                <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Produto</TableHead>
-                <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Desconto</TableHead>
-                <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Preço Promo</TableHead>
-                <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Validade</TableHead>
-                <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Status</TableHead>
-                <TableHead className="text-xs text-muted-foreground font-semibold uppercase tracking-wider w-28">Ações</TableHead>
+                <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Título</TableHead>
+                <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Produto</TableHead>
+                <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Desconto</TableHead>
+                <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Preço Promo</TableHead>
+                <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Validade</TableHead>
+                <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Status</TableHead>
+                <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3 w-28">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -194,7 +193,7 @@ const Promocoes = () => {
                 const isExpired = p.data_fim && new Date(p.data_fim) < new Date();
                 return (
                   <TableRow key={p.id} className={`table-row-hover transition-all duration-150 ${idx % 2 === 1 ? "table-row-alt" : ""}`}>
-                    <TableCell className="text-sm font-medium text-foreground">
+                    <TableCell className="text-sm font-medium text-foreground px-4 py-3">
                       <div className="flex items-center gap-2">
                         {p.imagem_url && (
                           <img src={p.imagem_url} alt="" className="h-8 w-8 rounded object-cover" />
@@ -202,14 +201,14 @@ const Promocoes = () => {
                         {p.titulo}
                       </div>
                     </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">{p.produto_nome}</TableCell>
-                    <TableCell className="text-sm text-warning font-semibold">
+                    <TableCell className="text-sm text-muted-foreground px-4 py-3">{p.produto_nome}</TableCell>
+                    <TableCell className="text-sm text-warning font-semibold px-4 py-3">
                       {p.desconto_percentual ? `${p.desconto_percentual}%` : "—"}
                     </TableCell>
-                    <TableCell className="text-sm font-semibold text-success">
+                    <TableCell className="text-sm font-semibold text-success px-4 py-3">
                       {p.preco_promocional ? formatBRL(p.preco_promocional) : "—"}
                     </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
+                    <TableCell className="text-sm text-muted-foreground px-4 py-3">
                       {p.data_fim ? (
                         <span className={isExpired ? "text-destructive" : ""}>
                           {new Date(p.data_fim).toLocaleDateString("pt-BR")}
@@ -217,12 +216,12 @@ const Promocoes = () => {
                         </span>
                       ) : "Sem prazo"}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="px-4 py-3">
                       <Switch checked={p.ativo} onCheckedChange={() => toggleAtivo(p)} />
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="px-4 py-3">
                       <div className="flex items-center gap-1">
-                        <button onClick={() => openEdit(p)} className="p-1.5 rounded-lg hover:bg-warning/20 text-warning transition-colors" title="Editar">
+                        <button onClick={() => openEdit(p)} className="p-1.5 rounded-lg hover:bg-primary/20 text-primary transition-colors" title="Editar">
                           <Pencil className="h-4 w-4" />
                         </button>
                         <button onClick={() => handleDelete(p.id)} className="p-1.5 rounded-lg hover:bg-destructive/20 text-destructive transition-colors" title="Excluir">
@@ -240,9 +239,9 @@ const Promocoes = () => {
 
       {/* Create/Edit dialog */}
       <Dialog open={dialogOpen} onOpenChange={(open) => { if (!open) resetForm(); setDialogOpen(open); }}>
-        <DialogContent className="bg-card border-card-border max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-warning font-semibold">
+            <DialogTitle className="text-primary font-semibold">
               {editing ? "Editar Promoção" : "Nova Promoção"}
             </DialogTitle>
           </DialogHeader>
@@ -267,7 +266,7 @@ const Promocoes = () => {
               <select
                 value={produtoId}
                 onChange={(e) => setProdutoId(e.target.value)}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="flex h-10 w-full rounded-md bg-background border border-border px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <option value="">Nenhum (banner geral)</option>
                 {produtos.map((pr) => (

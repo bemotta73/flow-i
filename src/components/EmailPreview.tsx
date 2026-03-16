@@ -33,7 +33,6 @@ function generateEmail(vendedor: string, produtos: ProdutoItem[], margem: Margem
   const getPrecoLine = (custoNum: number) => {
     if (margem === "15") return `Preço: ${formatBRL(calcPreco(custoNum, 15))}`;
     if (margem === "20") return `Preço: ${formatBRL(calcPreco(custoNum, 20))}`;
-    // custom
     const pct = customMargem || 20;
     return `Preço: ${formatBRL(calcPreco(custoNum, pct))}`;
   };
@@ -95,31 +94,31 @@ export function EmailPreview({ vendedor, produtos, margem, customMargem, observa
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
-        <h3 className="text-sm font-semibold text-warning">Email Gerado</h3>
+        <h3 className="text-[13px] font-semibold text-primary uppercase tracking-wide">Email Gerado</h3>
         <Badge
           className={hasNobreak(produtos)
-            ? "bg-warning/15 text-warning border-warning/30"
-            : "bg-success/15 text-success border-success/30"
+            ? "bg-warning/15 text-warning border-warning/30 text-[11px] rounded"
+            : "bg-primary/15 text-primary border-primary/30 text-[11px] rounded"
           }
         >
           {hasNobreak(produtos) ? "NOBREAK / ESTABILIZADOR" : "PRODUTO GERAL"}
         </Badge>
         {produtos.length > 1 && (
-          <Badge variant="outline" className="border-muted-foreground/30 text-muted-foreground">
+          <Badge variant="outline" className="border-border text-muted-foreground text-[11px]">
             {produtos.length} produtos
           </Badge>
         )}
       </div>
 
-      <div className="card-elevated p-5">
+      <div className="rounded-lg bg-background border border-border p-5">
         {editing ? (
           <textarea
             value={editedText}
             onChange={(e) => setEditedText(e.target.value)}
-            className="w-full min-h-[300px] whitespace-pre-wrap text-sm leading-relaxed font-sans bg-transparent border-none outline-none resize-y text-foreground"
+            className="w-full min-h-[300px] whitespace-pre-wrap text-sm leading-relaxed font-mono bg-transparent border-none outline-none resize-y text-foreground"
           />
         ) : (
-          <pre className="whitespace-pre-wrap text-sm leading-relaxed font-sans text-apple-text-soft">{emailText}</pre>
+          <pre className="whitespace-pre-wrap text-sm leading-relaxed font-mono text-apple-text-soft">{emailText}</pre>
         )}
       </div>
 
@@ -127,10 +126,10 @@ export function EmailPreview({ vendedor, produtos, margem, customMargem, observa
         <Button
           onClick={handleCopy}
           size="sm"
-          className={`transition-all duration-200 ${
+          className={`transition-all duration-150 ${
             copied
               ? "bg-success hover:bg-success/90 text-success-foreground animate-pulse-success"
-              : "bg-primary hover:bg-primary/90 text-primary-foreground"
+              : ""
           }`}
         >
           {copied ? (
@@ -145,7 +144,7 @@ export function EmailPreview({ vendedor, produtos, margem, customMargem, observa
             onClick={() => setEditing(false)}
             size="sm"
             variant="outline"
-            className="gap-1.5 rounded-xl"
+            className="gap-1.5 rounded-lg"
           >
             <Check className="h-4 w-4" /> Confirmar Edição
           </Button>
