@@ -1,9 +1,11 @@
-const CACHE_NAME = 'cotaflow-v1';
+const CACHE_NAME = 'flowi-v2';
 const PRECACHE_URLS = [
   '/',
   '/manifest.json',
+  '/favicon.png',
   '/icons/icon-192x192.png',
-  '/icons/icon-512x512.png'
+  '/icons/icon-512x512.png',
+  '/icons/apple-touch-icon.png'
 ];
 
 self.addEventListener('install', (event) => {
