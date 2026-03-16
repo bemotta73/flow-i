@@ -13,6 +13,7 @@ import GerenciarVendedores from "./pages/GerenciarVendedores";
 import ConsultaPrecos from "./pages/ConsultaPrecos";
 import Alertas from "./pages/Alertas";
 import Login from "./pages/Login";
+import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();

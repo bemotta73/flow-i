@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { LogIn } from "lucide-react";
+import { LogIn, ArrowLeft, Mail } from "lucide-react";
 import vorneLogo from "@/assets/vorne-logo.png";
 
 const Login = () => {
@@ -11,6 +12,10 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [forgotMode, setForgotMode] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotSuccess, setForgotSuccess] = useState(false);
+  const [forgotLoading, setForgotLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,6 +24,36 @@ const Login = () => {
     const { error } = await signIn(email, password);
     if (error) setError(error);
     setLoading(false);
+  };
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setForgotLoading(true);
+
+    // Check if email exists in profiles
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("email", forgotEmail)
+      .maybeSingle();
+
+    if (!profile) {
+      setError("E-mail não encontrado no sistema");
+      setForgotLoading(false);
+      return;
+    }
+
+    const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+
+    if (error) {
+      setError(error.message);
+    } else {
+      setForgotSuccess(true);
+    }
+    setForgotLoading(false);
   };
 
   return (
@@ -31,43 +66,99 @@ const Login = () => {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="card-elevated p-6 space-y-4">
-          <div>
-            <label className="label-apple block mb-1.5">Email</label>
-            <Input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="surface-input"
-              placeholder="seu@email.com"
-              required
-            />
-          </div>
-          <div>
-            <label className="label-apple block mb-1.5">Senha</label>
-            <Input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="surface-input"
-              placeholder="••••••••"
-              required
-            />
-          </div>
+        {forgotMode ? (
+          forgotSuccess ? (
+            <div className="card-elevated p-6 text-center space-y-3">
+              <Mail className="h-10 w-10 text-primary mx-auto" />
+              <p className="text-sm text-foreground">E-mail de redefinição enviado!</p>
+              <p className="text-xs text-muted-foreground">
+                Verifique sua caixa de entrada e clique no link para redefinir sua senha.
+              </p>
+              <Button
+                variant="ghost"
+                className="gap-2 mt-2"
+                onClick={() => { setForgotMode(false); setForgotSuccess(false); setForgotEmail(""); setError(""); }}
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Voltar ao login
+              </Button>
+            </div>
+          ) : (
+            <form onSubmit={handleForgotPassword} className="card-elevated p-6 space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Informe seu e-mail cadastrado para receber o link de redefinição de senha.
+              </p>
+              <div>
+                <label className="label-apple block mb-1.5">Email</label>
+                <Input
+                  type="email"
+                  value={forgotEmail}
+                  onChange={(e) => setForgotEmail(e.target.value)}
+                  className="surface-input"
+                  placeholder="seu@email.com"
+                  required
+                />
+              </div>
 
-          {error && (
-            <p className="text-sm text-destructive">{error}</p>
-          )}
+              {error && <p className="text-sm text-destructive">{error}</p>}
 
-          <Button
-            type="submit"
-            className="w-full gap-2"
-            disabled={loading}
-          >
-            <LogIn className="h-4 w-4" />
-            {loading ? "Entrando..." : "Entrar"}
-          </Button>
-        </form>
+              <Button type="submit" className="w-full gap-2" disabled={forgotLoading}>
+                <Mail className="h-4 w-4" />
+                {forgotLoading ? "Enviando..." : "Enviar link"}
+              </Button>
+
+              <Button
+                type="button"
+                variant="ghost"
+                className="w-full gap-2"
+                onClick={() => { setForgotMode(false); setError(""); }}
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Voltar ao login
+              </Button>
+            </form>
+          )
+        ) : (
+          <form onSubmit={handleSubmit} className="card-elevated p-6 space-y-4">
+            <div>
+              <label className="label-apple block mb-1.5">Email</label>
+              <Input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="surface-input"
+                placeholder="seu@email.com"
+                required
+              />
+            </div>
+            <div>
+              <label className="label-apple block mb-1.5">Senha</label>
+              <Input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="surface-input"
+                placeholder="••••••••"
+                required
+              />
+            </div>
+
+            {error && <p className="text-sm text-destructive">{error}</p>}
+
+            <Button type="submit" className="w-full gap-2" disabled={loading}>
+              <LogIn className="h-4 w-4" />
+              {loading ? "Entrando..." : "Entrar"}
+            </Button>
+
+            <button
+              type="button"
+              className="w-full text-xs text-muted-foreground hover:text-foreground transition-colors"
+              onClick={() => { setForgotMode(true); setError(""); }}
+            >
+              Esqueceu a senha?
+            </button>
+          </form>
+        )}
 
         <div className="flex flex-col items-center gap-1 mt-8">
           <img src={vorneLogo} alt="Vorne AI" className="h-8 w-8" />
