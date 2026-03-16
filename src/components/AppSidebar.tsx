@@ -40,7 +40,7 @@ export function AppSidebar() {
         {!collapsed ? (
           <>
             <span className="text-xl font-bold tracking-tight text-sidebar-foreground">
-              CotaFlow
+              Flow-!
             </span>
             <span className="text-[10px] text-muted-foreground tracking-widest uppercase">
               Officer Distribuidora
