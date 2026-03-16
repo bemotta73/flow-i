@@ -31,27 +31,20 @@ const Login = () => {
     setError("");
     setForgotLoading(true);
 
-    // Check if email exists in profiles
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("id")
-      .eq("email", forgotEmail)
-      .maybeSingle();
+    try {
+      const { data, error: fnError } = await supabase.functions.invoke("reset-password", {
+        body: { email: forgotEmail },
+      });
 
-    if (!profile) {
-      setError("E-mail não encontrado no sistema");
-      setForgotLoading(false);
-      return;
-    }
-
-    const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
-      redirectTo: `${window.location.origin}/reset-password`,
-    });
-
-    if (error) {
-      setError(error.message);
-    } else {
-      setForgotSuccess(true);
+      if (fnError) {
+        setError("Erro ao processar solicitação");
+      } else if (data?.error) {
+        setError(data.error);
+      } else {
+        setForgotSuccess(true);
+      }
+    } catch {
+      setError("Erro ao processar solicitação");
     }
     setForgotLoading(false);
   };
