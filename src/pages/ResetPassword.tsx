@@ -58,7 +58,7 @@ const ResetPassword = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background p-4">
         <div className="text-center animate-fade-in-up">
-          <h1 className="text-2xl font-bold text-warning mb-2">CotaFlow</h1>
+          <h1 className="text-2xl font-bold text-warning mb-2">Flow-!</h1>
           <p className="text-sm text-muted-foreground">Link inválido ou expirado.</p>
           <a href="/" className="text-sm text-primary underline mt-4 inline-block">Voltar ao login</a>
         </div>
