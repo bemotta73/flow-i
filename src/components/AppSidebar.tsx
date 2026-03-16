@@ -47,7 +47,7 @@ export function AppSidebar() {
             </span>
           </>
         ) : (
-          <span className="text-sm font-bold text-primary">CF</span>
+          <span className="text-sm font-bold text-primary">F!</span>
         )}
       </div>
 

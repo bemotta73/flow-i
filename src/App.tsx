@@ -36,7 +36,7 @@ function AppRoutes() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center animate-fade-in-up">
-          <h1 className="text-2xl font-bold text-warning mb-2">CotaFlow</h1>
+          <h1 className="text-2xl font-bold text-warning mb-2">Flow-!</h1>
           <p className="text-sm text-muted-foreground">Carregando...</p>
         </div>
       </div>
