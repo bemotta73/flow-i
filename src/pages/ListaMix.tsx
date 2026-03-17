@@ -10,7 +10,7 @@ import {
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
-import { Search, Plus, Download, Pencil, X, Check, FileSpreadsheet, TableProperties, Save, Trash2 } from "lucide-react";
+import { Search, Plus, Download, Pencil, X, Check, FileSpreadsheet, TableProperties, Save, Trash2, RefreshCw, Filter } from "lucide-react";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
@@ -54,6 +54,16 @@ interface EditableRow {
 
 const emptyForm: ProdutoForm = { produto: "", marca: "", part_number: "", custo: "", fornecedor: "", link: "" };
 
+function getWeekStart(): Date {
+  const now = new Date();
+  const day = now.getDay();
+  const diff = day === 0 ? 6 : day - 1; // Monday = start
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - diff);
+  monday.setHours(0, 0, 0, 0);
+  return monday;
+}
+
 const ListaMix = () => {
   const { toast } = useToast();
   const { role } = useAuth();
@@ -70,6 +80,12 @@ const ListaMix = () => {
   const [editableRows, setEditableRows] = useState<EditableRow[]>([]);
   const [savingAll, setSavingAll] = useState(false);
 
+  // Update mode state
+  const [updateMode, setUpdateMode] = useState(false);
+  const [showPendingOnly, setShowPendingOnly] = useState(false);
+
+  const weekStart = useMemo(() => getWeekStart(), []);
+
   const fetchProdutos = async (isInitial = false) => {
     if (isInitial) setLoading(true);
     const { data } = await supabase
@@ -82,16 +98,34 @@ const ListaMix = () => {
 
   useEffect(() => { fetchProdutos(true); }, []);
 
+  const isUpdatedThisWeek = (p: Produto): boolean => {
+    if (!p.updated_at) return false;
+    return new Date(p.updated_at) >= weekStart;
+  };
+
+  const updateStats = useMemo(() => {
+    const total = produtos.length;
+    const updated = produtos.filter(isUpdatedThisWeek).length;
+    return { total, updated };
+  }, [produtos, weekStart]);
+
   const filtered = useMemo(() => {
-    if (!search.trim()) return produtos;
-    const s = search.toLowerCase();
-    return produtos.filter(
-      (p) =>
-        p.produto.toLowerCase().includes(s) ||
-        (p.marca && p.marca.toLowerCase().includes(s)) ||
-        (p.part_number && p.part_number.toLowerCase().includes(s))
-    );
-  }, [produtos, search]);
+    let result = produtos;
+    if (!search.trim() && !showPendingOnly) return result;
+    if (showPendingOnly && updateMode) {
+      result = result.filter((p) => !isUpdatedThisWeek(p));
+    }
+    if (search.trim()) {
+      const s = search.toLowerCase();
+      result = result.filter(
+        (p) =>
+          p.produto.toLowerCase().includes(s) ||
+          (p.marca && p.marca.toLowerCase().includes(s)) ||
+          (p.part_number && p.part_number.toLowerCase().includes(s))
+      );
+    }
+    return result;
+  }, [produtos, search, showPendingOnly, updateMode]);
 
   const enterEditMode = () => {
     setEditableRows(
@@ -122,6 +156,26 @@ const ListaMix = () => {
     return parseFloat(row.custo.replace(",", ".")) || 0;
   };
 
+  const saveLastUpdateDate = async () => {
+    const now = new Date().toISOString();
+    const { data } = await supabase
+      .from("configuracoes")
+      .select("id")
+      .eq("chave", "lista_mix_ultima_atualizacao")
+      .maybeSingle();
+
+    if (data) {
+      await supabase
+        .from("configuracoes")
+        .update({ valor: now, updated_at: now })
+        .eq("chave", "lista_mix_ultima_atualizacao");
+    } else {
+      await supabase
+        .from("configuracoes")
+        .insert({ chave: "lista_mix_ultima_atualizacao", valor: now });
+    }
+  };
+
   const saveAllEdits = async () => {
     setSavingAll(true);
     let count = 0;
@@ -141,6 +195,7 @@ const ListaMix = () => {
       }).eq("id", row.id);
       count++;
     }
+    await saveLastUpdateDate();
     setSavingAll(false);
     setEditMode(false);
     setEditableRows([]);
@@ -197,6 +252,7 @@ const ListaMix = () => {
       toast({ title: "Produto adicionado" });
     }
 
+    await saveLastUpdateDate();
     setSaving(false);
     setDialogOpen(false);
     fetchProdutos();
@@ -231,12 +287,42 @@ const ListaMix = () => {
     XLSX.writeFile(wb, "lista-mix.xlsx");
   };
 
+  const getRowUpdateClass = (p: Produto): string => {
+    if (!updateMode) return "";
+    return isUpdatedThisWeek(p)
+      ? "bg-[rgba(34,197,94,0.08)]"
+      : "bg-[rgba(139,92,246,0.06)]";
+  };
+
   return (
     <div className="animate-fade-in-up">
       <div className="mb-8">
         <h1 className="text-[28px] font-bold tracking-tight text-foreground">Lista Mix</h1>
         <p className="text-sm text-muted-foreground mt-1">Gerencie a base de produtos e preços</p>
       </div>
+
+      {/* Update mode counter */}
+      {updateMode && (
+        <div className="mb-4 flex items-center gap-4 flex-wrap">
+          <div className="px-4 py-2 rounded-lg bg-card border border-border">
+            <span className="text-sm font-medium text-foreground">
+              {updateStats.updated}/{updateStats.total}
+            </span>
+            <span className="text-xs text-muted-foreground ml-2">produtos atualizados esta semana</span>
+          </div>
+          <button
+            onClick={() => setShowPendingOnly(!showPendingOnly)}
+            className={`flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
+              showPendingOnly
+                ? "bg-[#8B5CF6] text-white"
+                : "bg-card text-muted-foreground hover:text-foreground border border-border"
+            }`}
+          >
+            <Filter className="h-3.5 w-3.5" />
+            Mostrar só pendentes
+          </button>
+        </div>
+      )}
 
       {/* Actions bar */}
       <div className="flex items-center gap-3 mb-6 flex-wrap">
@@ -250,6 +336,24 @@ const ListaMix = () => {
           />
         </div>
         <div className="flex gap-2 ml-auto">
+          {isAdmin && !editMode && (
+            <Button
+              variant="outline"
+              size="sm"
+              className={`gap-2 border-border hover:bg-card ${
+                updateMode
+                  ? "bg-[rgba(139,92,246,0.15)] border-[rgba(139,92,246,0.4)] text-[#8B5CF6]"
+                  : "text-foreground"
+              }`}
+              onClick={() => {
+                setUpdateMode(!updateMode);
+                if (updateMode) setShowPendingOnly(false);
+              }}
+            >
+              <RefreshCw className="h-4 w-4" />
+              Modo Atualização
+            </Button>
+          )}
           {isAdmin && !editMode && (
             <Button variant="outline" size="sm" className="gap-2 border-border text-foreground hover:bg-card" onClick={enterEditMode} disabled={filtered.length === 0}>
               <TableProperties className="h-4 w-4" /> Editar Tabela
@@ -352,12 +456,13 @@ const ListaMix = () => {
                 <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">15%</TableHead>
                 <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">20%</TableHead>
                 {isAdmin && <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Status</TableHead>}
+                {isAdmin && updateMode && <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Semana</TableHead>}
                 {isAdmin && <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3 w-20">Ações</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
               {filtered.map((p, idx) => (
-                <TableRow key={p.id} className={`table-row-hover transition-all duration-150 ${idx % 2 === 1 ? "table-row-alt" : ""} ${!p.ativo ? "opacity-50" : ""}`}>
+                <TableRow key={p.id} className={`table-row-hover transition-all duration-150 ${idx % 2 === 1 && !updateMode ? "table-row-alt" : ""} ${!p.ativo ? "opacity-50" : ""} ${getRowUpdateClass(p)}`}>
                   {isAdmin && <TableCell className="text-xs text-muted-foreground px-4 py-3">{p.fornecedor}</TableCell>}
                   {isAdmin && <TableCell className="text-xs text-muted-foreground px-4 py-3">{p.part_number}</TableCell>}
                   <TableCell className="text-xs font-medium text-foreground px-4 py-3">{p.produto}</TableCell>
@@ -371,6 +476,15 @@ const ListaMix = () => {
                       <span className={`text-xs px-2 py-0.5 rounded-full ${p.ativo ? "bg-success/20 text-success" : "bg-destructive/20 text-destructive"}`}>
                         {p.ativo ? "Ativo" : "Inativo"}
                       </span>
+                    </TableCell>
+                  )}
+                  {isAdmin && updateMode && (
+                    <TableCell className="px-4 py-3">
+                      {isUpdatedThisWeek(p) ? (
+                        <span className="text-[11px] px-2 py-0.5 rounded-full bg-success/20 text-success font-medium">✓ Atualizado</span>
+                      ) : (
+                        <span className="text-[11px] px-2 py-0.5 rounded-full bg-[rgba(139,92,246,0.2)] text-[#8B5CF6] font-medium">⏳ Pendente</span>
+                      )}
                     </TableCell>
                   )}
                   {isAdmin && (
