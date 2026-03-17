@@ -289,6 +289,30 @@ export type Database = {
         }
         Relationships: []
       }
+      vendor_permissions: {
+        Row: {
+          can_see_lista_mix: boolean
+          can_see_promocoes: boolean
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          can_see_lista_mix?: boolean
+          can_see_promocoes?: boolean
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          can_see_lista_mix?: boolean
+          can_see_promocoes?: boolean
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
