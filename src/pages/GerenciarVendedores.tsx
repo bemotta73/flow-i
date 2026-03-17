@@ -2,13 +2,14 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
-import { UserPlus, UserCheck, UserX, KeyRound } from "lucide-react";
+import { UserPlus, UserCheck, UserX, KeyRound, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Vendedor {
@@ -18,6 +19,11 @@ interface Vendedor {
   ativo: boolean;
   created_at: string;
   role: string;
+}
+
+interface VendorPerms {
+  can_see_lista_mix: boolean;
+  can_see_promocoes: boolean;
 }
 
 const GerenciarVendedores = () => {
@@ -34,6 +40,11 @@ const GerenciarVendedores = () => {
   const [selectedVendedor, setSelectedVendedor] = useState<Vendedor | null>(null);
   const [newPassword, setNewPassword] = useState("");
   const [resettingPassword, setResettingPassword] = useState(false);
+
+  const [permsDialogOpen, setPermsDialogOpen] = useState(false);
+  const [permsVendedor, setPermsVendedor] = useState<Vendedor | null>(null);
+  const [perms, setPerms] = useState<VendorPerms>({ can_see_lista_mix: true, can_see_promocoes: true });
+  const [savingPerms, setSavingPerms] = useState(false);
 
   const fetchVendedores = async () => {
     setLoading(true);
@@ -140,6 +151,39 @@ const GerenciarVendedores = () => {
     setPasswordDialogOpen(true);
   };
 
+  const openPermsDialog = async (v: Vendedor) => {
+    setPermsVendedor(v);
+    const { data } = await supabase
+      .from("vendor_permissions")
+      .select("can_see_lista_mix, can_see_promocoes")
+      .eq("user_id", v.id)
+      .maybeSingle();
+
+    setPerms(data || { can_see_lista_mix: true, can_see_promocoes: true });
+    setPermsDialogOpen(true);
+  };
+
+  const handleSavePerms = async () => {
+    if (!permsVendedor) return;
+    setSavingPerms(true);
+
+    const { error } = await supabase
+      .from("vendor_permissions")
+      .upsert({
+        user_id: permsVendedor.id,
+        can_see_lista_mix: perms.can_see_lista_mix,
+        can_see_promocoes: perms.can_see_promocoes,
+      }, { onConflict: "user_id" });
+
+    if (error) {
+      toast({ title: "Erro", description: "Erro ao salvar permissões", variant: "destructive" });
+    } else {
+      toast({ title: "Permissões atualizadas" });
+      setPermsDialogOpen(false);
+    }
+    setSavingPerms(false);
+  };
+
   return (
     <div className="animate-fade-in-up">
       <div className="mb-8">
@@ -171,7 +215,7 @@ const GerenciarVendedores = () => {
                 <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Email</TableHead>
                 <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Status</TableHead>
                 <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Criado em</TableHead>
-                <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3 w-28">Ações</TableHead>
+                <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3 w-36">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -189,6 +233,13 @@ const GerenciarVendedores = () => {
                   </TableCell>
                   <TableCell className="px-4 py-3">
                     <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => openPermsDialog(v)}
+                        className="p-1.5 rounded-lg transition-colors hover:bg-secondary/20 text-secondary"
+                        title="Permissões"
+                      >
+                        <Shield className="h-4 w-4" />
+                      </button>
                       <button
                         onClick={() => openPasswordDialog(v)}
                         className="p-1.5 rounded-lg transition-colors hover:bg-primary/20 text-primary"
@@ -266,6 +317,50 @@ const GerenciarVendedores = () => {
             <Button variant="outline" onClick={() => setPasswordDialogOpen(false)}>Cancelar</Button>
             <Button onClick={handleResetPassword} disabled={resettingPassword}>
               {resettingPassword ? "Salvando..." : "Redefinir Senha"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Permissions dialog */}
+      <Dialog open={permsDialogOpen} onOpenChange={setPermsDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-primary font-semibold">Permissões</DialogTitle>
+          </DialogHeader>
+          {permsVendedor && (
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Configurar acesso de <span className="font-medium text-foreground">{permsVendedor.nome}</span>
+              </p>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 rounded-lg bg-card border border-border">
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Lista Mix</p>
+                    <p className="text-xs text-muted-foreground">Consulta de produtos e preços</p>
+                  </div>
+                  <Switch
+                    checked={perms.can_see_lista_mix}
+                    onCheckedChange={(v) => setPerms((p) => ({ ...p, can_see_lista_mix: v }))}
+                  />
+                </div>
+                <div className="flex items-center justify-between p-3 rounded-lg bg-card border border-border">
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Promoções</p>
+                    <p className="text-xs text-muted-foreground">Visualização de promoções ativas</p>
+                  </div>
+                  <Switch
+                    checked={perms.can_see_promocoes}
+                    onCheckedChange={(v) => setPerms((p) => ({ ...p, can_see_promocoes: v }))}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPermsDialogOpen(false)}>Cancelar</Button>
+            <Button onClick={handleSavePerms} disabled={savingPerms}>
+              {savingPerms ? "Salvando..." : "Salvar Permissões"}
             </Button>
           </DialogFooter>
         </DialogContent>
