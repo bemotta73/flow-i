@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
-import { Search, LogOut, Package, Tag } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Search, LogOut, Package, Tag, ListChecks } from "lucide-react";
 import vorneLogo from "@/assets/vorne-logo.png";
 
 interface Produto {
@@ -15,7 +16,6 @@ interface Produto {
   produto: string;
   marca: string | null;
   part_number: string | null;
-  preco_15: number;
   preco_20: number;
 }
 
@@ -30,13 +30,34 @@ interface Promocao {
   produto_id: string | null;
 }
 
+interface VendorPermissions {
+  can_see_lista_mix: boolean;
+  can_see_promocoes: boolean;
+}
+
 const ConsultaPrecos = () => {
-  const { signOut, profile } = useAuth();
+  const { signOut, profile, user } = useAuth();
   const [produtos, setProdutos] = useState<Produto[]>([]);
   const [promocoes, setPromocoes] = useState<Promocao[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [marcaFilter, setMarcaFilter] = useState<string | null>(null);
+  const [permissions, setPermissions] = useState<VendorPermissions>({ can_see_lista_mix: true, can_see_promocoes: true });
+
+  useEffect(() => {
+    if (!user) return;
+    const fetchPermissions = async () => {
+      const { data } = await supabase
+        .from("vendor_permissions")
+        .select("can_see_lista_mix, can_see_promocoes")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (data) {
+        setPermissions(data);
+      }
+    };
+    fetchPermissions();
+  }, [user]);
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -44,7 +65,7 @@ const ConsultaPrecos = () => {
       const [{ data: prods }, { data: promos }] = await Promise.all([
         supabase
           .from("lista_mix")
-          .select("id, produto, marca, part_number, preco_15, preco_20")
+          .select("id, produto, marca, part_number, preco_20")
           .eq("ativo", true)
           .order("produto"),
         supabase
@@ -92,6 +113,11 @@ const ConsultaPrecos = () => {
     return result;
   }, [produtos, search, marcaFilter]);
 
+  const availableTabs = [];
+  if (permissions.can_see_lista_mix) availableTabs.push("lista-mix");
+  if (permissions.can_see_promocoes) availableTabs.push("promocoes");
+  const defaultTab = availableTabs[0] || "lista-mix";
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -109,126 +135,169 @@ const ConsultaPrecos = () => {
       </header>
 
       <main className="max-w-5xl mx-auto p-6 animate-fade-in-up">
-        {/* Promotions banner */}
-        {promocoes.length > 0 && (
-          <div className="mb-8 space-y-3">
-            {promocoes.map((promo) => {
-              const linkedProduct = promo.produto_id ? produtos.find((p) => p.id === promo.produto_id) : null;
-              return (
-                <div key={promo.id} className="card-elevated overflow-hidden rounded-xl bg-gradient-to-r from-primary/10 to-primary/5">
-                  <div className="flex items-center gap-4 p-4">
-                    {promo.imagem_url ? (
-                      <img src={promo.imagem_url} alt={promo.titulo} className="h-20 w-20 rounded-lg object-cover flex-shrink-0" />
-                    ) : (
-                      <div className="h-20 w-20 rounded-lg bg-primary/20 flex items-center justify-center flex-shrink-0">
-                        <Tag className="h-8 w-8 text-primary" />
-                      </div>
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-base font-bold text-primary">{promo.titulo}</h3>
-                      {promo.descricao && <p className="text-sm text-muted-foreground mt-0.5 line-clamp-2">{promo.descricao}</p>}
-                      {linkedProduct && (
-                        <p className="text-xs text-muted-foreground mt-1">Produto: {linkedProduct.produto}</p>
-                      )}
-                      {promo.data_fim && (
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Válido até {new Date(promo.data_fim).toLocaleDateString("pt-BR")}
-                        </p>
-                      )}
-                    </div>
-                    <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                      {promo.desconto_percentual && (
-                        <span className="px-3 py-1 rounded-full bg-primary text-primary-foreground text-sm font-bold">
-                          -{promo.desconto_percentual}%
-                        </span>
-                      )}
-                      {promo.preco_promocional && (
-                        <span className="text-lg font-bold text-success">{formatBRL(promo.preco_promocional)}</span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        <div className="mb-6">
-          <h2 className="text-lg font-semibold text-foreground">Consulta de Preços</h2>
-          <p className="text-sm text-muted-foreground">Busque produtos e veja os preços de venda</p>
-        </div>
-
-        {/* Search */}
-        <div className="relative mb-4">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-          <Input
-            placeholder="Buscar por produto, marca ou part number..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-12 h-12 text-base surface-input"
-          />
-        </div>
-
-        {/* Marca filters */}
-        {marcas.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mb-6">
-            <button
-              onClick={() => setMarcaFilter(null)}
-              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
-                !marcaFilter ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              Todas
-            </button>
-            {marcas.map((m) => (
-              <button
-                key={m}
-                onClick={() => setMarcaFilter(marcaFilter === m ? null : m)}
-                className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
-                  marcaFilter === m ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {m}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* Results */}
-        {loading ? (
-          <div className="space-y-3">
-            {[1, 2, 3].map((i) => <div key={i} className="h-12 rounded-xl animate-shimmer" />)}
-          </div>
-        ) : filtered.length === 0 ? (
+        {availableTabs.length === 0 ? (
           <div className="text-center py-16">
             <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <p className="text-muted-foreground">Nenhum produto encontrado</p>
+            <p className="text-muted-foreground">Você não tem permissão para acessar nenhum módulo.</p>
+            <p className="text-xs text-muted-foreground mt-1">Entre em contato com o administrador.</p>
           </div>
         ) : (
-          <div className="card-elevated overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow className="table-header-dark border-0">
-                  <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Produto</TableHead>
-                  <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Marca</TableHead>
-                  <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Part Number</TableHead>
-                  <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Preço 15%</TableHead>
-                  <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Preço 20%</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filtered.map((p, idx) => (
-                  <TableRow key={p.id} className={`table-row-hover transition-all duration-150 ${idx % 2 === 1 ? "table-row-alt" : ""}`}>
-                    <TableCell className="text-sm font-medium text-foreground px-4 py-3">{p.produto}</TableCell>
-                    <TableCell className="text-sm text-muted-foreground px-4 py-3">{p.marca || "—"}</TableCell>
-                    <TableCell className="text-sm text-muted-foreground px-4 py-3">{p.part_number || "—"}</TableCell>
-                    <TableCell className="text-sm font-semibold text-secondary px-4 py-3">{formatBRL(p.preco_15)}</TableCell>
-                    <TableCell className="text-sm font-semibold text-success px-4 py-3">{formatBRL(p.preco_20)}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+          <Tabs defaultValue={defaultTab} className="w-full">
+            <TabsList className="mb-6 bg-card border border-border">
+              {permissions.can_see_lista_mix && (
+                <TabsTrigger value="lista-mix" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                  <ListChecks className="h-4 w-4" />
+                  Lista Mix
+                </TabsTrigger>
+              )}
+              {permissions.can_see_promocoes && (
+                <TabsTrigger value="promocoes" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                  <Tag className="h-4 w-4" />
+                  Promoções
+                </TabsTrigger>
+              )}
+            </TabsList>
+
+            {/* Lista Mix Tab */}
+            {permissions.can_see_lista_mix && (
+              <TabsContent value="lista-mix">
+                <div className="mb-6">
+                  <h2 className="text-lg font-semibold text-foreground">Consulta de Preços</h2>
+                  <p className="text-sm text-muted-foreground">Busque produtos e veja os preços de venda</p>
+                </div>
+
+                <div className="relative mb-4">
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                  <Input
+                    placeholder="Buscar por produto, marca ou part number..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="pl-12 h-12 text-base surface-input"
+                  />
+                </div>
+
+                {marcas.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mb-6">
+                    <button
+                      onClick={() => setMarcaFilter(null)}
+                      className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
+                        !marcaFilter ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      Todas
+                    </button>
+                    {marcas.map((m) => (
+                      <button
+                        key={m}
+                        onClick={() => setMarcaFilter(marcaFilter === m ? null : m)}
+                        className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
+                          marcaFilter === m ? "bg-primary text-primary-foreground" : "bg-card text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        {m}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {loading ? (
+                  <div className="space-y-3">
+                    {[1, 2, 3].map((i) => <div key={i} className="h-12 rounded-xl animate-shimmer" />)}
+                  </div>
+                ) : filtered.length === 0 ? (
+                  <div className="text-center py-16">
+                    <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <p className="text-muted-foreground">Nenhum produto encontrado</p>
+                  </div>
+                ) : (
+                  <div className="card-elevated overflow-hidden">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="table-header-dark border-0">
+                          <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Produto</TableHead>
+                          <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Marca</TableHead>
+                          <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Part Number</TableHead>
+                          <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Preço</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filtered.map((p, idx) => (
+                          <TableRow key={p.id} className={`table-row-hover transition-all duration-150 ${idx % 2 === 1 ? "table-row-alt" : ""}`}>
+                            <TableCell className="text-sm font-medium text-foreground px-4 py-3">{p.produto}</TableCell>
+                            <TableCell className="text-sm text-muted-foreground px-4 py-3">{p.marca || "—"}</TableCell>
+                            <TableCell className="text-sm text-muted-foreground px-4 py-3">{p.part_number || "—"}</TableCell>
+                            <TableCell className="text-sm font-semibold text-success px-4 py-3">{formatBRL(p.preco_20)}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
+              </TabsContent>
+            )}
+
+            {/* Promoções Tab */}
+            {permissions.can_see_promocoes && (
+              <TabsContent value="promocoes">
+                <div className="mb-6">
+                  <h2 className="text-lg font-semibold text-foreground">Promoções Ativas</h2>
+                  <p className="text-sm text-muted-foreground">Confira as promoções disponíveis</p>
+                </div>
+
+                {loading ? (
+                  <div className="space-y-3">
+                    {[1, 2, 3].map((i) => <div key={i} className="h-20 rounded-xl animate-shimmer" />)}
+                  </div>
+                ) : promocoes.length === 0 ? (
+                  <div className="text-center py-16">
+                    <Tag className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <p className="text-muted-foreground">Nenhuma promoção ativa no momento</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {promocoes.map((promo) => {
+                      const linkedProduct = promo.produto_id ? produtos.find((p) => p.id === promo.produto_id) : null;
+                      return (
+                        <div key={promo.id} className="card-elevated overflow-hidden rounded-xl bg-gradient-to-r from-primary/10 to-primary/5">
+                          <div className="flex items-center gap-4 p-4">
+                            {promo.imagem_url ? (
+                              <img src={promo.imagem_url} alt={promo.titulo} className="h-20 w-20 rounded-lg object-cover flex-shrink-0" />
+                            ) : (
+                              <div className="h-20 w-20 rounded-lg bg-primary/20 flex items-center justify-center flex-shrink-0">
+                                <Tag className="h-8 w-8 text-primary" />
+                              </div>
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <h3 className="text-base font-bold text-primary">{promo.titulo}</h3>
+                              {promo.descricao && <p className="text-sm text-muted-foreground mt-0.5 line-clamp-2">{promo.descricao}</p>}
+                              {linkedProduct && (
+                                <p className="text-xs text-muted-foreground mt-1">Produto: {linkedProduct.produto}</p>
+                              )}
+                              {promo.data_fim && (
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  Válido até {new Date(promo.data_fim).toLocaleDateString("pt-BR")}
+                                </p>
+                              )}
+                            </div>
+                            <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                              {promo.desconto_percentual && (
+                                <span className="px-3 py-1 rounded-full bg-primary text-primary-foreground text-sm font-bold">
+                                  -{promo.desconto_percentual}%
+                                </span>
+                              )}
+                              {promo.preco_promocional && (
+                                <span className="text-lg font-bold text-success">{formatBRL(promo.preco_promocional)}</span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </TabsContent>
+            )}
+          </Tabs>
         )}
 
         {/* Footer */}
