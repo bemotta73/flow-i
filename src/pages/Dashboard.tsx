@@ -246,8 +246,13 @@ const Dashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="card-elevated border-0">
-          <CardHeader><CardTitle className="text-[13px] font-semibold text-primary uppercase tracking-wide">Distribuição por Marca</CardTitle></CardHeader>
+        <Card className="card-elevated border-0 cursor-pointer hover:ring-1 hover:ring-primary/30 transition-all" onClick={() => setDrilldown("marca")}>
+          <CardHeader>
+            <CardTitle className="text-[13px] font-semibold text-primary uppercase tracking-wide flex items-center justify-between">
+              Distribuição por Marca
+              <ChevronRight className="h-4 w-4 text-primary/40" />
+            </CardTitle>
+          </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={250}>
               <PieChart>
