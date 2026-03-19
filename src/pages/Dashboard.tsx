@@ -202,10 +202,19 @@ const Dashboard = () => {
       {/* Metric Cards */}
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
         {metricCards.map((m, idx) => (
-          <Card key={idx} className="card-elevated border-0 animate-fade-in-up" style={{ animationDelay: `${idx * 0.07}s` }}>
+          <Card
+            key={idx}
+            className={`card-elevated border-0 animate-fade-in-up ${m.drill ? "cursor-pointer hover:ring-1 hover:ring-primary/30 transition-all" : ""}`}
+            style={{ animationDelay: `${idx * 0.07}s` }}
+            onClick={() => m.drill && setDrilldown(m.drill)}
+          >
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="label-apple">{m.label}</CardTitle>
-              <m.icon className="h-4 w-4 text-primary/40" />
+              {m.drill ? (
+                <ChevronRight className="h-4 w-4 text-primary/40" />
+              ) : (
+                <m.icon className="h-4 w-4 text-primary/40" />
+              )}
             </CardHeader>
             <CardContent>
               <p className="font-bold truncate text-lg text-foreground">{m.value}</p>
