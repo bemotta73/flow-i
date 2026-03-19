@@ -319,6 +319,13 @@ const Dashboard = () => {
           )}
         </CardContent>
       </Card>
+
+      <DashboardDrilldown
+        open={drilldown !== null}
+        onOpenChange={(open) => !open && setDrilldown(null)}
+        type={drilldown}
+        cotacoes={cotacoes}
+      />
     </div>
   );
 };
