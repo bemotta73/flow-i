@@ -143,10 +143,10 @@ const Dashboard = () => {
   const recent10 = cotacoes.slice(0, 10);
 
   const metricCards = [
-    { label: "Total Cotações", value: String(totalCotacoes), icon: FileText, sub: "" },
-    { label: "Produto Mais Cotado", value: topProduto, icon: Package, sub: `${topProdutoCount}x` },
-    { label: "Marca Mais Cotada", value: topMarca, icon: Tag, sub: `${topMarcaCount}x` },
-    { label: "Fornecedor Mais Usado", value: topFornecedor, icon: Truck, sub: `${topFornecedorCount}x` },
+    { label: "Total Cotações", value: String(totalCotacoes), icon: FileText, sub: "", drill: null as DrilldownType },
+    { label: "Produto Mais Cotado", value: topProduto, icon: Package, sub: `${topProdutoCount}x`, drill: "produto" as DrilldownType },
+    { label: "Marca Mais Cotada", value: topMarca, icon: Tag, sub: `${topMarcaCount}x`, drill: "marca" as DrilldownType },
+    { label: "Fornecedor Mais Usado", value: topFornecedor, icon: Truck, sub: `${topFornecedorCount}x`, drill: "fornecedor" as DrilldownType },
   ];
 
   const tooltipStyle = { background: "#1E293B", border: "none", borderRadius: 8, color: "#F1F5F9" };
