@@ -12,9 +12,12 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, LineChart, Line, CartesianGrid,
 } from "recharts";
-import { FileText, Package, Tag, Truck, Download } from "lucide-react";
+import { FileText, Package, Tag, Truck, Download, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { exportCotacoesToExcel } from "@/lib/exportExcel";
+import { DashboardDrilldown } from "@/components/DashboardDrilldown";
+
+type DrilldownType = "produto" | "marca" | "fornecedor" | "vendedor" | null;
 
 interface Cotacao {
   id: string;
@@ -43,6 +46,7 @@ const Dashboard = () => {
   const [cotacoes, setCotacoes] = useState<Cotacao[]>([]);
   const [allCotacoes, setAllCotacoes] = useState<Cotacao[]>([]);
   const [loading, setLoading] = useState(true);
+  const [drilldown, setDrilldown] = useState<DrilldownType>(null);
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -139,10 +143,10 @@ const Dashboard = () => {
   const recent10 = cotacoes.slice(0, 10);
 
   const metricCards = [
-    { label: "Total Cotações", value: String(totalCotacoes), icon: FileText, sub: "" },
-    { label: "Produto Mais Cotado", value: topProduto, icon: Package, sub: `${topProdutoCount}x` },
-    { label: "Marca Mais Cotada", value: topMarca, icon: Tag, sub: `${topMarcaCount}x` },
-    { label: "Fornecedor Mais Usado", value: topFornecedor, icon: Truck, sub: `${topFornecedorCount}x` },
+    { label: "Total Cotações", value: String(totalCotacoes), icon: FileText, sub: "", drill: null as DrilldownType },
+    { label: "Produto Mais Cotado", value: topProduto, icon: Package, sub: `${topProdutoCount}x`, drill: "produto" as DrilldownType },
+    { label: "Marca Mais Cotada", value: topMarca, icon: Tag, sub: `${topMarcaCount}x`, drill: "marca" as DrilldownType },
+    { label: "Fornecedor Mais Usado", value: topFornecedor, icon: Truck, sub: `${topFornecedorCount}x`, drill: "fornecedor" as DrilldownType },
   ];
 
   const tooltipStyle = { background: "#1E293B", border: "none", borderRadius: 8, color: "#F1F5F9" };
@@ -198,10 +202,19 @@ const Dashboard = () => {
       {/* Metric Cards */}
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
         {metricCards.map((m, idx) => (
-          <Card key={idx} className="card-elevated border-0 animate-fade-in-up" style={{ animationDelay: `${idx * 0.07}s` }}>
+          <Card
+            key={idx}
+            className={`card-elevated border-0 animate-fade-in-up ${m.drill ? "cursor-pointer hover:ring-1 hover:ring-primary/30 transition-all" : ""}`}
+            style={{ animationDelay: `${idx * 0.07}s` }}
+            onClick={() => m.drill && setDrilldown(m.drill)}
+          >
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="label-apple">{m.label}</CardTitle>
-              <m.icon className="h-4 w-4 text-primary/40" />
+              {m.drill ? (
+                <ChevronRight className="h-4 w-4 text-primary/40" />
+              ) : (
+                <m.icon className="h-4 w-4 text-primary/40" />
+              )}
             </CardHeader>
             <CardContent>
               <p className="font-bold truncate text-lg text-foreground">{m.value}</p>
@@ -233,8 +246,13 @@ const Dashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="card-elevated border-0">
-          <CardHeader><CardTitle className="text-[13px] font-semibold text-primary uppercase tracking-wide">Distribuição por Marca</CardTitle></CardHeader>
+        <Card className="card-elevated border-0 cursor-pointer hover:ring-1 hover:ring-primary/30 transition-all" onClick={() => setDrilldown("marca")}>
+          <CardHeader>
+            <CardTitle className="text-[13px] font-semibold text-primary uppercase tracking-wide flex items-center justify-between">
+              Distribuição por Marca
+              <ChevronRight className="h-4 w-4 text-primary/40" />
+            </CardTitle>
+          </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={250}>
               <PieChart>
@@ -301,6 +319,13 @@ const Dashboard = () => {
           )}
         </CardContent>
       </Card>
+
+      <DashboardDrilldown
+        open={drilldown !== null}
+        onOpenChange={(open) => !open && setDrilldown(null)}
+        type={drilldown}
+        cotacoes={cotacoes}
+      />
     </div>
   );
 };
