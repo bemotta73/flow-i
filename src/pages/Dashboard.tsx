@@ -46,6 +46,7 @@ const Dashboard = () => {
   const [cotacoes, setCotacoes] = useState<Cotacao[]>([]);
   const [allCotacoes, setAllCotacoes] = useState<Cotacao[]>([]);
   const [loading, setLoading] = useState(true);
+  const [drilldown, setDrilldown] = useState<DrilldownType>(null);
 
   useEffect(() => {
     const fetchAll = async () => {
