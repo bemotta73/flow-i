@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button";
 import { exportCotacoesToExcel } from "@/lib/exportExcel";
 import { DashboardDrilldown } from "@/components/DashboardDrilldown";
 
-type DrilldownType = "produto" | "marca" | "fornecedor" | "vendedor" | null;
+type DrilldownType = "produto" | "marca" | "fornecedor" | "vendedor" | "familia" | null;
 
 interface Cotacao {
   id: string;
