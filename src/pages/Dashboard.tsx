@@ -205,6 +205,7 @@ const Dashboard = () => {
     { label: "Produto Mais Cotado", value: topProduto, icon: Package, sub: `${topProdutoCount}x`, drill: "produto" as DrilldownType },
     { label: "Marca Mais Cotada", value: topMarca, icon: Tag, sub: `${topMarcaCount}x`, drill: "marca" as DrilldownType },
     { label: "Fornecedor Mais Usado", value: topFornecedor, icon: Truck, sub: `${topFornecedorCount}x`, drill: "fornecedor" as DrilldownType },
+    { label: "Família Mais Cotada", value: String(topFamily[0]), icon: Layers, sub: `${topFamily[1]}x`, drill: "familia" as DrilldownType },
   ];
 
   const tooltipStyle = { background: "#1E293B", border: "none", borderRadius: 8, color: "#F1F5F9" };
