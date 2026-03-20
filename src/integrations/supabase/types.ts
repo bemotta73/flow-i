@@ -250,6 +250,60 @@ export type Database = {
           },
         ]
       }
+      relatorios_semanais: {
+        Row: {
+          alertas_aumento: number
+          alertas_queda: number
+          cotacoes_por_dia: Json
+          created_at: string
+          data_fim: string
+          data_inicio: string
+          fornecedor_top: string | null
+          id: string
+          lista_mix_atualizados: number
+          lista_mix_total: number
+          ticket_medio: number
+          top_marcas: Json
+          top_produtos: Json
+          total_cotacoes: number
+          variacao_vs_anterior: number
+        }
+        Insert: {
+          alertas_aumento?: number
+          alertas_queda?: number
+          cotacoes_por_dia?: Json
+          created_at?: string
+          data_fim: string
+          data_inicio: string
+          fornecedor_top?: string | null
+          id?: string
+          lista_mix_atualizados?: number
+          lista_mix_total?: number
+          ticket_medio?: number
+          top_marcas?: Json
+          top_produtos?: Json
+          total_cotacoes?: number
+          variacao_vs_anterior?: number
+        }
+        Update: {
+          alertas_aumento?: number
+          alertas_queda?: number
+          cotacoes_por_dia?: Json
+          created_at?: string
+          data_fim?: string
+          data_inicio?: string
+          fornecedor_top?: string | null
+          id?: string
+          lista_mix_atualizados?: number
+          lista_mix_total?: number
+          ticket_medio?: number
+          top_marcas?: Json
+          top_produtos?: Json
+          total_cotacoes?: number
+          variacao_vs_anterior?: number
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string

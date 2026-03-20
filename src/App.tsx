@@ -13,6 +13,7 @@ import GerenciarVendedores from "./pages/GerenciarVendedores";
 import ConsultaPrecos from "./pages/ConsultaPrecos";
 import Promocoes from "./pages/Promocoes";
 import Alertas from "./pages/Alertas";
+import Relatorios from "./pages/Relatorios";
 import Login from "./pages/Login";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
@@ -63,6 +64,7 @@ function AppRoutes() {
         <Route path="/alertas" element={<Alertas />} />
         <Route path="/vendedores" element={<GerenciarVendedores />} />
         <Route path="/promocoes" element={<Promocoes />} />
+        <Route path="/relatorios" element={<Relatorios />} />
         <Route path="/login" element={<Navigate to="/" replace />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

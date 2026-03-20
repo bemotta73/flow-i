@@ -1,4 +1,4 @@
-import { FilePlus2, TableProperties, BarChart3, ListChecks, Users, Bell, Tag } from "lucide-react";
+import { FilePlus2, TableProperties, BarChart3, ListChecks, Users, Bell, Tag, FileBarChart } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import vorneLogo from "@/assets/vorne-logo.png";
@@ -25,6 +25,7 @@ const adminItems = [
   { title: "Alertas", url: "/alertas", icon: Bell },
   { title: "Gerenciar Vendedores", url: "/vendedores", icon: Users },
   { title: "Promoções", url: "/promocoes", icon: Tag },
+  { title: "Relatórios", url: "/relatorios", icon: FileBarChart },
 ];
 
 export function AppSidebar() {
