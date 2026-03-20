@@ -259,7 +259,7 @@ const Dashboard = () => {
       </div>
 
       {/* Metric Cards */}
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-5 mb-8">
         {metricCards.map((m, idx) => (
           <Card
             key={idx}
