@@ -8,7 +8,8 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Search, LogOut, Package, Tag, ListChecks } from "lucide-react";
+import { Search, LogOut, Package, Tag, ListChecks, Copy, Check } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import vorneLogo from "@/assets/vorne-logo.png";
 
 interface Produto {

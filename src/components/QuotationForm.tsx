@@ -12,8 +12,9 @@ import { cn } from "@/lib/utils";
 import { MarginPreview } from "./MarginPreview";
 import { EmailPreview, type MargemSelecionada } from "./EmailPreview";
 import { ImageUpload, type ExtractedData } from "./ImageUpload";
-import { Save, Eraser, Loader2, Plus, X, Pencil, AlertTriangle } from "lucide-react";
+import { Save, Eraser, Loader2, Plus, X, Pencil, AlertTriangle, Search } from "lucide-react";
 import { checkPriceAlert } from "@/lib/alertas";
+import { ProductPicker, type PickedProduct } from "./ProductPicker";
 
 interface Vendedor {
   id: string;
