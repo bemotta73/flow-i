@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { formatBRLNumber } from "@/lib/format";
 import { supabase } from "@/integrations/supabase/client";
 import { formatBRL } from "@/lib/format";
 import { Input } from "@/components/ui/input";
