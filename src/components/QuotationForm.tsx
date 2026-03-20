@@ -12,8 +12,9 @@ import { cn } from "@/lib/utils";
 import { MarginPreview } from "./MarginPreview";
 import { EmailPreview, type MargemSelecionada } from "./EmailPreview";
 import { ImageUpload, type ExtractedData } from "./ImageUpload";
-import { Save, Eraser, Loader2, Plus, X, Pencil, AlertTriangle } from "lucide-react";
+import { Save, Eraser, Loader2, Plus, X, Pencil, AlertTriangle, Search } from "lucide-react";
 import { checkPriceAlert } from "@/lib/alertas";
+import { ProductPicker, type PickedProduct } from "./ProductPicker";
 
 interface Vendedor {
   id: string;
@@ -61,6 +62,22 @@ export function QuotationForm() {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [alertBanners, setAlertBanners] = useState<Array<{ produto: string; variacao: number; custoAnterior: number; custoAtual: number }>>([]);
   const [observacao, setObservacao] = useState("");
+  const [pickerOpen, setPickerOpen] = useState(false);
+
+  const handlePickProduct = (picked: PickedProduct) => {
+    setForm({
+      produto: picked.produto,
+      marca: picked.marca,
+      partNumber: picked.partNumber,
+      custo: picked.custo,
+      estoque: picked.estoque,
+      fornecedor: picked.fornecedor,
+      uf: picked.uf,
+      prazo: picked.prazo,
+      link: picked.link,
+    });
+    setShowEmail(false);
+  };
 
   useEffect(() => {
     supabase.from("vendedores").select("id, nome").eq("ativo", true).then(({ data }) => {
@@ -301,9 +318,20 @@ export function QuotationForm() {
 
       {/* Product form fields */}
       <div className="card-elevated p-6 space-y-5 animate-fade-in-up">
-        <p className="text-[13px] font-semibold text-primary uppercase tracking-wide">
-          {editingIndex !== null ? `Editando Produto #${editingIndex + 1}` : produtos.length > 0 ? "Adicionar Próximo Produto" : "Dados do Produto"}
-        </p>
+        <div className="flex items-center justify-between">
+          <p className="text-[13px] font-semibold text-primary uppercase tracking-wide">
+            {editingIndex !== null ? `Editando Produto #${editingIndex + 1}` : produtos.length > 0 ? "Adicionar Próximo Produto" : "Dados do Produto"}
+          </p>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setPickerOpen(true)}
+            className="gap-2 border-border text-muted-foreground hover:text-foreground hover:bg-card"
+          >
+            <Search className="h-3.5 w-3.5" /> Buscar Produto Existente
+          </Button>
+        </div>
 
         <div className="space-y-2">
           <label className="label-apple">Produto *</label>
@@ -446,7 +474,10 @@ export function QuotationForm() {
         <div className="animate-fade-in-up">
           <EmailPreview vendedor={vendedor} produtos={allProductsForEmail} margem={margemSelecionada} customMargem={parseFloat(customMargem) || undefined} observacao={observacao} />
         </div>
-      )}
+       )}
+
+      {/* Product Picker */}
+      <ProductPicker open={pickerOpen} onOpenChange={setPickerOpen} onSelect={handlePickProduct} />
     </div>
   );
 }

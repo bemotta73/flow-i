@@ -8,7 +8,8 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Search, LogOut, Package, Tag, ListChecks } from "lucide-react";
+import { Search, LogOut, Package, Tag, ListChecks, Copy, Check } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import vorneLogo from "@/assets/vorne-logo.png";
 
 interface Produto {
@@ -37,12 +38,22 @@ interface VendorPermissions {
 
 const ConsultaPrecos = () => {
   const { signOut, profile, user } = useAuth();
+  const { toast } = useToast();
   const [produtos, setProdutos] = useState<Produto[]>([]);
   const [promocoes, setPromocoes] = useState<Promocao[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [marcaFilter, setMarcaFilter] = useState<string | null>(null);
   const [permissions, setPermissions] = useState<VendorPermissions>({ can_see_lista_mix: true, can_see_promocoes: true });
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  const handleCopyProduct = async (p: Produto) => {
+    const text = `${p.produto}${p.part_number ? ` | ${p.part_number}` : ""} | ${formatBRL(p.preco_20)}`;
+    await navigator.clipboard.writeText(text);
+    setCopiedId(p.id);
+    toast({ title: "Copiado!", description: text });
+    setTimeout(() => setCopiedId(null), 2000);
+  };
 
   useEffect(() => {
     if (!user) return;
@@ -218,6 +229,7 @@ const ConsultaPrecos = () => {
                           <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Marca</TableHead>
                           <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Part Number</TableHead>
                           <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Preço</TableHead>
+                          <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3 w-12"></TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -227,6 +239,15 @@ const ConsultaPrecos = () => {
                             <TableCell className="text-sm text-muted-foreground px-4 py-3">{p.marca || "—"}</TableCell>
                             <TableCell className="text-sm text-muted-foreground px-4 py-3">{p.part_number || "—"}</TableCell>
                             <TableCell className="text-sm font-semibold text-success px-4 py-3">{formatBRL(p.preco_20)}</TableCell>
+                            <TableCell className="px-4 py-3">
+                              <button
+                                onClick={() => handleCopyProduct(p)}
+                                className="p-1.5 rounded-lg hover:bg-primary/20 text-muted-foreground hover:text-primary transition-colors"
+                                title="Copiar produto"
+                              >
+                                {copiedId === p.id ? <Check className="h-3.5 w-3.5 text-success" /> : <Copy className="h-3.5 w-3.5" />}
+                              </button>
+                            </TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
