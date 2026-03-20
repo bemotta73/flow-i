@@ -540,7 +540,7 @@ const ListaMix = () => {
                     </TableCell>
                   </TableRow>
                 )}
-                </>
+                </React.Fragment>
               ))}
             </TableBody>
           </Table>
