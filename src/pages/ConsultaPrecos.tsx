@@ -234,19 +234,22 @@ const ConsultaPrecos = () => {
                       </TableHeader>
                       <TableBody>
                         {filtered.map((p, idx) => (
-                          <TableRow key={p.id} className={`table-row-hover transition-all duration-150 ${idx % 2 === 1 ? "table-row-alt" : ""}`}>
-                            <TableCell className="text-sm font-medium text-foreground px-4 py-3">{p.produto}</TableCell>
+                          <TableRow
+                            key={p.id}
+                            onClick={() => handleCopyProduct(p)}
+                            className={`table-row-hover transition-all duration-150 cursor-pointer group ${idx % 2 === 1 ? "table-row-alt" : ""}`}
+                          >
+                            <TableCell className="text-sm font-medium text-foreground px-4 py-3">
+                              <span className="flex items-center gap-2">
+                                {p.produto}
+                                <Copy className="h-3 w-3 text-muted-foreground/0 group-hover:text-muted-foreground transition-colors" />
+                              </span>
+                            </TableCell>
                             <TableCell className="text-sm text-muted-foreground px-4 py-3">{p.marca || "—"}</TableCell>
                             <TableCell className="text-sm text-muted-foreground px-4 py-3">{p.part_number || "—"}</TableCell>
                             <TableCell className="text-sm font-semibold text-success px-4 py-3">{formatBRL(p.preco_20)}</TableCell>
-                            <TableCell className="px-4 py-3">
-                              <button
-                                onClick={() => handleCopyProduct(p)}
-                                className="p-1.5 rounded-lg hover:bg-primary/20 text-muted-foreground hover:text-primary transition-colors"
-                                title="Copiar produto"
-                              >
-                                {copiedId === p.id ? <Check className="h-3.5 w-3.5 text-success" /> : <Copy className="h-3.5 w-3.5" />}
-                              </button>
+                            <TableCell className="px-4 py-3 w-8">
+                              {copiedId === p.id && <Check className="h-3.5 w-3.5 text-success animate-in fade-in zoom-in" />}
                             </TableCell>
                           </TableRow>
                         ))}
