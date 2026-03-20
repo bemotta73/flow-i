@@ -229,7 +229,7 @@ const ConsultaPrecos = () => {
                           <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Marca</TableHead>
                           <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Part Number</TableHead>
                           <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Preço</TableHead>
-                        </TableRow>
+                          <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3 w-12"></TableHead>
                       </TableHeader>
                       <TableBody>
                         {filtered.map((p, idx) => (
