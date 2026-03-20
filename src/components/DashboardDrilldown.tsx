@@ -29,7 +29,7 @@ interface Cotacao {
   created_at: string;
 }
 
-type DrilldownType = "produto" | "marca" | "fornecedor" | "vendedor" | null;
+type DrilldownType = "produto" | "marca" | "fornecedor" | "vendedor" | "familia" | null;
 
 interface Props {
   open: boolean;
@@ -43,6 +43,49 @@ const TITLES: Record<string, string> = {
   marca: "Ranking de Marcas",
   fornecedor: "Ranking de Fornecedores",
   vendedor: "Ranking de Vendedores",
+  familia: "Ranking de Famílias de Produtos",
+};
+
+const extractFamily = (produto: string): string => {
+  const normalized = produto.trim();
+  const familyPatterns: [RegExp, string][] = [
+    [/^notebook/i, "Notebook"],
+    [/^monitor/i, "Monitor"],
+    [/^impressora/i, "Impressora"],
+    [/^nobreak/i, "Nobreak"],
+    [/^desktop/i, "Desktop"],
+    [/^memoria/i, "Memória"],
+    [/^leitor/i, "Leitor de Código"],
+    [/^headset/i, "Headset"],
+    [/^access\s?point/i, "Access Point"],
+    [/^hdd/i, "HDD"],
+    [/^ssd/i, "SSD"],
+    [/^fonte/i, "Fonte"],
+    [/^gravador/i, "Gravador"],
+    [/^cartao/i, "Cartão"],
+    [/^modulo/i, "Módulo"],
+    [/^switch/i, "Switch"],
+    [/^roteador|^router/i, "Roteador"],
+    [/^teclado/i, "Teclado"],
+    [/^mouse/i, "Mouse"],
+    [/^webcam|^camera/i, "Câmera"],
+    [/^cabo/i, "Cabo"],
+    [/^servidor|^server/i, "Servidor"],
+    [/^tablet/i, "Tablet"],
+    [/^celular|^smartphone/i, "Celular"],
+    [/^projetor/i, "Projetor"],
+    [/^rack/i, "Rack"],
+    [/^scanner/i, "Scanner"],
+    [/^caixa\s+de\s+som|^speaker/i, "Áudio"],
+    [/^fone/i, "Fone"],
+    [/^dream\s+machine/i, "Access Point"],
+    [/^hi-capacity/i, "Rede"],
+  ];
+  for (const [pattern, family] of familyPatterns) {
+    if (pattern.test(normalized)) return family;
+  }
+  const firstWord = normalized.split(/\s+/)[0];
+  return firstWord.charAt(0).toUpperCase() + firstWord.slice(1).toLowerCase();
 };
 
 const BAR_COLORS = ["#14B8A6", "#3B82F6", "#F59E0B", "#8B5CF6", "#EF4444", "#22C55E", "#EC4899", "#06B6D4"];
@@ -52,6 +95,27 @@ const tooltipStyle = { background: "#1E293B", border: "none", borderRadius: 8, c
 export function DashboardDrilldown({ open, onOpenChange, type, cotacoes }: Props) {
   const data = useMemo(() => {
     if (!type) return [];
+
+    if (type === "familia") {
+      const counts: Record<string, { count: number; totalCusto: number; canonical: string }> = {};
+      cotacoes.forEach((c) => {
+        const family = extractFamily(c.produto);
+        const key = family.toLowerCase();
+        if (!counts[key]) counts[key] = { count: 0, totalCusto: 0, canonical: family };
+        counts[key].count += 1;
+        counts[key].totalCusto += Number(c.custo) || 0;
+      });
+      return Object.values(counts)
+        .sort((a, b) => b.count - a.count)
+        .map((item, i) => ({
+          name: item.canonical,
+          cotacoes: item.count,
+          custoMedio: item.totalCusto / item.count,
+          rank: i + 1,
+          pct: ((item.count / cotacoes.length) * 100).toFixed(1),
+        }));
+    }
+
     const counts: Record<string, { count: number; totalCusto: number; original: string }> = {};
     cotacoes.forEach((c) => {
       const val = c[type] as string | null;

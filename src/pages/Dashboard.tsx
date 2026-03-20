@@ -12,12 +12,12 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, LineChart, Line, CartesianGrid,
 } from "recharts";
-import { FileText, Package, Tag, Truck, Download, ChevronRight } from "lucide-react";
+import { FileText, Package, Tag, Truck, Download, ChevronRight, Layers } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { exportCotacoesToExcel } from "@/lib/exportExcel";
 import { DashboardDrilldown } from "@/components/DashboardDrilldown";
 
-type DrilldownType = "produto" | "marca" | "fornecedor" | "vendedor" | null;
+type DrilldownType = "produto" | "marca" | "fornecedor" | "vendedor" | "familia" | null;
 
 interface Cotacao {
   id: string;
@@ -98,6 +98,64 @@ const Dashboard = () => {
     return sorted[0] ? [canonical[sorted[0][0]], sorted[0][1]] : ["—", 0];
   };
 
+  const extractFamily = (produto: string): string => {
+    const normalized = produto.trim();
+    const familyPatterns: [RegExp, string][] = [
+      [/^notebook/i, "Notebook"],
+      [/^monitor/i, "Monitor"],
+      [/^impressora/i, "Impressora"],
+      [/^nobreak/i, "Nobreak"],
+      [/^desktop/i, "Desktop"],
+      [/^memoria/i, "Memória"],
+      [/^leitor/i, "Leitor de Código"],
+      [/^headset/i, "Headset"],
+      [/^access\s?point/i, "Access Point"],
+      [/^hdd/i, "HDD"],
+      [/^ssd/i, "SSD"],
+      [/^fonte/i, "Fonte"],
+      [/^gravador/i, "Gravador"],
+      [/^cartao/i, "Cartão"],
+      [/^modulo/i, "Módulo"],
+      [/^switch/i, "Switch"],
+      [/^roteador|^router/i, "Roteador"],
+      [/^teclado/i, "Teclado"],
+      [/^mouse/i, "Mouse"],
+      [/^webcam|^camera/i, "Câmera"],
+      [/^cabo/i, "Cabo"],
+      [/^servidor|^server/i, "Servidor"],
+      [/^tablet/i, "Tablet"],
+      [/^celular|^smartphone/i, "Celular"],
+      [/^projetor/i, "Projetor"],
+      [/^rack/i, "Rack"],
+      [/^scanner/i, "Scanner"],
+      [/^caixa\s+de\s+som|^speaker/i, "Áudio"],
+      [/^fone/i, "Fone"],
+      [/^dream\s+machine/i, "Access Point"],
+      [/^hi-capacity/i, "Rede"],
+    ];
+    for (const [pattern, family] of familyPatterns) {
+      if (pattern.test(normalized)) return family;
+    }
+    const firstWord = normalized.split(/\s+/)[0];
+    return firstWord.charAt(0).toUpperCase() + firstWord.slice(1).toLowerCase();
+  };
+
+  const topFamily = useMemo(() => {
+    const counts: Record<string, number> = {};
+    cotacoes.forEach((c) => {
+      const family = extractFamily(c.produto);
+      const key = family.toLowerCase();
+      if (!counts[key]) counts[key] = 0;
+      counts[key]++;
+    });
+    const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+    if (sorted[0]) {
+      const familyName = extractFamily(cotacoes.find(c => extractFamily(c.produto).toLowerCase() === sorted[0][0])?.produto || "");
+      return [familyName, sorted[0][1]] as [string, number];
+    }
+    return ["—", 0] as [string, number];
+  }, [cotacoes]);
+
   const [topProduto, topProdutoCount] = topItem("produto");
   const [topMarca, topMarcaCount] = topItem("marca");
   const [topFornecedor, topFornecedorCount] = topItem("fornecedor");
@@ -147,6 +205,7 @@ const Dashboard = () => {
     { label: "Produto Mais Cotado", value: topProduto, icon: Package, sub: `${topProdutoCount}x`, drill: "produto" as DrilldownType },
     { label: "Marca Mais Cotada", value: topMarca, icon: Tag, sub: `${topMarcaCount}x`, drill: "marca" as DrilldownType },
     { label: "Fornecedor Mais Usado", value: topFornecedor, icon: Truck, sub: `${topFornecedorCount}x`, drill: "fornecedor" as DrilldownType },
+    { label: "Família Mais Cotada", value: String(topFamily[0]), icon: Layers, sub: `${topFamily[1]}x`, drill: "familia" as DrilldownType },
   ];
 
   const tooltipStyle = { background: "#1E293B", border: "none", borderRadius: 8, color: "#F1F5F9" };
@@ -200,7 +259,7 @@ const Dashboard = () => {
       </div>
 
       {/* Metric Cards */}
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-5 mb-8">
         {metricCards.map((m, idx) => (
           <Card
             key={idx}
