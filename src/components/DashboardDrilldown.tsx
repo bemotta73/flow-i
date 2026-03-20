@@ -95,6 +95,27 @@ const tooltipStyle = { background: "#1E293B", border: "none", borderRadius: 8, c
 export function DashboardDrilldown({ open, onOpenChange, type, cotacoes }: Props) {
   const data = useMemo(() => {
     if (!type) return [];
+
+    if (type === "familia") {
+      const counts: Record<string, { count: number; totalCusto: number; canonical: string }> = {};
+      cotacoes.forEach((c) => {
+        const family = extractFamily(c.produto);
+        const key = family.toLowerCase();
+        if (!counts[key]) counts[key] = { count: 0, totalCusto: 0, canonical: family };
+        counts[key].count += 1;
+        counts[key].totalCusto += Number(c.custo) || 0;
+      });
+      return Object.values(counts)
+        .sort((a, b) => b.count - a.count)
+        .map((item, i) => ({
+          name: item.canonical,
+          cotacoes: item.count,
+          custoMedio: item.totalCusto / item.count,
+          rank: i + 1,
+          pct: ((item.count / cotacoes.length) * 100).toFixed(1),
+        }));
+    }
+
     const counts: Record<string, { count: number; totalCusto: number; original: string }> = {};
     cotacoes.forEach((c) => {
       const val = c[type] as string | null;
