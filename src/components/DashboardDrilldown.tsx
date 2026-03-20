@@ -29,7 +29,7 @@ interface Cotacao {
   created_at: string;
 }
 
-type DrilldownType = "produto" | "marca" | "fornecedor" | "vendedor" | null;
+type DrilldownType = "produto" | "marca" | "fornecedor" | "vendedor" | "familia" | null;
 
 interface Props {
   open: boolean;
