@@ -464,10 +464,20 @@ const ListaMix = () => {
             </TableHeader>
             <TableBody>
               {filtered.map((p, idx) => (
-                <TableRow key={p.id} className={`table-row-hover transition-all duration-150 ${idx % 2 === 1 && !updateMode ? "table-row-alt" : ""} ${!p.ativo ? "opacity-50" : ""} ${getRowUpdateClass(p)}`}>
+                <>
+                <TableRow
+                  key={p.id}
+                  className={`table-row-hover transition-all duration-150 cursor-pointer ${idx % 2 === 1 && !updateMode ? "table-row-alt" : ""} ${!p.ativo ? "opacity-50" : ""} ${getRowUpdateClass(p)} ${expandedId === p.id ? "bg-primary/5" : ""}`}
+                  onClick={() => setExpandedId(expandedId === p.id ? null : p.id)}
+                >
                   {isAdmin && <TableCell className="text-xs text-muted-foreground px-4 py-3">{p.fornecedor}</TableCell>}
                   {isAdmin && <TableCell className="text-xs text-muted-foreground px-4 py-3">{p.part_number}</TableCell>}
-                  <TableCell className="text-xs font-medium text-foreground px-4 py-3">{p.produto}</TableCell>
+                  <TableCell className="text-xs font-medium text-foreground px-4 py-3">
+                    <div className="flex items-center gap-1.5">
+                      <ChevronDown className={`h-3 w-3 text-muted-foreground transition-transform duration-200 ${expandedId === p.id ? "rotate-180" : ""}`} />
+                      {p.produto}
+                    </div>
+                  </TableCell>
                   <TableCell className="text-xs text-muted-foreground px-4 py-3">{p.marca}</TableCell>
                   {!isAdmin && <TableCell className="text-xs text-muted-foreground px-4 py-3">{p.part_number}</TableCell>}
                   {isAdmin && <TableCell className="text-xs text-foreground px-4 py-3">{formatBRL(p.custo)}</TableCell>}
@@ -490,7 +500,7 @@ const ListaMix = () => {
                     </TableCell>
                   )}
                   {isAdmin && (
-                    <TableCell className="px-4 py-3">
+                    <TableCell className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                       <div className="flex gap-1">
                         <button onClick={() => openEdit(p)} className="p-1.5 rounded-lg hover:bg-primary/20 text-muted-foreground hover:text-primary transition-colors">
                           <Pencil className="h-3.5 w-3.5" />
@@ -521,6 +531,16 @@ const ListaMix = () => {
                     </TableCell>
                   )}
                 </TableRow>
+                {expandedId === p.id && (
+                  <TableRow key={`${p.id}-chart`}>
+                    <TableCell colSpan={isAdmin ? (updateMode ? 9 : 8) : 5} className="p-0 border-b border-border">
+                      <div className="bg-card/50 border-t border-border">
+                        <PriceHistoryChart produto={p.produto} partNumber={p.part_number} currentCusto={p.custo} />
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                )}
+                </>
               ))}
             </TableBody>
           </Table>
