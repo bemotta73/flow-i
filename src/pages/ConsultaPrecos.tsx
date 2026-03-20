@@ -55,6 +55,13 @@ const ConsultaPrecos = () => {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
+  const handleCopyField = async (value: string, id: string, label: string) => {
+    await navigator.clipboard.writeText(value);
+    setCopiedId(id);
+    toast({ title: "Copiado!", description: `${label}: ${value}` });
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
   useEffect(() => {
     if (!user) return;
     const fetchPermissions = async () => {
