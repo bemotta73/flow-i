@@ -12,7 +12,7 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, LineChart, Line, CartesianGrid,
 } from "recharts";
-import { FileText, Package, Tag, Truck, Download, ChevronRight } from "lucide-react";
+import { FileText, Package, Tag, Truck, Download, ChevronRight, Layers } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { exportCotacoesToExcel } from "@/lib/exportExcel";
 import { DashboardDrilldown } from "@/components/DashboardDrilldown";
