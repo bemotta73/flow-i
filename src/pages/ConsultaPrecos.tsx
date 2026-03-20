@@ -38,12 +38,22 @@ interface VendorPermissions {
 
 const ConsultaPrecos = () => {
   const { signOut, profile, user } = useAuth();
+  const { toast } = useToast();
   const [produtos, setProdutos] = useState<Produto[]>([]);
   const [promocoes, setPromocoes] = useState<Promocao[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [marcaFilter, setMarcaFilter] = useState<string | null>(null);
   const [permissions, setPermissions] = useState<VendorPermissions>({ can_see_lista_mix: true, can_see_promocoes: true });
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  const handleCopyProduct = async (p: Produto) => {
+    const text = `${p.produto}${p.part_number ? ` | ${p.part_number}` : ""} | ${formatBRL(p.preco_20)}`;
+    await navigator.clipboard.writeText(text);
+    setCopiedId(p.id);
+    toast({ title: "Copiado!", description: text });
+    setTimeout(() => setCopiedId(null), 2000);
+  };
 
   useEffect(() => {
     if (!user) return;

@@ -474,7 +474,10 @@ export function QuotationForm() {
         <div className="animate-fade-in-up">
           <EmailPreview vendedor={vendedor} produtos={allProductsForEmail} margem={margemSelecionada} customMargem={parseFloat(customMargem) || undefined} observacao={observacao} />
         </div>
-      )}
+       )}
+
+      {/* Product Picker */}
+      <ProductPicker open={pickerOpen} onOpenChange={setPickerOpen} onSelect={handlePickProduct} />
     </div>
   );
 }
