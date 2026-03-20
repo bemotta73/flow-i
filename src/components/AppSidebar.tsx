@@ -1,4 +1,4 @@
-import { FilePlus2, TableProperties, BarChart3, ListChecks, Users, Bell, Tag } from "lucide-react";
+import { FilePlus2, TableProperties, BarChart3, ListChecks, Users, Bell, Tag, FileBarChart } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import vorneLogo from "@/assets/vorne-logo.png";
