@@ -251,7 +251,7 @@ const ImportMix = ({ onComplete }: ImportMixProps) => {
         }
 
         const payload = {
-          fornecedor: item.fornecedor.trim() || null,
+          fornecedor: item.fornecedor.trim().toUpperCase() || null,
           part_number: partNumber || null,
           produto,
           marca: item.marca.trim() || null,

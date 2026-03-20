@@ -179,7 +179,7 @@ export function QuotationForm() {
         preco_15: p.custoNum / 0.85,
         preco_20: p.custoNum / 0.80,
         estoque: p.estoque || null,
-        fornecedor: p.fornecedor || null,
+        fornecedor: p.fornecedor ? p.fornecedor.trim().toUpperCase() : null,
         uf: p.uf || null,
         prazo: p.prazo || null,
         link: p.link || null,
