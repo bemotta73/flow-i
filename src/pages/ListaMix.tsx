@@ -464,7 +464,7 @@ const ListaMix = () => {
             </TableHeader>
             <TableBody>
               {filtered.map((p, idx) => (
-                <>
+                <React.Fragment key={p.id}>
                 <TableRow
                   key={p.id}
                   className={`table-row-hover transition-all duration-150 cursor-pointer ${idx % 2 === 1 && !updateMode ? "table-row-alt" : ""} ${!p.ativo ? "opacity-50" : ""} ${getRowUpdateClass(p)} ${expandedId === p.id ? "bg-primary/5" : ""}`}
