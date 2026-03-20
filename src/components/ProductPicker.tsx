@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { formatBRLNumber } from "@/lib/format";
 import { supabase } from "@/integrations/supabase/client";
 import { formatBRL } from "@/lib/format";
 import { Input } from "@/components/ui/input";
@@ -116,7 +117,7 @@ export function ProductPicker({ open, onOpenChange, onSelect }: ProductPickerPro
         produto: item.produto,
         marca: item.marca || "",
         partNumber: item.part_number || "",
-        custo: String(item.custo),
+        custo: formatBRLNumber(item.custo),
         fornecedor: item.fornecedor || "",
         estoque: "",
         uf: "",
@@ -134,7 +135,7 @@ export function ProductPicker({ open, onOpenChange, onSelect }: ProductPickerPro
         produto: item.produto,
         marca: item.marca || "",
         partNumber: item.part_number || "",
-        custo: String(item.custo),
+        custo: formatBRLNumber(item.custo),
         fornecedor: item.fornecedor || "",
         estoque: item.estoque || "",
         uf: item.uf || "",
