@@ -62,6 +62,22 @@ export function QuotationForm() {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [alertBanners, setAlertBanners] = useState<Array<{ produto: string; variacao: number; custoAnterior: number; custoAtual: number }>>([]);
   const [observacao, setObservacao] = useState("");
+  const [pickerOpen, setPickerOpen] = useState(false);
+
+  const handlePickProduct = (picked: PickedProduct) => {
+    setForm({
+      produto: picked.produto,
+      marca: picked.marca,
+      partNumber: picked.partNumber,
+      custo: picked.custo,
+      estoque: picked.estoque,
+      fornecedor: picked.fornecedor,
+      uf: picked.uf,
+      prazo: picked.prazo,
+      link: picked.link,
+    });
+    setShowEmail(false);
+  };
 
   useEffect(() => {
     supabase.from("vendedores").select("id, nome").eq("ativo", true).then(({ data }) => {
