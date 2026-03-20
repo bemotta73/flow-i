@@ -25,6 +25,7 @@ const adminItems = [
   { title: "Alertas", url: "/alertas", icon: Bell },
   { title: "Gerenciar Vendedores", url: "/vendedores", icon: Users },
   { title: "Promoções", url: "/promocoes", icon: Tag },
+  { title: "Relatórios", url: "/relatorios", icon: FileBarChart },
 ];
 
 export function AppSidebar() {
