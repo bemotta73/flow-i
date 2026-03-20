@@ -135,7 +135,7 @@ export function ProductPicker({ open, onOpenChange, onSelect }: ProductPickerPro
         produto: item.produto,
         marca: item.marca || "",
         partNumber: item.part_number || "",
-        custo: String(item.custo),
+        custo: formatBRLNumber(item.custo),
         fornecedor: item.fornecedor || "",
         estoque: item.estoque || "",
         uf: item.uf || "",
