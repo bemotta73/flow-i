@@ -279,8 +279,6 @@ const ConsultaPrecos = () => {
                             </TableCell>
                           </TableRow>
                         ))}
-                          </TableRow>
-                        ))}
                       </TableBody>
                     </Table>
                   </div>
