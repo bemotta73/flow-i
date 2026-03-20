@@ -238,8 +238,15 @@ const ConsultaPrecos = () => {
                             <TableCell className="text-sm text-muted-foreground px-4 py-3">{p.marca || "—"}</TableCell>
                             <TableCell className="text-sm text-muted-foreground px-4 py-3">{p.part_number || "—"}</TableCell>
                             <TableCell className="text-sm font-semibold text-success px-4 py-3">{formatBRL(p.preco_20)}</TableCell>
-                          </TableRow>
-                        ))}
+                            <TableCell className="px-4 py-3">
+                              <button
+                                onClick={() => handleCopyProduct(p)}
+                                className="p-1.5 rounded-lg hover:bg-primary/20 text-muted-foreground hover:text-primary transition-colors"
+                                title="Copiar produto"
+                              >
+                                {copiedId === p.id ? <Check className="h-3.5 w-3.5 text-success" /> : <Copy className="h-3.5 w-3.5" />}
+                              </button>
+                            </TableCell>
                       </TableBody>
                     </Table>
                   </div>
