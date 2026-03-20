@@ -230,6 +230,7 @@ const ConsultaPrecos = () => {
                           <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Part Number</TableHead>
                           <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Preço</TableHead>
                           <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3 w-12"></TableHead>
+                        </TableRow>
                       </TableHeader>
                       <TableBody>
                         {filtered.map((p, idx) => (
@@ -247,6 +248,8 @@ const ConsultaPrecos = () => {
                                 {copiedId === p.id ? <Check className="h-3.5 w-3.5 text-success" /> : <Copy className="h-3.5 w-3.5" />}
                               </button>
                             </TableCell>
+                          </TableRow>
+                        ))}
                       </TableBody>
                     </Table>
                   </div>
