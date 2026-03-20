@@ -318,9 +318,20 @@ export function QuotationForm() {
 
       {/* Product form fields */}
       <div className="card-elevated p-6 space-y-5 animate-fade-in-up">
-        <p className="text-[13px] font-semibold text-primary uppercase tracking-wide">
-          {editingIndex !== null ? `Editando Produto #${editingIndex + 1}` : produtos.length > 0 ? "Adicionar Próximo Produto" : "Dados do Produto"}
-        </p>
+        <div className="flex items-center justify-between">
+          <p className="text-[13px] font-semibold text-primary uppercase tracking-wide">
+            {editingIndex !== null ? `Editando Produto #${editingIndex + 1}` : produtos.length > 0 ? "Adicionar Próximo Produto" : "Dados do Produto"}
+          </p>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setPickerOpen(true)}
+            className="gap-2 border-border text-muted-foreground hover:text-foreground hover:bg-card"
+          >
+            <Search className="h-3.5 w-3.5" /> Buscar Produto Existente
+          </Button>
+        </div>
 
         <div className="space-y-2">
           <label className="label-apple">Produto *</label>
