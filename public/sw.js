@@ -1,4 +1,4 @@
-const CACHE_NAME = 'flowi-v4';
+const CACHE_NAME = 'flowi-v5';
 const PRECACHE_URLS = [
   '/',
   '/manifest.json',
