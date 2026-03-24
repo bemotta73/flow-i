@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Bell, Check, TrendingUp, TrendingDown, Settings } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Alerta {
   id: string;
@@ -22,6 +23,8 @@ interface Alerta {
 
 const Alertas = () => {
   const { toast } = useToast();
+  const { role } = useAuth();
+  const isAdmin = role === "admin";
   const [alertas, setAlertas] = useState<Alerta[]>([]);
   const [loading, setLoading] = useState(true);
   const [filtro, setFiltro] = useState<"todos" | "aumento" | "queda">("todos");
@@ -79,20 +82,22 @@ const Alertas = () => {
         </p>
       </div>
 
-      {/* Config */}
-      <div className="card-elevated p-4 mb-6 flex items-center gap-3 flex-wrap">
-        <Settings className="h-4 w-4 text-muted-foreground" />
-        <span className="text-sm text-muted-foreground">Limite de variação:</span>
-        <Input
-          value={limite}
-          onChange={(e) => setLimite(e.target.value)}
-          className="w-20 h-8 text-sm surface-input"
-        />
-        <span className="text-sm text-muted-foreground">%</span>
-        <Button size="sm" onClick={saveLimite} disabled={savingLimite}>
-          Salvar
-        </Button>
-      </div>
+      {/* Config - admin only */}
+      {isAdmin && (
+        <div className="card-elevated p-4 mb-6 flex items-center gap-3 flex-wrap">
+          <Settings className="h-4 w-4 text-muted-foreground" />
+          <span className="text-sm text-muted-foreground">Limite de variação:</span>
+          <Input
+            value={limite}
+            onChange={(e) => setLimite(e.target.value)}
+            className="w-20 h-8 text-sm surface-input"
+          />
+          <span className="text-sm text-muted-foreground">%</span>
+          <Button size="sm" onClick={saveLimite} disabled={savingLimite}>
+            Salvar
+          </Button>
+        </div>
+      )}
 
       {/* Filters */}
       <div className="flex gap-2 mb-6">
@@ -165,7 +170,7 @@ const Alertas = () => {
                     </div>
                     <p className="text-[10px] text-muted-foreground mt-1">{formatDate(a.created_at)}</p>
                   </div>
-                  {!a.lido && (
+                  {!a.lido && isAdmin && (
                     <Button
                       variant="ghost"
                       size="sm"

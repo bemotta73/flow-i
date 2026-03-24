@@ -13,6 +13,7 @@ import {
 import { Plus, Pencil, Trash2, Tag, Image } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { formatBRL } from "@/lib/format";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Promocao {
   id: string;
@@ -39,6 +40,8 @@ interface ProdutoMix {
 
 const Promocoes = () => {
   const { toast } = useToast();
+  const { role } = useAuth();
+  const isAdmin = role === "admin";
   const [promocoes, setPromocoes] = useState<Promocao[]>([]);
   const [produtos, setProdutos] = useState<ProdutoMix[]>([]);
   const [loading, setLoading] = useState(true);
@@ -159,11 +162,13 @@ const Promocoes = () => {
         <p className="text-sm text-muted-foreground mt-1">Gerencie banners e descontos temporários para os vendedores</p>
       </div>
 
-      <div className="flex items-center mb-6">
-        <Button size="sm" className="gap-2 ml-auto" onClick={openCreate}>
-          <Plus className="h-4 w-4" /> Nova Promoção
-        </Button>
-      </div>
+      {isAdmin && (
+        <div className="flex items-center mb-6">
+          <Button size="sm" className="gap-2 ml-auto" onClick={openCreate}>
+            <Plus className="h-4 w-4" /> Nova Promoção
+          </Button>
+        </div>
+      )}
 
       {loading ? (
         <div className="space-y-3">
@@ -185,7 +190,7 @@ const Promocoes = () => {
                 <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Preço Promo</TableHead>
                 <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Validade</TableHead>
                 <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Status</TableHead>
-                <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3 w-28">Ações</TableHead>
+                {isAdmin && <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3 w-28">Ações</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -217,18 +222,26 @@ const Promocoes = () => {
                       ) : "Sem prazo"}
                     </TableCell>
                     <TableCell className="px-4 py-3">
-                      <Switch checked={p.ativo} onCheckedChange={() => toggleAtivo(p)} />
+                      {isAdmin ? (
+                        <Switch checked={p.ativo} onCheckedChange={() => toggleAtivo(p)} />
+                      ) : (
+                        <span className={`text-xs px-2 py-0.5 rounded-full ${p.ativo ? "bg-success/20 text-success" : "bg-destructive/20 text-destructive"}`}>
+                          {p.ativo ? "Ativo" : "Inativo"}
+                        </span>
+                      )}
                     </TableCell>
-                    <TableCell className="px-4 py-3">
-                      <div className="flex items-center gap-1">
-                        <button onClick={() => openEdit(p)} className="p-1.5 rounded-lg hover:bg-primary/20 text-primary transition-colors" title="Editar">
-                          <Pencil className="h-4 w-4" />
-                        </button>
-                        <button onClick={() => handleDelete(p.id)} className="p-1.5 rounded-lg hover:bg-destructive/20 text-destructive transition-colors" title="Excluir">
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </TableCell>
+                    {isAdmin && (
+                      <TableCell className="px-4 py-3">
+                        <div className="flex items-center gap-1">
+                          <button onClick={() => openEdit(p)} className="p-1.5 rounded-lg hover:bg-primary/20 text-primary transition-colors" title="Editar">
+                            <Pencil className="h-4 w-4" />
+                          </button>
+                          <button onClick={() => handleDelete(p.id)} className="p-1.5 rounded-lg hover:bg-destructive/20 text-destructive transition-colors" title="Excluir">
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </TableCell>
+                    )}
                   </TableRow>
                 );
               })}

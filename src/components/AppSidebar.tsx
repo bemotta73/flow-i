@@ -17,23 +17,25 @@ import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 import { useUnreadAlerts } from "@/hooks/useUnreadAlerts";
 
-const adminItems = [
-  { title: "Nova Cotação", url: "/", icon: FilePlus2 },
-  { title: "Controle de Cotações", url: "/controle", icon: TableProperties },
-  { title: "Dashboard", url: "/dashboard", icon: BarChart3 },
-  { title: "Lista Mix", url: "/lista-mix", icon: ListChecks },
-  { title: "Alertas", url: "/alertas", icon: Bell },
-  { title: "Gerenciar Usuários", url: "/vendedores", icon: Users },
-  { title: "Promoções", url: "/promocoes", icon: Tag },
-  { title: "Relatórios", url: "/relatorios", icon: FileBarChart },
+const allItems = [
+  { title: "Nova Cotação", url: "/", icon: FilePlus2, adminOnly: true },
+  { title: "Controle de Cotações", url: "/controle", icon: TableProperties, adminOnly: false },
+  { title: "Dashboard", url: "/dashboard", icon: BarChart3, adminOnly: false },
+  { title: "Lista Mix", url: "/lista-mix", icon: ListChecks, adminOnly: false },
+  { title: "Alertas", url: "/alertas", icon: Bell, adminOnly: false },
+  { title: "Gerenciar Usuários", url: "/vendedores", icon: Users, adminOnly: true },
+  { title: "Promoções", url: "/promocoes", icon: Tag, adminOnly: false },
+  { title: "Relatórios", url: "/relatorios", icon: FileBarChart, adminOnly: false },
 ];
 
 export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
-  const { signOut, profile } = useAuth();
+  const { signOut, profile, role } = useAuth();
   const { count: unreadAlerts } = useUnreadAlerts();
+  const isAdmin = role === "admin";
+  const menuItems = allItems.filter((item) => isAdmin || !item.adminOnly);
 
   return (
     <Sidebar collapsible="icon" className="border-r-0 group/sidebar">
@@ -60,7 +62,7 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu className="space-y-1 px-2">
-              {adminItems.map((item) => {
+              {menuItems.map((item) => {
                 const isActive = location.pathname === item.url;
                 return (
                   <SidebarMenuItem key={item.title}>

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -41,6 +42,8 @@ function calcPreco(custo: number, margemPct: number): number {
 }
 
 const Controle = () => {
+  const { role } = useAuth();
+  const isAdmin = role === "admin";
   const now = new Date();
   const [mes, setMes] = useState(now.getMonth());
   const [ano, setAno] = useState(now.getFullYear());
@@ -299,22 +302,24 @@ Qualquer dúvida estou à disposição.`;
                         <TableCell className="text-xs text-foreground px-4 py-3">{c.vendedor}</TableCell>
                         <TableCell className="text-xs text-muted-foreground px-4 py-3">{c.canal}</TableCell>
                         <TableCell className="text-xs px-4 py-3">
-                          <div className="flex gap-1">
-                            <button
-                              onClick={() => handleEdit(c)}
-                              className="p-1 rounded hover:bg-card text-muted-foreground hover:text-foreground transition-colors"
-                              title="Editar"
-                            >
-                              <Pencil className="h-3.5 w-3.5" />
-                            </button>
-                            <button
-                              onClick={() => handleGenerateEmail(c)}
-                              className="p-1 rounded hover:bg-card text-muted-foreground hover:text-primary transition-colors"
-                              title="Gerar Email"
-                            >
-                              <ExternalLink className="h-3.5 w-3.5" />
-                            </button>
-                          </div>
+                          {isAdmin && (
+                            <div className="flex gap-1">
+                              <button
+                                onClick={() => handleEdit(c)}
+                                className="p-1 rounded hover:bg-card text-muted-foreground hover:text-foreground transition-colors"
+                                title="Editar"
+                              >
+                                <Pencil className="h-3.5 w-3.5" />
+                              </button>
+                              <button
+                                onClick={() => handleGenerateEmail(c)}
+                                className="p-1 rounded hover:bg-card text-muted-foreground hover:text-primary transition-colors"
+                                title="Gerar Email"
+                              >
+                                <ExternalLink className="h-3.5 w-3.5" />
+                              </button>
+                            </div>
+                          )}
                         </TableCell>
                       </TableRow>
                     ))}
