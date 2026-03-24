@@ -222,18 +222,26 @@ const Promocoes = () => {
                       ) : "Sem prazo"}
                     </TableCell>
                     <TableCell className="px-4 py-3">
-                      <Switch checked={p.ativo} onCheckedChange={() => toggleAtivo(p)} />
+                      {isAdmin ? (
+                        <Switch checked={p.ativo} onCheckedChange={() => toggleAtivo(p)} />
+                      ) : (
+                        <span className={`text-xs px-2 py-0.5 rounded-full ${p.ativo ? "bg-success/20 text-success" : "bg-destructive/20 text-destructive"}`}>
+                          {p.ativo ? "Ativo" : "Inativo"}
+                        </span>
+                      )}
                     </TableCell>
-                    <TableCell className="px-4 py-3">
-                      <div className="flex items-center gap-1">
-                        <button onClick={() => openEdit(p)} className="p-1.5 rounded-lg hover:bg-primary/20 text-primary transition-colors" title="Editar">
-                          <Pencil className="h-4 w-4" />
-                        </button>
-                        <button onClick={() => handleDelete(p.id)} className="p-1.5 rounded-lg hover:bg-destructive/20 text-destructive transition-colors" title="Excluir">
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </TableCell>
+                    {isAdmin && (
+                      <TableCell className="px-4 py-3">
+                        <div className="flex items-center gap-1">
+                          <button onClick={() => openEdit(p)} className="p-1.5 rounded-lg hover:bg-primary/20 text-primary transition-colors" title="Editar">
+                            <Pencil className="h-4 w-4" />
+                          </button>
+                          <button onClick={() => handleDelete(p.id)} className="p-1.5 rounded-lg hover:bg-destructive/20 text-destructive transition-colors" title="Excluir">
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </TableCell>
+                    )}
                   </TableRow>
                 );
               })}
