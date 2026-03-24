@@ -40,6 +40,8 @@ interface ProdutoMix {
 
 const Promocoes = () => {
   const { toast } = useToast();
+  const { role } = useAuth();
+  const isAdmin = role === "admin";
   const [promocoes, setPromocoes] = useState<Promocao[]>([]);
   const [produtos, setProdutos] = useState<ProdutoMix[]>([]);
   const [loading, setLoading] = useState(true);
