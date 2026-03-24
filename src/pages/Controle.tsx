@@ -192,6 +192,17 @@ Qualquer dúvida estou à disposição.`;
         <h1 className="text-[28px] font-bold tracking-tight text-foreground">Controle de Cotações</h1>
       </div>
 
+      {/* Search */}
+      <div className="relative mb-4">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="Buscar por produto, marca ou PN..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="pl-9 surface-input"
+        />
+      </div>
+
       {/* Month tabs + Year selector */}
       <div className="flex items-center gap-3 mb-6 flex-wrap">
         <div className="flex flex-wrap gap-1 bg-card rounded-lg p-1">
