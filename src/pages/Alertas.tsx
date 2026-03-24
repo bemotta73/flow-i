@@ -82,20 +82,22 @@ const Alertas = () => {
         </p>
       </div>
 
-      {/* Config */}
-      <div className="card-elevated p-4 mb-6 flex items-center gap-3 flex-wrap">
-        <Settings className="h-4 w-4 text-muted-foreground" />
-        <span className="text-sm text-muted-foreground">Limite de variação:</span>
-        <Input
-          value={limite}
-          onChange={(e) => setLimite(e.target.value)}
-          className="w-20 h-8 text-sm surface-input"
-        />
-        <span className="text-sm text-muted-foreground">%</span>
-        <Button size="sm" onClick={saveLimite} disabled={savingLimite}>
-          Salvar
-        </Button>
-      </div>
+      {/* Config - admin only */}
+      {isAdmin && (
+        <div className="card-elevated p-4 mb-6 flex items-center gap-3 flex-wrap">
+          <Settings className="h-4 w-4 text-muted-foreground" />
+          <span className="text-sm text-muted-foreground">Limite de variação:</span>
+          <Input
+            value={limite}
+            onChange={(e) => setLimite(e.target.value)}
+            className="w-20 h-8 text-sm surface-input"
+          />
+          <span className="text-sm text-muted-foreground">%</span>
+          <Button size="sm" onClick={saveLimite} disabled={savingLimite}>
+            Salvar
+          </Button>
+        </div>
+      )}
 
       {/* Filters */}
       <div className="flex gap-2 mb-6">
