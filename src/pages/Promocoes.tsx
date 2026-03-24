@@ -162,11 +162,13 @@ const Promocoes = () => {
         <p className="text-sm text-muted-foreground mt-1">Gerencie banners e descontos temporários para os vendedores</p>
       </div>
 
-      <div className="flex items-center mb-6">
-        <Button size="sm" className="gap-2 ml-auto" onClick={openCreate}>
-          <Plus className="h-4 w-4" /> Nova Promoção
-        </Button>
-      </div>
+      {isAdmin && (
+        <div className="flex items-center mb-6">
+          <Button size="sm" className="gap-2 ml-auto" onClick={openCreate}>
+            <Plus className="h-4 w-4" /> Nova Promoção
+          </Button>
+        </div>
+      )}
 
       {loading ? (
         <div className="space-y-3">
