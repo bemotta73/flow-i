@@ -248,8 +248,8 @@ Qualquer dúvida estou à disposição.`;
             <div key={i} className="h-16 rounded-xl animate-shimmer" />
           ))}
         </div>
-      ) : cotacoes.length === 0 ? (
-        <p className="text-muted-foreground text-sm">Nenhuma cotação neste período.</p>
+      ) : filtered.length === 0 ? (
+        <p className="text-muted-foreground text-sm">{search ? "Nenhum resultado para a busca." : "Nenhuma cotação neste período."}</p>
       ) : (
         <div className="space-y-6">
           {Object.entries(grouped).map(([day, items]) => (
