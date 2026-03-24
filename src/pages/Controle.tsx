@@ -42,6 +42,8 @@ function calcPreco(custo: number, margemPct: number): number {
 }
 
 const Controle = () => {
+  const { role } = useAuth();
+  const isAdmin = role === "admin";
   const now = new Date();
   const [mes, setMes] = useState(now.getMonth());
   const [ano, setAno] = useState(now.getFullYear());
