@@ -23,6 +23,8 @@ interface Alerta {
 
 const Alertas = () => {
   const { toast } = useToast();
+  const { role } = useAuth();
+  const isAdmin = role === "admin";
   const [alertas, setAlertas] = useState<Alerta[]>([]);
   const [loading, setLoading] = useState(true);
   const [filtro, setFiltro] = useState<"todos" | "aumento" | "queda">("todos");
