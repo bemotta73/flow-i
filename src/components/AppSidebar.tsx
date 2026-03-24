@@ -23,7 +23,7 @@ const adminItems = [
   { title: "Dashboard", url: "/dashboard", icon: BarChart3 },
   { title: "Lista Mix", url: "/lista-mix", icon: ListChecks },
   { title: "Alertas", url: "/alertas", icon: Bell },
-  { title: "Gerenciar Vendedores", url: "/vendedores", icon: Users },
+  { title: "Gerenciar Usuários", url: "/vendedores", icon: Users },
   { title: "Promoções", url: "/promocoes", icon: Tag },
   { title: "Relatórios", url: "/relatorios", icon: FileBarChart },
 ];
