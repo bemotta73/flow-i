@@ -13,6 +13,7 @@ import {
 import { Plus, Pencil, Trash2, Tag, Image } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { formatBRL } from "@/lib/format";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Promocao {
   id: string;
