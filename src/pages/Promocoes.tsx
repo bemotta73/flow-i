@@ -190,7 +190,7 @@ const Promocoes = () => {
                 <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Preço Promo</TableHead>
                 <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Validade</TableHead>
                 <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3">Status</TableHead>
-                <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3 w-28">Ações</TableHead>
+                {isAdmin && <TableHead className="text-[11px] text-apple-label font-semibold uppercase tracking-wider px-4 py-3 w-28">Ações</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
