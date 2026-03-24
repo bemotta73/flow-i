@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { MESES, formatBRL, parseBRLNumber, formatBRLNumber, capitalizeMarca } from "@/lib/format";
 import { exportCotacoesToExcel } from "@/lib/exportExcel";
-import { ExternalLink, Download, Pencil, Save, X } from "lucide-react";
+import { ExternalLink, Download, Pencil, Save, X, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
