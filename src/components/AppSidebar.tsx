@@ -17,15 +17,15 @@ import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 import { useUnreadAlerts } from "@/hooks/useUnreadAlerts";
 
-const adminItems = [
-  { title: "Nova Cotação", url: "/", icon: FilePlus2 },
-  { title: "Controle de Cotações", url: "/controle", icon: TableProperties },
-  { title: "Dashboard", url: "/dashboard", icon: BarChart3 },
-  { title: "Lista Mix", url: "/lista-mix", icon: ListChecks },
-  { title: "Alertas", url: "/alertas", icon: Bell },
-  { title: "Gerenciar Usuários", url: "/vendedores", icon: Users },
-  { title: "Promoções", url: "/promocoes", icon: Tag },
-  { title: "Relatórios", url: "/relatorios", icon: FileBarChart },
+const allItems = [
+  { title: "Nova Cotação", url: "/", icon: FilePlus2, adminOnly: true },
+  { title: "Controle de Cotações", url: "/controle", icon: TableProperties, adminOnly: false },
+  { title: "Dashboard", url: "/dashboard", icon: BarChart3, adminOnly: false },
+  { title: "Lista Mix", url: "/lista-mix", icon: ListChecks, adminOnly: false },
+  { title: "Alertas", url: "/alertas", icon: Bell, adminOnly: false },
+  { title: "Gerenciar Usuários", url: "/vendedores", icon: Users, adminOnly: true },
+  { title: "Promoções", url: "/promocoes", icon: Tag, adminOnly: false },
+  { title: "Relatórios", url: "/relatorios", icon: FileBarChart, adminOnly: false },
 ];
 
 export function AppSidebar() {

@@ -50,8 +50,25 @@ function AppRoutes() {
     return <Login />;
   }
 
-  if (role === "vendedor" || role === "espectador") {
+  if (role === "vendedor") {
     return <ConsultaPrecos />;
+  }
+
+  if (role === "espectador") {
+    return (
+      <AppLayout>
+        <Routes>
+          <Route path="/" element={<Navigate to="/controle" replace />} />
+          <Route path="/controle" element={<Controle />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/lista-mix" element={<ListaMix />} />
+          <Route path="/alertas" element={<Alertas />} />
+          <Route path="/promocoes" element={<Promocoes />} />
+          <Route path="/relatorios" element={<Relatorios />} />
+          <Route path="*" element={<Navigate to="/controle" replace />} />
+        </Routes>
+      </AppLayout>
+    );
   }
 
   return (
