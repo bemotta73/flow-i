@@ -374,13 +374,15 @@ const ListaMix = () => {
           )}
           {!editMode && (
             <>
-              <ImportMix onComplete={fetchProdutos} />
+              {isAdmin && <ImportMix onComplete={fetchProdutos} />}
               <Button variant="outline" size="sm" className="gap-2 border-border text-foreground hover:bg-card" onClick={handleExport} disabled={filtered.length === 0}>
                 <Download className="h-4 w-4" /> Exportar Excel
               </Button>
-              <Button size="sm" className="gap-2" onClick={openAdd}>
-                <Plus className="h-4 w-4" /> Adicionar Produto
-              </Button>
+              {isAdmin && (
+                <Button size="sm" className="gap-2" onClick={openAdd}>
+                  <Plus className="h-4 w-4" /> Adicionar Produto
+                </Button>
+              )}
             </>
           )}
         </div>
