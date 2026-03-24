@@ -170,7 +170,7 @@ const Alertas = () => {
                     </div>
                     <p className="text-[10px] text-muted-foreground mt-1">{formatDate(a.created_at)}</p>
                   </div>
-                  {!a.lido && (
+                  {!a.lido && isAdmin && (
                     <Button
                       variant="ghost"
                       size="sm"
