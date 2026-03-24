@@ -52,6 +52,7 @@ const Controle = () => {
   const [emailCotacao, setEmailCotacao] = useState<Cotacao | null>(null);
   const [emailText, setEmailText] = useState("");
   const [emailCopied, setEmailCopied] = useState(false);
+  const [search, setSearch] = useState("");
   const { toast } = useToast();
 
   const fetchData = async (showLoading = true) => {
