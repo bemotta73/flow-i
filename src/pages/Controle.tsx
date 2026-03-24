@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { MESES, formatBRL, parseBRLNumber, formatBRLNumber, capitalizeMarca } from "@/lib/format";
 import { exportCotacoesToExcel } from "@/lib/exportExcel";
-import { ExternalLink, Download, Pencil, Save, X } from "lucide-react";
+import { ExternalLink, Download, Pencil, Save, X, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -52,6 +52,7 @@ const Controle = () => {
   const [emailCotacao, setEmailCotacao] = useState<Cotacao | null>(null);
   const [emailText, setEmailText] = useState("");
   const [emailCopied, setEmailCopied] = useState(false);
+  const [search, setSearch] = useState("");
   const { toast } = useToast();
 
   const fetchData = async (showLoading = true) => {
@@ -74,15 +75,25 @@ const Controle = () => {
     fetchData();
   }, [mes, ano]);
 
+  const filtered = useMemo(() => {
+    if (!search.trim()) return cotacoes;
+    const q = search.toLowerCase().trim();
+    return cotacoes.filter((c) =>
+      c.produto.toLowerCase().includes(q) ||
+      (c.marca && c.marca.toLowerCase().includes(q)) ||
+      (c.part_number && c.part_number.toLowerCase().includes(q))
+    );
+  }, [cotacoes, search]);
+
   const grouped = useMemo(() => {
     const groups: Record<string, Cotacao[]> = {};
-    cotacoes.forEach((c) => {
+    filtered.forEach((c) => {
       const day = new Date(c.created_at).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" });
       if (!groups[day]) groups[day] = [];
       groups[day].push(c);
     });
     return groups;
-  }, [cotacoes]);
+  }, [filtered]);
 
   const years = Array.from({ length: 5 }, (_, i) => now.getFullYear() - 2 + i);
 
@@ -181,6 +192,17 @@ Qualquer dúvida estou à disposição.`;
         <h1 className="text-[28px] font-bold tracking-tight text-foreground">Controle de Cotações</h1>
       </div>
 
+      {/* Search */}
+      <div className="relative mb-4">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="Buscar por produto, marca ou PN..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="pl-9 surface-input"
+        />
+      </div>
+
       {/* Month tabs + Year selector */}
       <div className="flex items-center gap-3 mb-6 flex-wrap">
         <div className="flex flex-wrap gap-1 bg-card rounded-lg p-1">
@@ -226,8 +248,8 @@ Qualquer dúvida estou à disposição.`;
             <div key={i} className="h-16 rounded-xl animate-shimmer" />
           ))}
         </div>
-      ) : cotacoes.length === 0 ? (
-        <p className="text-muted-foreground text-sm">Nenhuma cotação neste período.</p>
+      ) : filtered.length === 0 ? (
+        <p className="text-muted-foreground text-sm">{search ? "Nenhum resultado para a busca." : "Nenhuma cotação neste período."}</p>
       ) : (
         <div className="space-y-6">
           {Object.entries(grouped).map(([day, items]) => (
