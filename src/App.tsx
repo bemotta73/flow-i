@@ -50,7 +50,7 @@ function AppRoutes() {
     return <Login />;
   }
 
-  if (role === "vendedor") {
+  if (role === "vendedor" || role === "espectador") {
     return <ConsultaPrecos />;
   }
 
