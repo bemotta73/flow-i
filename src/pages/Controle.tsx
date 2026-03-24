@@ -75,15 +75,25 @@ const Controle = () => {
     fetchData();
   }, [mes, ano]);
 
+  const filtered = useMemo(() => {
+    if (!search.trim()) return cotacoes;
+    const q = search.toLowerCase().trim();
+    return cotacoes.filter((c) =>
+      c.produto.toLowerCase().includes(q) ||
+      (c.marca && c.marca.toLowerCase().includes(q)) ||
+      (c.part_number && c.part_number.toLowerCase().includes(q))
+    );
+  }, [cotacoes, search]);
+
   const grouped = useMemo(() => {
     const groups: Record<string, Cotacao[]> = {};
-    cotacoes.forEach((c) => {
+    filtered.forEach((c) => {
       const day = new Date(c.created_at).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" });
       if (!groups[day]) groups[day] = [];
       groups[day].push(c);
     });
     return groups;
-  }, [cotacoes]);
+  }, [filtered]);
 
   const years = Array.from({ length: 5 }, (_, i) => now.getFullYear() - 2 + i);
 
