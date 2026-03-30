@@ -85,6 +85,7 @@ const ListaMix = () => {
   const [updateMode, setUpdateMode] = useState(false);
   const [showPendingOnly, setShowPendingOnly] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [publishing, setPublishing] = useState(false);
 
   const weekStart = useMemo(() => getWeekStart(), []);
 
