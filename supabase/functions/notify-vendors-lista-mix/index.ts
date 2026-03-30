@@ -91,6 +91,10 @@ Deno.serve(async (req) => {
       );
     }
 
+    const RESEND_FROM_EMAIL =
+      Deno.env.get("RESEND_FROM_EMAIL") ||
+      "Flowi <noreply@officerdistribuidora.com.br>";
+
     const now = new Date();
     const dataFormatada = now.toLocaleDateString("pt-BR", {
       day: "2-digit",
@@ -103,6 +107,7 @@ Deno.serve(async (req) => {
 
     const APP_URL = "https://flow-i.lovable.app";
     let sentCount = 0;
+    let senderDomainUnauthorized = false;
     const errors: string[] = [];
 
     for (const profile of profiles) {
@@ -135,7 +140,7 @@ Deno.serve(async (req) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          from: "Flowi <noreply@officerdistribuidora.com.br>",
+          from: RESEND_FROM_EMAIL,
           to: [profile.email],
           subject: "Flowi — Lista Mix Atualizada",
           html,
@@ -146,6 +151,12 @@ Deno.serve(async (req) => {
         sentCount++;
       } else {
         const errBody = await res.text();
+        if (
+          res.status === 403 &&
+          errBody.toLowerCase().includes("not authorized to send emails from")
+        ) {
+          senderDomainUnauthorized = true;
+        }
         errors.push(`${profile.email}: ${errBody}`);
       }
     }
@@ -173,6 +184,7 @@ Deno.serve(async (req) => {
       JSON.stringify({
         sent: sentCount,
         total: profiles.length,
+        sender_domain_unauthorized: senderDomainUnauthorized,
         errors: errors.length > 0 ? errors : undefined,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
