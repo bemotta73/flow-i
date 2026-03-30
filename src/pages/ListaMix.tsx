@@ -308,6 +308,7 @@ const ListaMix = () => {
     } finally {
       setPublishing(false);
     }
+  };
 
   const getRowUpdateClass = (p: Produto): string => {
     if (!updateMode) return "";
