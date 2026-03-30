@@ -93,7 +93,7 @@ Deno.serve(async (req) => {
 
     const RESEND_FROM_EMAIL =
       Deno.env.get("RESEND_FROM_EMAIL") ||
-      "Flowi <noreply@officerdistribuidora.com.br>";
+      "Flowi <noreply@officer.com.br>";
 
     const now = new Date();
     const dataFormatada = now.toLocaleDateString("pt-BR", {
