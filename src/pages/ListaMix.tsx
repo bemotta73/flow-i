@@ -10,7 +10,7 @@ import {
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
-import { Search, Plus, Download, Pencil, X, Check, FileSpreadsheet, TableProperties, Save, Trash2, RefreshCw, Filter, ChevronDown } from "lucide-react";
+import { Search, Plus, Download, Pencil, X, Check, FileSpreadsheet, TableProperties, Save, Trash2, RefreshCw, Filter, ChevronDown, Send } from "lucide-react";
 import { PriceHistoryChart } from "@/components/PriceHistoryChart";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
@@ -85,6 +85,7 @@ const ListaMix = () => {
   const [updateMode, setUpdateMode] = useState(false);
   const [showPendingOnly, setShowPendingOnly] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [publishing, setPublishing] = useState(false);
 
   const weekStart = useMemo(() => getWeekStart(), []);
 
@@ -289,6 +290,26 @@ const ListaMix = () => {
     XLSX.writeFile(wb, "lista-mix.xlsx");
   };
 
+  const handlePublish = async () => {
+    setPublishing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("notify-vendors-lista-mix");
+      if (error) throw error;
+      toast({
+        title: "Notificação enviada",
+        description: `Notificação enviada para ${data?.sent || 0} vendedor(es).`,
+      });
+    } catch (err: any) {
+      toast({
+        title: "Erro ao notificar",
+        description: err?.message || "Não foi possível enviar as notificações",
+        variant: "destructive",
+      });
+    } finally {
+      setPublishing(false);
+    }
+  };
+
   const getRowUpdateClass = (p: Produto): string => {
     if (!updateMode) return "";
     return isUpdatedThisWeek(p)
@@ -378,6 +399,18 @@ const ListaMix = () => {
               <Button variant="outline" size="sm" className="gap-2 border-border text-foreground hover:bg-card" onClick={handleExport} disabled={filtered.length === 0}>
                 <Download className="h-4 w-4" /> Exportar Excel
               </Button>
+              {isAdmin && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2 border-[rgba(20,184,166,0.4)] text-[#14B8A6] hover:bg-[rgba(20,184,166,0.1)]"
+                  onClick={handlePublish}
+                  disabled={publishing}
+                >
+                  <Send className="h-4 w-4" />
+                  {publishing ? "Enviando..." : "Publicar Atualização"}
+                </Button>
+              )}
               {isAdmin && (
                 <Button size="sm" className="gap-2" onClick={openAdd}>
                   <Plus className="h-4 w-4" /> Adicionar Produto
