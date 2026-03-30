@@ -380,6 +380,18 @@ const ListaMix = () => {
                 <Download className="h-4 w-4" /> Exportar Excel
               </Button>
               {isAdmin && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2 border-[rgba(20,184,166,0.4)] text-[#14B8A6] hover:bg-[rgba(20,184,166,0.1)]"
+                  onClick={handlePublish}
+                  disabled={publishing}
+                >
+                  <Send className="h-4 w-4" />
+                  {publishing ? "Enviando..." : "Publicar Atualização"}
+                </Button>
+              )}
+              {isAdmin && (
                 <Button size="sm" className="gap-2" onClick={openAdd}>
                   <Plus className="h-4 w-4" /> Adicionar Produto
                 </Button>
