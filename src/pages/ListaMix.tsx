@@ -295,9 +295,46 @@ const ListaMix = () => {
     try {
       const { data, error } = await supabase.functions.invoke("notify-vendors-lista-mix");
       if (error) throw error;
+
+      const result = (data || {}) as {
+        sent?: number;
+        total?: number;
+        sender_domain_unauthorized?: boolean;
+      };
+
+      const sent = result.sent ?? 0;
+      const total = result.total ?? 0;
+
+      if (total === 0) {
+        toast({
+          title: "Nenhum vendedor ativo",
+          description: "Não há vendedores ativos para notificar.",
+        });
+        return;
+      }
+
+      if (sent === 0 && result.sender_domain_unauthorized) {
+        toast({
+          title: "Remetente não autorizado",
+          description:
+            "A chave do serviço de email não tem permissão para enviar do domínio configurado.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (sent < total) {
+        toast({
+          title: "Envio parcial",
+          description: `Notificação enviada para ${sent} de ${total} vendedores.`,
+          variant: "destructive",
+        });
+        return;
+      }
+
       toast({
         title: "Notificação enviada",
-        description: `Notificação enviada para ${data?.sent || 0} vendedor(es).`,
+        description: `Notificação enviada para ${sent} vendedor(es).`,
       });
     } catch (err: any) {
       toast({
