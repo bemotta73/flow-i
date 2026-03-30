@@ -290,6 +290,25 @@ const ListaMix = () => {
     XLSX.writeFile(wb, "lista-mix.xlsx");
   };
 
+  const handlePublish = async () => {
+    setPublishing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("notify-vendors-lista-mix");
+      if (error) throw error;
+      toast({
+        title: "Notificação enviada",
+        description: `Notificação enviada para ${data?.sent || 0} vendedor(es).`,
+      });
+    } catch (err: any) {
+      toast({
+        title: "Erro ao notificar",
+        description: err?.message || "Não foi possível enviar as notificações",
+        variant: "destructive",
+      });
+    } finally {
+      setPublishing(false);
+    }
+
   const getRowUpdateClass = (p: Produto): string => {
     if (!updateMode) return "";
     return isUpdatedThisWeek(p)
