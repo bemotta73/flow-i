@@ -10,7 +10,7 @@ import {
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
-import { Search, Plus, Download, Pencil, X, Check, FileSpreadsheet, TableProperties, Save, Trash2, RefreshCw, Filter, ChevronDown } from "lucide-react";
+import { Search, Plus, Download, Pencil, X, Check, FileSpreadsheet, TableProperties, Save, Trash2, RefreshCw, Filter, ChevronDown, Send } from "lucide-react";
 import { PriceHistoryChart } from "@/components/PriceHistoryChart";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
